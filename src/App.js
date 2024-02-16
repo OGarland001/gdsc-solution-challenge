@@ -51,6 +51,36 @@ function App() {
     // const calendarID = userObject.email;
     // const events = getEvents(calendarID, apiKey);
     // setEvents(events);
+    const userEmail = userObject.email;
+
+    setTokenClient(
+      google.accounts.oauth2.initTokenClient({
+        client_id: process.env.REACT_APP_CLIENT_ID,
+        scope: SCOPE,
+        callback: (tokenResponse) => {
+          console.log(tokenResponse);
+
+          //we now have access to a live token to use for any google API.
+          if (tokenResponse && tokenResponse.access_token) {
+            fetch(
+              `https://www.googleapis.com/calendar/v3/calendars/${userEmail}/events`,
+              {
+                method: "GET",
+                headers: {
+                  "Content-Type": "application/json",
+                  Authorization: `Bearer ${tokenResponse.access_token}`,
+                },
+              }
+            )
+              .then((response) => response.json())
+              .then((data) => {
+                console.log(data);
+                setEvents(data.items);
+              });
+          }
+        },
+      })
+    );
 
     toggle();
 
@@ -81,34 +111,6 @@ function App() {
     //Access tokens
     //pull a users google calendar data.
 
-    setTokenClient(
-      google.accounts.oauth2.initTokenClient({
-        client_id: process.env.REACT_APP_CLIENT_ID,
-        scope: SCOPE,
-        callback: (tokenResponse) => {
-          console.log(tokenResponse);
-
-          //we now have access to a live token to use for any google API.
-          if (tokenResponse && tokenResponse.access_token) {
-            const calendarID = user.email;
-            fetch(
-              `https://www.googleapis.com/calendar/v3/calendars/${calendarID}/events`,
-              {
-                method: "GET",
-                headers: {
-                  "Content-Type": "application/json",
-                  Authorization: `Bearer ${tokenResponse.access_token}`,
-                },
-              }
-            )
-              .then((response) => response.json())
-              .then((data) => {
-                setEvents(data.events);
-              });
-          }
-        },
-      })
-    );
     //tokenClient.requestAccessToken();
   }, []);
   //if we have no user: signin button
