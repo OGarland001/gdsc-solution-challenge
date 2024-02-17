@@ -1,8 +1,9 @@
-import { gapi } from "gapi-script";
+// import { gapi } from "gapi-script";
 import { useEffect, useState } from "react";
-import "./index.css";
+import "./App.css";
 import { jwtDecode } from "jwt-decode";
 import Event from "./components/Event";
+import { Button } from "@material-tailwind/react";
 const SCOPE = "https://www.googleapis.com/auth/calendar";
 
 function App() {
@@ -10,7 +11,7 @@ function App() {
   const [isShown, setIsShown] = useState(false);
   const [events, setEvents] = useState([]);
   const [tokenClient, setTokenClient] = useState({});
-  const apiKey = process.env.REACT_APP_GOOGLE_CALENDAR_API_KEY;
+  // const apiKey = process.env.REACT_APP_GOOGLE_CALENDAR_API_KEY;
 
   const script = document.createElement("script");
 
@@ -103,21 +104,30 @@ function App() {
   //if we have no user: signin button
   // if we have a user:show the logout button
   return (
-    <div className="App">
+    <div className="container justify-center">
       <div id="signInDiv"></div>
       {user && isShown && (
         <div id="UserDataDiv">
-          <img src={user.picture}></img>
+          <img src={user.picture} alt="google user img"></img>
+
+          <br></br>
           <h3>{user.name}</h3>
-          <button onClick={(e) => handleSignOut(e)}>Sign Out</button>
-          <input
+          <Button
+            className="btn bg-gradient-to-bl"
+            onClick={(e) => handleSignOut(e)}
+          >
+            Sign Out
+          </Button>
+          <Button
+            className="btn bg-gradient-to-bl"
             type="submit"
             onClick={getCalendarEvents}
-            value="load Events"
-          />
+          >
+            Load Events
+          </Button>
           <ul>
             {events?.map((event) => (
-              <li key={event.id} className="flex justify-center">
+              <li key={event.id} className="flex">
                 <Event description={event.summary} />
               </li>
             ))}
