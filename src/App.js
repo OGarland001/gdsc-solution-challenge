@@ -12,33 +12,16 @@ function App() {
   const [tokenClient, setTokenClient] = useState({});
   const apiKey = process.env.REACT_APP_GOOGLE_CALENDAR_API_KEY;
 
+  const script = document.createElement("script");
+
+  script.src = "https://accounts.google.com/gsi/client";
+  script.async = true;
+  script.defer = true;
+
+  document.head.appendChild(script);
   function toggle() {
     setIsShown((isShown) => !isShown);
   }
-
-  // const getEvents = (calendarID, apiKey) => {
-  //   function initiate() {
-  //     gapi.client
-  //       .init({
-  //         apiKey: apiKey,
-  //       })
-  //       .then(function () {
-  //         return gapi.client.request({
-  //           path: `https://www.googleapis.com/calendar/v3/calendars/awesomecreeper16@gmail.com/events`,
-  //         });
-  //       })
-  //       .then(
-  //         (response) => {
-  //           let events = response.result.items;
-  //           setEvents(events);
-  //         },
-  //         function (err) {
-  //           return [false, err];
-  //         }
-  //       );
-  //   }
-  //   gapi.load("client", initiate);
-  // };
 
   function handleCallbackResponse(response) {
     console.log("Encoded JWT ID token " + response.credential);
@@ -47,10 +30,6 @@ function App() {
     console.log(userObject);
 
     setUser(userObject);
-
-    // const calendarID = userObject.email;
-    // const events = getEvents(calendarID, apiKey);
-    // setEvents(events);
     const userEmail = userObject.email;
 
     setTokenClient(
@@ -59,11 +38,19 @@ function App() {
         scope: SCOPE,
         callback: (tokenResponse) => {
           console.log(tokenResponse);
+          var startDate = new Date();
+
+          var endDate = new Date();
+
+          endDate.setDate(endDate.getDate() + 14);
+
+          startDate = startDate.toISOString();
+          endDate = endDate.toISOString();
 
           //we now have access to a live token to use for any google API.
           if (tokenResponse && tokenResponse.access_token) {
             fetch(
-              `https://www.googleapis.com/calendar/v3/calendars/${userEmail}/events`,
+              `https://www.googleapis.com/calendar/v3/calendars/${userEmail}/events?timeMin=${startDate}&timeMax=${endDate}`,
               {
                 method: "GET",
                 headers: {
