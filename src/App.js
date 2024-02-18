@@ -1,8 +1,10 @@
 // import { gapi } from "gapi-script";
 import { useEffect, useState } from "react";
 import "./App.css";
+import { data } from "./data";
 import { jwtDecode } from "jwt-decode";
 import Event from "./components/Event";
+import Prompt from "./components/Prompt";
 import { Button } from "@material-tailwind/react";
 const SCOPE = "https://www.googleapis.com/auth/calendar";
 
@@ -11,6 +13,7 @@ function App() {
   const [isShown, setIsShown] = useState(false);
   const [events, setEvents] = useState([]);
   const [tokenClient, setTokenClient] = useState({});
+  const [isPromptShown, setIsPromptShown] = useState(false);
   // const apiKey = process.env.REACT_APP_GOOGLE_CALENDAR_API_KEY;
 
   const script = document.createElement("script");
@@ -31,6 +34,10 @@ function App() {
   }
   function getCalendarEvents() {
     tokenClient.requestAccessToken();
+  }
+
+  function getPromptEvents(data) {
+    setIsPromptShown((isPromptShown) => !isPromptShown);
   }
   useEffect(() => {
     const google = window.google;
@@ -108,7 +115,6 @@ function App() {
       {user && isShown && (
         <div id="UserDataDiv">
           <img src={user.picture} alt="google user img"></img>
-
           <br></br>
           <h3>{user.name}</h3>
           <Button
@@ -124,6 +130,14 @@ function App() {
           >
             Load Events
           </Button>
+          <Button
+            className="btn bg-gradient-to-bl"
+            onClick={() => getPromptEvents(data)}
+          >
+            Prompt Load
+          </Button>
+          {isPromptShown && <Prompt eventList={data}></Prompt>}
+
           <ul>
             {events?.map((event) => (
               <li key={event.id} className="flex">
