@@ -24,57 +24,6 @@ function App() {
     setIsShown((isShown) => !isShown);
   }
 
-  function handleCallbackResponse(response) {
-    console.log("Encoded JWT ID token " + response.credential);
-    var userObject = jwtDecode(response.credential);
-
-    console.log(userObject);
-
-    setUser(userObject);
-    const userEmail = userObject.email;
-
-    setTokenClient(
-      google.accounts.oauth2.initTokenClient({
-        client_id: process.env.REACT_APP_CLIENT_ID,
-        scope: SCOPE,
-        callback: (tokenResponse) => {
-          console.log(tokenResponse);
-          var startDate = new Date();
-
-          var endDate = new Date();
-
-          endDate.setDate(endDate.getDate() + 14);
-
-          startDate = startDate.toISOString();
-          endDate = endDate.toISOString();
-
-          //we now have access to a live token to use for any google API.
-          if (tokenResponse && tokenResponse.access_token) {
-            fetch(
-              `https://www.googleapis.com/calendar/v3/calendars/${userEmail}/events?timeMin=${startDate}&timeMax=${endDate}`,
-              {
-                method: "GET",
-                headers: {
-                  "Content-Type": "application/json",
-                  Authorization: `Bearer ${tokenResponse.access_token}`,
-                },
-              }
-            )
-              .then((response) => response.json())
-              .then((data) => {
-                console.log(data);
-                setEvents(data.items);
-              });
-          }
-        },
-      })
-    );
-
-    toggle();
-
-    document.getElementById("signInDiv").hidden = true;
-  }
-
   function handleSignOut(event) {
     setUser({});
     toggle();
@@ -84,8 +33,58 @@ function App() {
     tokenClient.requestAccessToken();
   }
   useEffect(() => {
-    /*global google */
     const google = window.google;
+
+    function handleCallbackResponse(response) {
+      console.log("Encoded JWT ID token " + response.credential);
+      var userObject = jwtDecode(response.credential);
+
+      console.log(userObject);
+
+      setUser(userObject);
+      const userEmail = userObject.email;
+
+      setTokenClient(
+        google.accounts.oauth2.initTokenClient({
+          client_id: process.env.REACT_APP_CLIENT_ID,
+          scope: SCOPE,
+          callback: (tokenResponse) => {
+            console.log(tokenResponse);
+            var startDate = new Date();
+
+            var endDate = new Date();
+
+            endDate.setDate(endDate.getDate() + 14);
+
+            startDate = startDate.toISOString();
+            endDate = endDate.toISOString();
+
+            //we now have access to a live token to use for any google API.
+            if (tokenResponse && tokenResponse.access_token) {
+              fetch(
+                `https://www.googleapis.com/calendar/v3/calendars/${userEmail}/events?timeMin=${startDate}&timeMax=${endDate}`,
+                {
+                  method: "GET",
+                  headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${tokenResponse.access_token}`,
+                  },
+                }
+              )
+                .then((response) => response.json())
+                .then((data) => {
+                  console.log(data);
+                  setEvents(data.items);
+                });
+            }
+          },
+        })
+      );
+
+      toggle();
+
+      document.getElementById("signInDiv").hidden = true;
+    }
     google.accounts.id.initialize({
       client_id: process.env.REACT_APP_CLIENT_ID,
       callback: handleCallbackResponse,
