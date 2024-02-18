@@ -1,15 +1,15 @@
-// import { gapi } from "gapi-script";
 import { useEffect, useState } from "react";
-import "./App.css";
-import { data } from "./data";
+import React from "react";
+import "../App.css";
+import { data } from "../data";
 import { jwtDecode } from "jwt-decode";
-import Event from "./components/Event";
-import Prompt from "./components/Prompt";
+import Event from "../components/Event";
+import Prompt from "../components/Prompt";
 import { Button } from "@material-tailwind/react";
-const SCOPE = "https://www.googleapis.com/auth/calendar";
 
-function App() {
-  const [user, setUser] = useState({});
+const SCOPE = "https://www.googleapis.com/auth/calendar";
+// Pass User
+const Home = ({ user }) => {
   const [isShown, setIsShown] = useState(false);
   const [events, setEvents] = useState([]);
   const [tokenClient, setTokenClient] = useState({});
@@ -23,14 +23,9 @@ function App() {
   script.defer = true;
 
   document.head.appendChild(script);
+
   function toggle() {
     setIsShown((isShown) => !isShown);
-  }
-
-  function handleSignOut(event) {
-    setUser({});
-    toggle();
-    document.getElementById("signInDiv").hidden = false;
   }
   function getCalendarEvents() {
     tokenClient.requestAccessToken();
@@ -48,7 +43,6 @@ function App() {
 
       console.log(userObject);
 
-      setUser(userObject);
       const userEmail = userObject.email;
 
       setTokenClient(
@@ -107,48 +101,70 @@ function App() {
 
     //tokenClient.requestAccessToken();
   }, []);
-  //if we have no user: signin button
-  // if we have a user:show the logout button
-  return (
-    <div className="container justify-center">
-      <div id="signInDiv"></div>
-      {user && isShown && (
-        <div id="UserDataDiv">
-          <img src={user.picture} alt="google user img"></img>
-          <br></br>
-          <h3>{user.name}</h3>
-          <Button
-            className="btn bg-gradient-to-bl"
-            onClick={(e) => handleSignOut(e)}
-          >
-            Sign Out
-          </Button>
-          <Button
-            className="btn bg-gradient-to-bl"
-            type="submit"
-            onClick={getCalendarEvents}
-          >
-            Load Events
-          </Button>
-          <Button
-            className="btn bg-gradient-to-bl"
-            onClick={() => getPromptEvents(data)}
-          >
-            Prompt Load
-          </Button>
-          {isPromptShown && <Prompt eventList={data}></Prompt>}
 
-          <ul>
-            {events?.map((event) => (
-              <li key={event.id} className="flex">
-                <Event description={event.summary} />
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
+  const logout = () => {
+    localStorage.removeItem("user");
+    toggle();
+    document.getElementById("signInDiv").hidden = false;
+    window.location = "/";
+  };
+  return (
+    <div style={{ textAlign: "center", margin: "3rem" }}>
+      <h1>Dear {user?.email}</h1>
+
+      <p>
+        You are viewing this page because you are logged in or you just signed
+        up
+      </p>
+
+      <div>
+        <button
+          onClick={logout}
+          style={{
+            color: "red",
+            border: "1px solid gray",
+            backgroundColor: "white",
+            padding: "0.5rem 1rem",
+            cursor: "pointer",
+          }}
+        >
+          Logout
+        </button>
+      </div>
+      <div className="container justify-center">
+        <div id="signInDiv"></div>
+        {user && isShown && (
+          <div id="UserDataDiv">
+            <img src={user.picture} alt="google user img"></img>
+            <br></br>
+            <h3>{user.name}</h3>
+            <Button
+              className="btn bg-gradient-to-bl"
+              type="submit"
+              onClick={getCalendarEvents}
+            >
+              Load Events
+            </Button>
+            <Button
+              className="btn bg-gradient-to-bl"
+              onClick={() => getPromptEvents(data)}
+            >
+              Prompt Load
+            </Button>
+            {isPromptShown && <Prompt eventList={data}></Prompt>}
+
+            <ul>
+              {events?.map((event) => (
+                <li key={event.id} className="flex">
+                  <Event description={event.summary} />
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+      </div>
     </div>
   );
-}
+};
 
-export default App;
+export default Home;
