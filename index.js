@@ -1,10 +1,13 @@
 const express = require("express");
 const app = express();
-const path = require("path"); // Require the path module
+const path = require("path");
 require("dotenv/config");
 const cors = require("cors");
 const { OAuth2Client } = require("google-auth-library");
 const jwt = require("jsonwebtoken");
+const multer = require("multer"); // Require multer for handling file uploads
+const upload = multer({ dest: 'uploads/' }); // Destination folder for uploaded files
+const quickstart = require('./DocumentAI');
 
 app.use(
   cors({
@@ -16,12 +19,8 @@ app.use(express.json());
 
 app.use(express.static(path.join(__dirname, "server/client/build")));
 
-// Our database
 let DB = [];
 
-/**
- *  This function is used verify a google account
- */
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
 const client = new OAuth2Client(GOOGLE_CLIENT_ID);
 
@@ -39,7 +38,6 @@ async function verifyGoogleToken(token) {
 
 app.post("/signup", async (req, res) => {
   try {
-    // console.log({ verified: verifyGoogleToken(req.body.credential) });
     if (req.body.credential) {
       const verificationResponse = await verifyGoogleToken(req.body.credential);
 
@@ -68,7 +66,7 @@ app.post("/signup", async (req, res) => {
     }
   } catch (error) {
     res.status(500).json({
-      message: "An error occured. Registration failed.",
+      message: "An error occurred. Registration failed.",
     });
   }
 });
@@ -113,8 +111,28 @@ app.post("/login", async (req, res) => {
   }
 });
 
-// Define a route to serve the React app
+// Route to handle file upload and invoke the quickstart function
+app.post("/process-document", upload.single('file'), async (req, res) => {
+  try {
+    // Check if file was provided in the request
+    if (!req.file) {
+      return res.status(400).json({ message: "No file uploaded" });
+    }
+
+    // Now you can access the uploaded file using req.file
+    const filePath = req.file.path;
+
+    // Call quickstart function with the file path
+    await quickstart(filePath);
+
+    res.status(200).json({ message: "Document processing completed successfully" });
+  } catch (error) {
+    res.status(500).json({ message: "Error processing document: " + error.message });
+  }
+});
+
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "server/client/build", "index.html"));
 });
+
 app.listen("5152", () => console.log("Server running on port 5152"));

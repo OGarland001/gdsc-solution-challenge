@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import React from "react";
 import "../App.css";
 import { data } from "../data";
@@ -14,7 +14,7 @@ const Home = ({ user }) => {
   const [events, setEvents] = useState([]);
   const [tokenClient, setTokenClient] = useState({});
   const [isPromptShown, setIsPromptShown] = useState(false);
-  // const apiKey = process.env.REACT_APP_GOOGLE_CALENDAR_API_KEY;
+  const fileInputRef = useRef(null); // Initialize fileInputRef
 
   const script = document.createElement("script");
 
@@ -30,6 +30,23 @@ const Home = ({ user }) => {
   function getCalendarEvents() {
     tokenClient.requestAccessToken();
   }
+
+  const handleChange = async (event) => {
+    const file = event.target.files[0];
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      const response = await fetch("/process-document", {
+        method: "POST",
+        body: formData,
+      });
+      const data = await response.json();
+      console.log(data);
+    } catch (error) {
+      console.error("Error processing document:", error);
+    }
+  };
 
   function getPromptEvents(data) {
     setIsPromptShown((isPromptShown) => !isPromptShown);
@@ -102,6 +119,26 @@ const Home = ({ user }) => {
     //tokenClient.requestAccessToken();
   }, []);
 
+  const processDocument = async () => {
+    try {
+      const response = await fetch("/process-document", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(/* any data you want to send with the request */),
+      });
+      const data = await response.json();
+      console.log(data);
+    } catch (error) {
+      console.error("Error processing document:", error);
+    }
+  };
+
+  const handleClick = () => {
+    fileInputRef.current.click();
+  };
+
   const logout = () => {
     localStorage.removeItem("user");
     toggle();
@@ -111,12 +148,7 @@ const Home = ({ user }) => {
   return (
     <div style={{ textAlign: "center", margin: "3rem" }}>
       <h1>Dear {user?.email}</h1>
-
-      <p>
-        You are viewing this page because you are logged in or you just signed
-        up
-      </p>
-
+      <p>You are viewing this page because you are logged in or you just signed up</p>
       <div>
         <button
           onClick={logout}
@@ -138,21 +170,22 @@ const Home = ({ user }) => {
             <img src={user.picture} alt="google user img"></img>
             <br></br>
             <h3>{user.name}</h3>
-            <Button
-              className="btn bg-gradient-to-bl"
-              type="submit"
-              onClick={getCalendarEvents}
-            >
+            <Button className="btn bg-gradient-to-bl" onClick={getCalendarEvents}>
               Load Events
             </Button>
-            <Button
-              className="btn bg-gradient-to-bl"
-              onClick={() => getPromptEvents(data)}
-            >
+            <Button className="btn bg-gradient-to-bl" onClick={() => getPromptEvents(data)}>
               Prompt Load
             </Button>
             {isPromptShown && <Prompt eventList={data}></Prompt>}
-
+            <Button className="btn bg-gradient-to-bl" onClick={handleClick}>
+              Process Document
+            </Button>
+            <input
+              type="file"
+              ref={fileInputRef}
+              style={{ display: "none" }}
+              onChange={handleChange}
+            />
             <ul>
               {events?.map((event) => (
                 <li key={event.id} className="flex">
