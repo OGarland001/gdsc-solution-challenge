@@ -15,6 +15,7 @@ const Home = ({ user }) => {
   const [tokenClient, setTokenClient] = useState({});
   const [isPromptShown, setIsPromptShown] = useState(false);
   const fileInputRef = useRef(null); // Initialize fileInputRef
+  const [formValue, setFormValue] = useState({});
 
   const script = document.createElement("script");
 
@@ -30,6 +31,53 @@ const Home = ({ user }) => {
   function getCalendarEvents() {
     tokenClient.requestAccessToken();
   }
+
+  const handleInputFieldChange = (e) => {
+    setFormValue({ prompt: e.target.value });
+  };
+
+  const handleInputSubmit = async (e) => {
+    e.preventDefault()
+    try {
+
+      const eventDataToSend = events.map(event => {
+        const eventData = {
+            summary: event.summary,
+            start: event.start
+        };
+        // Check if end property exists before including it
+        if (event.end) {
+            eventData.end = event.end;
+        }
+        return eventData;
+      })
+
+      const response = await fetch('/palmrequest', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        
+        body: JSON.stringify({
+          Context: JSON.stringify(eventDataToSend),
+          Prompt: formValue.prompt,
+        }),
+
+      });
+     
+      if (response.ok) {
+        const data = await response.json();
+        console.log(data);
+      } else {
+        throw new Error('Failed to fetch predictions');
+      }
+    } catch (error) {
+      console.log('Error:', error);
+      console.log(events, formValue.prompt)
+
+      // Handle error state
+    }
+  };
 
   const handleChange = async (event) => {
     const file = event.target.files[0];
@@ -193,6 +241,30 @@ const Home = ({ user }) => {
                 </li>
               ))}
             </ul>
+
+            <br></br>
+            <form onSubmit={handleInputSubmit}>
+              <div className="input-group">
+                <label htmlFor="prompt">Enter your prompt</label>
+                <br></br>
+                <input
+                  style={{
+                    boxSizing: 'border-box',
+                    border: '2px solid blue',
+                  }}
+                  box-sizing = 'border-box'
+                  type="text"
+                  id="prompt"
+                  value={formValue.prompt}
+                  onChange={handleInputFieldChange}
+                />
+              </div>
+              <br></br>
+              <Button className="btn bg-gradient-to-bl" type="submit">
+                Ask
+              </Button>
+            </form>
+
           </div>
         )}
       </div>
