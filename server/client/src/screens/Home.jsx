@@ -16,6 +16,7 @@ const Home = ({ user }) => {
   const [isPromptShown, setIsPromptShown] = useState(false);
   const fileInputRef = useRef(null); // Initialize fileInputRef
   const [formValue, setFormValue] = useState({});
+  const [predictionValue, setPredicition] = useState([]);
 
   const script = document.createElement("script");
 
@@ -67,7 +68,8 @@ const Home = ({ user }) => {
      
       if (response.ok) {
         const data = await response.json();
-        console.log(data);
+        console.log("Recieved data: ", data);
+        setPredicition(data.prediction);
       } else {
         throw new Error('Failed to fetch predictions');
       }
@@ -251,9 +253,11 @@ const Home = ({ user }) => {
                   style={{
                     boxSizing: 'border-box',
                     border: '2px solid blue',
+                    size: '50'
                   }}
                   box-sizing = 'border-box'
                   type="text"
+                  size='40'
                   id="prompt"
                   value={formValue.prompt}
                   onChange={handleInputFieldChange}
@@ -264,6 +268,8 @@ const Home = ({ user }) => {
                 Ask
               </Button>
             </form>
+            <h2>Prediction Result:</h2>
+            <p>{predictionValue}</p>
 
           </div>
         )}
