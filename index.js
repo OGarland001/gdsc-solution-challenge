@@ -151,46 +151,97 @@ const getIdToken = async () => {
   return idToken.access_token;
 };
 
-// const getIdToken = async () => {
-//   const client = new JWT({
-//       keyFile: "date-minder-9f50d-c151ed5195bd.json",
-//       scopes: ["https://www.googleapis.com/auth/cloud-platform"],
-//   });
-//   const idToken = client.authorize();
-//   return idToken.access_token;
-// };
+// function parseEventData(jsonString) {
+//   try {
+//       const events = JSON.parse(jsonString);
+//       return events.map(event => {
+//           const startDateTime = new Date(event.start.dateTime).toLocaleString('en-US', { timeZone: event.start.timeZone });
+//           const endDateTime = new Date(event.end.dateTime).toLocaleString('en-US', { timeZone: event.end.timeZone });
+
+//           return `${event.summary} starts on ${startDateTime} (TimeZone: ${event.start.timeZone}) and ends on ${endDateTime} (TimeZone: ${event.end.timeZone})`;
+//       });
+//   } catch (error) {
+//       console.error("Error parsing event data:", error.message);
+//       throw new Error("Failed to parse event data");
+//   }
+// }
+
+// function parseEventData(jsonString) {
+//   try {
+//       const events = JSON.parse(jsonString);
+//       return events.map(event => {
+//           const startDateTime = new Date(event.start.dateTime).toLocaleString('en-US', { timeZone: event.start.timeZone });
+//           const endDateTime = new Date(event.end.dateTime).toLocaleString('en-US', { timeZone: event.end.timeZone });
+
+//           return {
+//               summary: event.summary,
+//               start: {
+//                   dateTime: startDateTime,
+//                   timeZone: event.start.timeZone,
+//               },
+//               end: {
+//                   dateTime: endDateTime,
+//                   timeZone: event.end.timeZone,
+//               }
+//           };
+//       });
+//   } catch (error) {
+//       console.error("Error parsing event data:", error.message);
+//       throw new Error("Failed to parse event data");
+//   }
+// }
+
+function parseEventData(jsonString) {
+  try {
+      const events = JSON.parse(jsonString);
+      return events.map(event => {
+          const startDateTime = new Date(event.start.dateTime).toLocaleString('en-US', { timeZone: event.start.timeZone });
+          const endDateTime = new Date(event.end.dateTime).toLocaleString('en-US', { timeZone: event.end.timeZone });
+
+          return `${event.summary} starts on ${startDateTime} (TimeZone: ${event.start.timeZone}) and ends on ${endDateTime} (TimeZone: ${event.end.timeZone})`;
+      }).join(', ');
+  } catch (error) {
+      console.error("Error parsing event data:", error.message);
+      throw new Error("Failed to parse event data");
+  }
+}
+
 
 const fetch = require("node-fetch");
 
 app.post("/palmrequest", async (req, res) => {
-  try {
-    const headers = {
-      Authorization: `Bearer ${await getIdToken()}`,
-      "Content-Type": "application/json",
-    };
+    try {
+        const headers = {
+            Authorization: `Bearer ${await getIdToken()}`,
+            "Content-Type": "application/json",
+        };
 
-    const data = {
-      instances: [
-        {
-          context: req.body.Context,
-          examples: [],
-          messages: [
-            {
-              author: "user",
-              content: req.body.Prompt,
+        const palmContext = parseEventData(req.body.Context);
+
+        console.log(palmContext);
+
+        const data = {
+            instances: [
+                {
+                    context: palmContext,
+                    examples: [],
+                    messages: [
+                        {
+                            author: "user",
+                            content: req.body.Prompt,
+                        },
+                    ],
+                },
+            ],
+            parameters: {
+                temperature: 0.2,
+                maxOutputTokens: 1024,
+                topP: 0.8,
+                topK: 40,
             },
-          ],
-        },
-      ],
-      parameters: {
-        temperature: 0.5,
-        maxOutputTokens: 1024,
-        topP: 0.8,
-        topK: 40,
-      },
-    };
+        };
 
-    console.log("Recieved data: ", req.body.Context);
+        //console.log("Recieved data: ", req.body.Context);
 
     const response = await fetch(URL, {
       method: "POST",
