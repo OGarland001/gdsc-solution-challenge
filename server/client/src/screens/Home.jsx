@@ -84,7 +84,6 @@ const Home = () => {
     const file = event.target.files[0];
     const formData = new FormData();
     formData.append("file", file);
-
     try {
       const response = await fetch("/process-document", {
         method: "POST",
@@ -205,29 +204,35 @@ const Home = () => {
         <div id="signInDiv"></div>
         {user && isShown && (
           <div id="UserDataDiv" style={{ textAlign: "center" }}>
-            <div style={{ marginBottom: "1rem", display: "flex", alignItems: "center", paddingTop: 15 }}>
+            <div style={{ marginBottom: "1rem", display: "flex", justifyContent: "center", paddingTop: 15, margin: "auto", paddingBottom: 15 }}>
               <img
                 src={user.picture}
                 alt="google user img"
                 className="justify-center"
-                style={{ marginRight: "0.5rem", height: "60px", width: "60px", borderRadius: "50%"}}
+                style={{ marginRight: "0.5rem", height: "80px", width: "80px", borderRadius: "50%"}}
               />
               <button
                 onClick={logout}
                 style={{
                   color: "white",
                   backgroundColor: "black",
-                  padding: "0.5rem 1rem",
                   cursor: "pointer",
-                  borderRadius: "11%",
+                  padding: 15,
+                  borderRadius: "8px",
+                  height: "40px",
+                  marginTop: "18px", 
+                  display: "flex", 
+                  justifyContent: "center",
+                  alignItems: "center",   
+                  transition: "background-color 0.3s"
                 }}
+                onMouseOver={(e) => e.target.style.backgroundColor = "#333"} // Lighter color on hover
+                onMouseOut={(e) => e.target.style.backgroundColor = "black"} // Restore original
               >
-                Logout
+                Logout {user.name}
               </button>
             </div>
-  
-            <h3>{user.name}</h3>
-            <Button
+              <Button
               className="btn bg-gradient-to-bl"
               onClick={getCalendarEvents}
             >
