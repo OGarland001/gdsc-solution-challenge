@@ -6,7 +6,7 @@ import { jwtDecode } from "jwt-decode";
 import Event from "../components/Event";
 import Prompt from "../components/Prompt";
 import { Button } from "@material-tailwind/react";
-
+import logo from "./images/logo.png";
 const SCOPE = "https://www.googleapis.com/auth/calendar";
 // Pass User
 const Home = () => {
@@ -197,31 +197,35 @@ const Home = () => {
     window.location = "/";
   };
   return (
-    <div style={{ textAlign: "center", margin: "3rem" }}>
-      <div className="container justify-center">
+    <div style={{ textAlign: "center" }}>
+      <div style={{ backgroundColor: "#333", color: "white", padding: "1rem", width: "100%", top: 0, left: 0 }}>
+        <img src={logo} alt="DateMinder Logo" style={{ marginRight: "1rem", height: "100px" }} />
+      </div>
+      <div className="container justify-center" style={{ display: "flex", justifyContent: "center", marginTop: "3rem", margin: "auto" }}>
         <div id="signInDiv"></div>
         {user && isShown && (
-          <div id="UserDataDiv">
-            <div>
+          <div id="UserDataDiv" style={{ textAlign: "center" }}>
+            <div style={{ marginBottom: "1rem", display: "flex", alignItems: "center", paddingTop: 15 }}>
+              <img
+                src={user.picture}
+                alt="google user img"
+                className="justify-center"
+                style={{ marginRight: "0.5rem", height: "60px", width: "60px", borderRadius: "50%"}}
+              />
               <button
                 onClick={logout}
                 style={{
-                  color: "red",
-                  border: "1px solid gray",
-                  backgroundColor: "white",
+                  color: "white",
+                  backgroundColor: "black",
                   padding: "0.5rem 1rem",
                   cursor: "pointer",
+                  borderRadius: "11%",
                 }}
               >
                 Logout
               </button>
             </div>
-            <img
-              src={user.picture}
-              alt="google user img"
-              className="justify-center"
-            ></img>
-            <br></br>
+  
             <h3>{user.name}</h3>
             <Button
               className="btn bg-gradient-to-bl"
@@ -245,45 +249,44 @@ const Home = () => {
               style={{ display: "none" }}
               onChange={handleChange}
             />
-            <ul>
+            <ul style={{ textAlign: "left" }}>
               {events?.map((event) => (
-                <li key={event.id} className="flex">
+                <li key={event.id}>
                   <Event description={event.summary} />
                 </li>
               ))}
             </ul>
-
-            <br></br>
-            <form onSubmit={handleInputSubmit}>
+  
+            <form onSubmit={handleInputSubmit} style={{ textAlign: "center" }}>
               <div className="input-group">
                 <label htmlFor="prompt">Enter your prompt</label>
-                <br></br>
+                <br />
                 <input
                   style={{
                     boxSizing: "border-box",
                     border: "2px solid blue",
-                    size: "50",
+                    width: "300px",
                   }}
-                  box-sizing="border-box"
                   type="text"
-                  size="40"
                   id="prompt"
                   value={formValue.prompt}
                   onChange={handleInputFieldChange}
                 />
               </div>
-              <br></br>
+              <br />
               <Button className="btn bg-gradient-to-bl" type="submit">
                 Ask
               </Button>
             </form>
-            <h2>Prediction Result:</h2>
-            <p>{predictionValue}</p>
+            <div style={{ textAlign: "center" }}>
+              <h2>Prediction Result:</h2>
+              <p>{predictionValue}</p>
+            </div>
           </div>
         )}
       </div>
     </div>
-  );
+  );    
 };
 
 export default Home;
