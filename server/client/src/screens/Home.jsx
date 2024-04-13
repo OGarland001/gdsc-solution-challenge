@@ -9,7 +9,7 @@ import { Button } from "@material-tailwind/react";
 
 const SCOPE = "https://www.googleapis.com/auth/calendar";
 // Pass User
-const Home = ({ user }) => {
+const Home = () => {
   const [isShown, setIsShown] = useState(false);
   const [events, setEvents] = useState([]);
   const [tokenClient, setTokenClient] = useState({});
@@ -17,6 +17,7 @@ const Home = ({ user }) => {
   const fileInputRef = useRef(null); // Initialize fileInputRef
   const [formValue, setFormValue] = useState({});
   const [predictionValue, setPredicition] = useState([]);
+  const [user, setUser] = useState(null);
 
   const script = document.createElement("script");
 
@@ -38,44 +39,42 @@ const Home = ({ user }) => {
   };
 
   const handleInputSubmit = async (e) => {
-    e.preventDefault()
+    e.preventDefault();
     try {
-
-      const eventDataToSend = events.map(event => {
+      const eventDataToSend = events.map((event) => {
         const eventData = {
-            summary: event.summary,
-            start: event.start
+          summary: event.summary,
+          start: event.start,
         };
         // Check if end property exists before including it
         if (event.end) {
-            eventData.end = event.end;
+          eventData.end = event.end;
         }
         return eventData;
-      })
+      });
 
-      const response = await fetch('/palmrequest', {
-        method: 'POST',
+      const response = await fetch("/palmrequest", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
-        
+
         body: JSON.stringify({
           Context: JSON.stringify(eventDataToSend),
           Prompt: formValue.prompt,
         }),
-
       });
-     
+
       if (response.ok) {
         const data = await response.json();
         console.log("Recieved data: ", data);
         setPredicition(data.prediction);
       } else {
-        throw new Error('Failed to fetch predictions');
+        throw new Error("Failed to fetch predictions");
       }
     } catch (error) {
-      console.log('Error:', error);
-      console.log(events, formValue.prompt)
+      console.log("Error:", error);
+      console.log(events, formValue.prompt);
 
       // Handle error state
     }
@@ -109,6 +108,8 @@ const Home = ({ user }) => {
       var userObject = jwtDecode(response.credential);
 
       console.log(userObject);
+
+      setUser(userObject);
 
       const userEmail = userObject.email;
 
@@ -197,33 +198,41 @@ const Home = ({ user }) => {
   };
   return (
     <div style={{ textAlign: "center", margin: "3rem" }}>
-      <h1>Dear {user?.email}</h1>
-      <p>You are viewing this page because you are logged in or you just signed up</p>
-      <div>
-        <button
-          onClick={logout}
-          style={{
-            color: "red",
-            border: "1px solid gray",
-            backgroundColor: "white",
-            padding: "0.5rem 1rem",
-            cursor: "pointer",
-          }}
-        >
-          Logout
-        </button>
-      </div>
       <div className="container justify-center">
         <div id="signInDiv"></div>
         {user && isShown && (
           <div id="UserDataDiv">
-            <img src={user.picture} alt="google user img"></img>
+            <div>
+              <button
+                onClick={logout}
+                style={{
+                  color: "red",
+                  border: "1px solid gray",
+                  backgroundColor: "white",
+                  padding: "0.5rem 1rem",
+                  cursor: "pointer",
+                }}
+              >
+                Logout
+              </button>
+            </div>
+            <img
+              src={user.picture}
+              alt="google user img"
+              className="justify-center"
+            ></img>
             <br></br>
             <h3>{user.name}</h3>
-            <Button className="btn bg-gradient-to-bl" onClick={getCalendarEvents}>
-              Load Events
+            <Button
+              className="btn bg-gradient-to-bl"
+              onClick={getCalendarEvents}
+            >
+              Authorize Google Calendar
             </Button>
-            <Button className="btn bg-gradient-to-bl" onClick={() => getPromptEvents(data)}>
+            <Button
+              className="btn bg-gradient-to-bl"
+              onClick={() => getPromptEvents(data)}
+            >
               Prompt Load
             </Button>
             {isPromptShown && <Prompt eventList={data}></Prompt>}
@@ -251,13 +260,13 @@ const Home = ({ user }) => {
                 <br></br>
                 <input
                   style={{
-                    boxSizing: 'border-box',
-                    border: '2px solid blue',
-                    size: '50'
+                    boxSizing: "border-box",
+                    border: "2px solid blue",
+                    size: "50",
                   }}
-                  box-sizing = 'border-box'
+                  box-sizing="border-box"
                   type="text"
-                  size='40'
+                  size="40"
                   id="prompt"
                   value={formValue.prompt}
                   onChange={handleInputFieldChange}
@@ -270,7 +279,6 @@ const Home = ({ user }) => {
             </form>
             <h2>Prediction Result:</h2>
             <p>{predictionValue}</p>
-
           </div>
         )}
       </div>
