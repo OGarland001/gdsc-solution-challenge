@@ -126,16 +126,12 @@ app.post("/process-document", upload.single("file"), async (req, res) => {
     // Now you can access the uploaded file using req.file
     const filePath = req.file.path;
 
-    // Call quickstart function with the file path
-    await quickstart(filePath);
+    // Call quickstart function with the file path and get the document content
+    const documentContent = await quickstart(filePath);
 
-    res
-      .status(200)
-      .json({ message: "Document processing completed successfully" });
+    res.status(200).json({ message: documentContent });
   } catch (error) {
-    res
-      .status(500)
-      .json({ message: "Error processing document: " + error.message });
+    res.status(500).json({ message: "Error processing document: " + error.message });
   }
 });
 

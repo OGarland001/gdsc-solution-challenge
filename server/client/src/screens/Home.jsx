@@ -90,11 +90,12 @@ const Home = () => {
         body: formData,
       });
       const data = await response.json();
-      console.log(data);
+      console.log("In front end:" + data.message);
+      setFormValue({ documentContent: data.message }); // Set the documentContent in formValue
     } catch (error) {
       console.error("Error processing document:", error);
     }
-  };
+  };  
 
   function getPromptEvents(data) {
     setIsPromptShown((isPromptShown) => !isPromptShown);
@@ -261,7 +262,22 @@ const Home = () => {
                 </li>
               ))}
             </ul>
-  
+            
+            <h2>Document Reading Result:</h2>
+            <textarea 
+              value={formValue.documentContent}
+              onChange={(e) => setFormValue({ documentContent: e.target.value })}
+              style={{
+                textAlign: "center",
+                width: "600px",
+                height: "200px", // Adjust the height as needed
+                resize: "both", // Allow the user to resize the textarea
+                overflowWrap: "break-word", // Wrap text to next line
+                borderBlockColor: "black",
+                borderWidth: "1px",
+              }}
+            />
+
             <form onSubmit={handleInputSubmit} style={{ textAlign: "center" }}>
               <div className="input-group">
                 <label htmlFor="prompt">Enter your prompt</label>
@@ -283,6 +299,7 @@ const Home = () => {
                 Ask
               </Button>
             </form>
+           
             <div style={{ textAlign: "center" }}>
               <h2>Prediction Result:</h2>
               <p>{predictionValue}</p>
