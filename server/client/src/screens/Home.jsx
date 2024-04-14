@@ -6,7 +6,7 @@ import { jwtDecode } from "jwt-decode";
 import Event from "../components/Event";
 import Prompt from "../components/Prompt";
 import { Button } from "@material-tailwind/react";
-
+import logo from "./images/logo.png";
 const SCOPE = "https://www.googleapis.com/auth/calendar";
 // Pass User
 const Home = () => {
@@ -84,18 +84,18 @@ const Home = () => {
     const file = event.target.files[0];
     const formData = new FormData();
     formData.append("file", file);
-
     try {
       const response = await fetch("/process-document", {
         method: "POST",
         body: formData,
       });
       const data = await response.json();
-      console.log(data);
+      console.log("In front end:" + data.message);
+      setFormValue({ documentContent: data.message }); // Set the documentContent in formValue
     } catch (error) {
       console.error("Error processing document:", error);
     }
-  };
+  };  
 
   function getPromptEvents(data) {
     setIsPromptShown((isPromptShown) => !isPromptShown);
@@ -197,33 +197,43 @@ const Home = () => {
     window.location = "/";
   };
   return (
-    <div style={{ textAlign: "center", margin: "3rem" }}>
-      <div className="container justify-center">
+    <div style={{ textAlign: "center" }}>
+      <div style={{ backgroundColor: "#333", color: "white", padding: "1rem", width: "100%", top: 0, left: 0 }}>
+        <img src={logo} alt="DateMinder Logo" style={{ marginRight: "1rem", height: "100px" }} />
+      </div>
+      <div className="container justify-center" style={{ display: "flex", justifyContent: "center", marginTop: "3rem", margin: "auto" }}>
         <div id="signInDiv"></div>
         {user && isShown && (
-          <div id="UserDataDiv">
-            <div>
+          <div id="UserDataDiv" style={{ textAlign: "center" }}>
+            <div style={{ marginBottom: "1rem", display: "flex", justifyContent: "center", paddingTop: 15, margin: "auto", paddingBottom: 15 }}>
+              <img
+                src={user.picture}
+                alt="google user img"
+                className="justify-center"
+                style={{ marginRight: "0.5rem", height: "80px", width: "80px", borderRadius: "50%"}}
+              />
               <button
                 onClick={logout}
                 style={{
-                  color: "red",
-                  border: "1px solid gray",
-                  backgroundColor: "white",
-                  padding: "0.5rem 1rem",
+                  color: "white",
+                  backgroundColor: "black",
                   cursor: "pointer",
+                  padding: 15,
+                  borderRadius: "8px",
+                  height: "40px",
+                  marginTop: "18px", 
+                  display: "flex", 
+                  justifyContent: "center",
+                  alignItems: "center",   
+                  transition: "background-color 0.3s"
                 }}
+                onMouseOver={(e) => e.target.style.backgroundColor = "#333"} // Lighter color on hover
+                onMouseOut={(e) => e.target.style.backgroundColor = "black"} // Restore original
               >
-                Logout
+                Logout {user.name}
               </button>
             </div>
-            <img
-              src={user.picture}
-              alt="google user img"
-              className="justify-center"
-            ></img>
-            <br></br>
-            <h3>{user.name}</h3>
-            <Button
+              <Button
               className="btn bg-gradient-to-bl"
               onClick={getCalendarEvents}
             >
@@ -245,45 +255,60 @@ const Home = () => {
               style={{ display: "none" }}
               onChange={handleChange}
             />
-            <ul>
+            <ul style={{ textAlign: "left" }}>
               {events?.map((event) => (
-                <li key={event.id} className="flex">
+                <li key={event.id}>
                   <Event description={event.summary} />
                 </li>
               ))}
             </ul>
+            
+            <h2>Document Reading Result:</h2>
+            <textarea 
+              value={formValue.documentContent}
+              onChange={(e) => setFormValue({ documentContent: e.target.value })}
+              style={{
+                textAlign: "center",
+                width: "600px",
+                height: "200px", // Adjust the height as needed
+                resize: "both", // Allow the user to resize the textarea
+                overflowWrap: "break-word", // Wrap text to next line
+                borderBlockColor: "black",
+                borderWidth: "1px",
+              }}
+            />
 
-            <br></br>
-            <form onSubmit={handleInputSubmit}>
+            <form onSubmit={handleInputSubmit} style={{ textAlign: "center" }}>
               <div className="input-group">
                 <label htmlFor="prompt">Enter your prompt</label>
-                <br></br>
+                <br />
                 <input
                   style={{
                     boxSizing: "border-box",
                     border: "2px solid blue",
-                    size: "50",
+                    width: "300px",
                   }}
-                  box-sizing="border-box"
                   type="text"
-                  size="40"
                   id="prompt"
                   value={formValue.prompt}
                   onChange={handleInputFieldChange}
                 />
               </div>
-              <br></br>
+              <br />
               <Button className="btn bg-gradient-to-bl" type="submit">
                 Ask
               </Button>
             </form>
-            <h2>Prediction Result:</h2>
-            <p>{predictionValue}</p>
+           
+            <div style={{ textAlign: "center" }}>
+              <h2>Prediction Result:</h2>
+              <p>{predictionValue}</p>
+            </div>
           </div>
         )}
       </div>
     </div>
-  );
+  );    
 };
 
 export default Home;
