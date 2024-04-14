@@ -29,24 +29,24 @@ async function quickstart(filePath) {
     const { document } = result;
     const { text } = document;
 
-    const getText = textAnchor => {
+    const getText = (document, textAnchor) => {
       if (!textAnchor.textSegments || textAnchor.textSegments.length === 0) {
         return '';
       }
       const startIndex = textAnchor.textSegments[0].startIndex || 0;
       const endIndex = textAnchor.textSegments[0].endIndex;
-      return text.substring(startIndex, endIndex);
+      return document.text.substring(startIndex, endIndex);
     };
 
     let documentContent = ''; // Accumulator for the document content
 
-    const [page1] = document.pages;
-    const { paragraphs } = page1;
-
-    for (const paragraph of paragraphs) {
-      const paragraphText = getText(paragraph.layout.textAnchor);
-      documentContent += paragraphText + '\n'; // Append paragraph text to the accumulator
+    for (const page of document.pages) {
+      for (const paragraph of page.paragraphs) {
+        const paragraphText = getText(document, paragraph.layout.textAnchor);
+        documentContent += paragraphText + '\n'; // Append paragraph text to the accumulator
+      }
     }
+
     return documentContent; // Return the accumulated document content
   } catch (error) {
     console.error('Error processing document:', error);
