@@ -47,8 +47,6 @@ async function quickstart(filePath) {
       const paragraphText = getText(paragraph.layout.textAnchor);
       documentContent += paragraphText + '\n'; // Append paragraph text to the accumulator
     }
-
-    console.log("HEREEEE DOCAI" + documentContent);
     return documentContent; // Return the accumulated document content
   } catch (error) {
     console.error('Error processing document:', error);

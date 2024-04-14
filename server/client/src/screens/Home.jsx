@@ -8,98 +8,18 @@ import Prompt from "../components/Prompt";
 import { Button } from "@material-tailwind/react";
 import logo from "./images/logo.png";
 const SCOPE = "https://www.googleapis.com/auth/calendar";
-// Pass User
+
 const Home = () => {
   const [isShown, setIsShown] = useState(false);
   const [events, setEvents] = useState([]);
   const [tokenClient, setTokenClient] = useState({});
   const [isPromptShown, setIsPromptShown] = useState(false);
-  const fileInputRef = useRef(null); // Initialize fileInputRef
+  const fileInputRef = useRef(null);
   const [formValue, setFormValue] = useState({});
-  const [predictionValue, setPredicition] = useState([]);
+  const [predictionValue, setPrediction] = useState([]);
   const [user, setUser] = useState(null);
+  const [isLoading, setIsLoading] = useState(false); // Add isLoading state
 
-  const script = document.createElement("script");
-
-  script.src = "https://accounts.google.com/gsi/client";
-  script.async = true;
-  script.defer = true;
-
-  document.head.appendChild(script);
-
-  function toggle() {
-    setIsShown((isShown) => !isShown);
-  }
-  function getCalendarEvents() {
-    tokenClient.requestAccessToken();
-  }
-
-  const handleInputFieldChange = (e) => {
-    setFormValue({ prompt: e.target.value });
-  };
-
-  const handleInputSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      const eventDataToSend = events.map((event) => {
-        const eventData = {
-          summary: event.summary,
-          start: event.start,
-        };
-        // Check if end property exists before including it
-        if (event.end) {
-          eventData.end = event.end;
-        }
-        return eventData;
-      });
-
-      const response = await fetch("/palmrequest", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-
-        body: JSON.stringify({
-          Context: JSON.stringify(eventDataToSend),
-          Prompt: formValue.prompt,
-        }),
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        console.log("Recieved data: ", data);
-        setPredicition(data.prediction);
-      } else {
-        throw new Error("Failed to fetch predictions");
-      }
-    } catch (error) {
-      console.log("Error:", error);
-      console.log(events, formValue.prompt);
-
-      // Handle error state
-    }
-  };
-
-  const handleChange = async (event) => {
-    const file = event.target.files[0];
-    const formData = new FormData();
-    formData.append("file", file);
-    try {
-      const response = await fetch("/process-document", {
-        method: "POST",
-        body: formData,
-      });
-      const data = await response.json();
-      console.log("In front end:" + data.message);
-      setFormValue({ documentContent: data.message }); // Set the documentContent in formValue
-    } catch (error) {
-      console.error("Error processing document:", error);
-    }
-  };  
-
-  function getPromptEvents(data) {
-    setIsPromptShown((isPromptShown) => !isPromptShown);
-  }
   useEffect(() => {
     const google = window.google;
 
@@ -128,7 +48,6 @@ const Home = () => {
             startDate = startDate.toISOString();
             endDate = endDate.toISOString();
 
-            //we now have access to a live token to use for any google API.
             if (tokenResponse && tokenResponse.access_token) {
               fetch(
                 `https://www.googleapis.com/calendar/v3/calendars/${userEmail}/events?timeMin=${startDate}&timeMax=${endDate}`,
@@ -163,27 +82,79 @@ const Home = () => {
       theme: "outline",
       size: "large",
     });
-
-    //Access tokens
-    //pull a users google calendar data.
-
-    //tokenClient.requestAccessToken();
   }, []);
 
-  const processDocument = async () => {
+  const toggle = () => {
+    setIsShown((isShown) => !isShown);
+  };
+
+  const getCalendarEvents = () => {
+    tokenClient.requestAccessToken();
+  };
+
+  const handleInputFieldChange = (e) => {
+    setFormValue({ prompt: e.target.value });
+  };
+
+  const handleInputSubmit = async (e) => {
+    e.preventDefault();
     try {
-      const response = await fetch("/process-document", {
+      const eventDataToSend = events.map((event) => {
+        const eventData = {
+          summary: event.summary,
+          start: event.start,
+        };
+        if (event.end) {
+          eventData.end = event.end;
+        }
+        return eventData;
+      });
+
+      const response = await fetch("/palmrequest", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(/* any data you want to send with the request */),
+        body: JSON.stringify({
+          Context: JSON.stringify(eventDataToSend),
+          Prompt: formValue.prompt,
+        }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log("Received data: ", data);
+        setPrediction(data.prediction);
+      } else {
+        throw new Error("Failed to fetch predictions");
+      }
+    } catch (error) {
+      console.error("Error:", error);
+    }
+  };
+
+  const handleChange = async (event) => {
+    const file = event.target.files[0];
+    const formData = new FormData();
+    formData.append("file", file);
+    setIsLoading(true); // Set isLoading to true while waiting for response
+    try {
+      const response = await fetch("/process-document", {
+        method: "POST",
+        body: formData,
       });
       const data = await response.json();
-      console.log(data);
+      console.log("In front end:" + data.message);
+      setFormValue({ documentContent: data.message }); // Set the documentContent in formValue
+      setIsLoading(false); // Set isLoading to false after getting response
     } catch (error) {
       console.error("Error processing document:", error);
+      setIsLoading(false); // Set isLoading to false in case of error
     }
+  };
+
+  const getPromptEvents = (data) => {
+    setIsPromptShown((isPromptShown) => !isPromptShown);
   };
 
   const handleClick = () => {
@@ -196,21 +167,51 @@ const Home = () => {
     document.getElementById("signInDiv").hidden = false;
     window.location = "/";
   };
+
   return (
     <div style={{ textAlign: "center" }}>
-      <div style={{ backgroundColor: "#333", color: "white", padding: "1rem", width: "100%", top: 0, left: 0 }}>
+      <div
+        style={{
+          backgroundColor: "#333",
+          color: "white",
+          padding: "1rem",
+          width: "100%",
+          top: 0,
+          left: 0,
+        }}
+      >
         <img src={logo} alt="DateMinder Logo" style={{ marginRight: "1rem", height: "100px" }} />
       </div>
-      <div className="container justify-center" style={{ display: "flex", justifyContent: "center", marginTop: "3rem", margin: "auto" }}>
+      <div
+        className="container justify-center"
+        style={{ display: "flex", justifyContent: "center", marginTop: "3rem", margin: "auto" }}
+      >
         <div id="signInDiv"></div>
         {user && isShown && (
-          <div id="UserDataDiv" style={{ textAlign: "center" }}>
-            <div style={{ marginBottom: "1rem", display: "flex", justifyContent: "center", paddingTop: 15, margin: "auto", paddingBottom: 15 }}>
+          <div
+            id="UserDataDiv"
+            style={{ textAlign: "center" }}
+          >
+            <div
+              style={{
+                marginBottom: "1rem",
+                display: "flex",
+                justifyContent: "center",
+                paddingTop: 15,
+                margin: "auto",
+                paddingBottom: 15,
+              }}
+            >
               <img
                 src={user.picture}
                 alt="google user img"
                 className="justify-center"
-                style={{ marginRight: "0.5rem", height: "80px", width: "80px", borderRadius: "50%"}}
+                style={{
+                  marginRight: "0.5rem",
+                  height: "80px",
+                  width: "80px",
+                  borderRadius: "50%",
+                }}
               />
               <button
                 onClick={logout}
@@ -221,19 +222,35 @@ const Home = () => {
                   padding: 15,
                   borderRadius: "8px",
                   height: "40px",
-                  marginTop: "18px", 
-                  display: "flex", 
+                  marginTop: "18px",
+                  display: "flex",
                   justifyContent: "center",
-                  alignItems: "center",   
-                  transition: "background-color 0.3s"
+                  alignItems: "center",
+                  transition: "background-color 0.3s",
                 }}
-                onMouseOver={(e) => e.target.style.backgroundColor = "#333"} // Lighter color on hover
-                onMouseOut={(e) => e.target.style.backgroundColor = "black"} // Restore original
+                onMouseOver={(e) => (e.target.style.backgroundColor = "#333")}
+                onMouseOut={(e) => (e.target.style.backgroundColor = "black")}
               >
                 Logout {user.name}
               </button>
             </div>
-              <Button
+            <div style={{ paddingBottom: 20 }}>
+              {isLoading && ( // Show loading spinner while isLoading is true
+                <div
+                  style={{
+                    border: "8px solid #f3f3f3",
+                    borderRadius: "50%",
+                    borderTop: "8px solid #3498db",
+                    width: "50px",
+                    height: "50px",
+                    animation: "spin 1s linear infinite",
+                    margin: "0 auto",
+                  }}
+                ></div>
+              )}
+            </div>
+
+            <Button
               className="btn bg-gradient-to-bl"
               onClick={getCalendarEvents}
             >
@@ -262,7 +279,6 @@ const Home = () => {
                 </li>
               ))}
             </ul>
-            
             <h2>Document Reading Result:</h2>
             <textarea 
               value={formValue.documentContent}
@@ -277,18 +293,17 @@ const Home = () => {
                 borderWidth: "1px",
               }}
             />
-
             <form onSubmit={handleInputSubmit} style={{ textAlign: "center" }}>
               <div className="input-group">
                 <label htmlFor="prompt">Enter your prompt</label>
                 <br />
-                <input
+                <textarea
                   style={{
                     boxSizing: "border-box",
                     border: "2px solid blue",
-                    width: "300px",
+                    width: "50%",
+                    resize: "both",
                   }}
-                  type="text"
                   id="prompt"
                   value={formValue.prompt}
                   onChange={handleInputFieldChange}
@@ -299,7 +314,6 @@ const Home = () => {
                 Ask
               </Button>
             </form>
-           
             <div style={{ textAlign: "center" }}>
               <h2>Prediction Result:</h2>
               <p>{predictionValue}</p>
@@ -308,7 +322,7 @@ const Home = () => {
         )}
       </div>
     </div>
-  );    
+  );
 };
 
 export default Home;
