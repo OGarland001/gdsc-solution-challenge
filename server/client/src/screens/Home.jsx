@@ -262,7 +262,6 @@ const Home = () => {
             >
               Prompt Load
             </Button>
-            {isPromptShown && <Prompt eventList={data}></Prompt>}
             <Button className="btn bg-gradient-to-bl" onClick={handleClick}>
               Process Document
             </Button>
@@ -272,6 +271,7 @@ const Home = () => {
               style={{ display: "none" }}
               onChange={handleChange}
             />
+            {isPromptShown && <Prompt eventList={data}></Prompt>}
             <ul style={{ textAlign: "left" }}>
               {events?.map((event) => (
                 <li key={event.id}>
