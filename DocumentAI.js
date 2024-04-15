@@ -1,5 +1,6 @@
 require('dotenv').config(); // Import and configure dotenv
 
+const path = require('path');
 const projectId = process.env.PROJECT_ID;
 const location = 'us';
 const processorId = process.env.PROCESSOR_ID;
@@ -9,19 +10,37 @@ const { DocumentProcessorServiceClient } = require('@google-cloud/documentai').v
 // Instantiates a client
 const client = new DocumentProcessorServiceClient();
 
-async function quickstart(filePath) {
+async function quickstart(filePath, fileType) {
   try {
     const name = `projects/${projectId}/locations/${location}/processors/${processorId}`;
 
     const fs = require('fs').promises;
     const imageFile = await fs.readFile(filePath);
-    const encodedImage = Buffer.from(imageFile).toString('base64');
+    const encodedFile = Buffer.from(imageFile).toString('base64');
+
+    let mimeType;
+    if (fileType === '.pdf') 
+    {
+      mimeType = 'application/pdf';
+    } 
+    else if (fileType === '.jpg' || fileType === 'jpeg') 
+    {
+      mimeType = 'image/jpeg';
+    } 
+    else if (fileType === '.png') 
+    {
+      mimeType = 'image/png';
+    } 
+    else 
+    {
+      throw new Error('Unsupported file type');
+    }
 
     const request = {
       name,
-      rawDocument: {
-        content: encodedImage,
-        mimeType: 'application/pdf',
+      inlineDocument: {
+        content: encodedFile,
+        mimeType,
       },
     };
 
