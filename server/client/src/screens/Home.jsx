@@ -197,19 +197,54 @@ const Home = () => {
   };
   return (
     <div style={{ textAlign: "center" }}>
-      <div style={{ backgroundColor: "#333", color: "white", padding: "1rem", width: "100%", top: 0, left: 0 }}>
-        <img src={logo} alt="DateMinder Logo" style={{ marginRight: "1rem", height: "100px" }} />
+      <div
+        style={{
+          backgroundColor: "#333",
+          color: "white",
+          padding: "1rem",
+          width: "100%",
+          top: 0,
+          left: 0,
+        }}
+      >
+        <img
+          src={logo}
+          alt="DateMinder Logo"
+          style={{ marginRight: "1rem", height: "100px" }}
+        />
       </div>
-      <div className="container justify-center" style={{ display: "flex", justifyContent: "center", marginTop: "3rem", margin: "auto" }}>
+      <div
+        className="container justify-center"
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          marginTop: "3rem",
+          margin: "auto",
+        }}
+      >
         <div id="signInDiv"></div>
         {user && isShown && (
           <div id="UserDataDiv" style={{ textAlign: "center" }}>
-            <div style={{ marginBottom: "1rem", display: "flex", justifyContent: "center", paddingTop: 15, margin: "auto", paddingBottom: 15 }}>
+            <div
+              style={{
+                marginBottom: "1rem",
+                display: "flex",
+                justifyContent: "center",
+                paddingTop: 15,
+                margin: "auto",
+                paddingBottom: 15,
+              }}
+            >
               <img
                 src={user.picture}
                 alt="google user img"
                 className="justify-center"
-                style={{ marginRight: "0.5rem", height: "80px", width: "80px", borderRadius: "50%"}}
+                style={{
+                  marginRight: "0.5rem",
+                  height: "80px",
+                  width: "80px",
+                  borderRadius: "50%",
+                }}
               />
               <button
                 onClick={logout}
@@ -220,19 +255,19 @@ const Home = () => {
                   padding: 15,
                   borderRadius: "8px",
                   height: "40px",
-                  marginTop: "18px", 
-                  display: "flex", 
+                  marginTop: "18px",
+                  display: "flex",
                   justifyContent: "center",
-                  alignItems: "center",   
-                  transition: "background-color 0.3s"
+                  alignItems: "center",
+                  transition: "background-color 0.3s",
                 }}
-                onMouseOver={(e) => e.target.style.backgroundColor = "#333"} // Lighter color on hover
-                onMouseOut={(e) => e.target.style.backgroundColor = "black"} // Restore original
+                onMouseOver={(e) => (e.target.style.backgroundColor = "#333")} // Lighter color on hover
+                onMouseOut={(e) => (e.target.style.backgroundColor = "black")} // Restore original
               >
                 Logout {user.name}
               </button>
             </div>
-              <Button
+            <Button
               className="btn bg-gradient-to-bl"
               onClick={getCalendarEvents}
             >
@@ -261,7 +296,7 @@ const Home = () => {
                 </li>
               ))}
             </ul>
-  
+
             <form onSubmit={handleInputSubmit} style={{ textAlign: "center" }}>
               <div className="input-group">
                 <label htmlFor="prompt">Enter your prompt</label>
@@ -291,7 +326,7 @@ const Home = () => {
         )}
       </div>
     </div>
-  );    
+  );
 };
 
 export default Home;
