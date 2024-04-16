@@ -228,6 +228,8 @@ const Home = () => {
                   alignItems: "center",
                   transition: "background-color 0.3s",
                 }}
+                onMouseOver={(e) => (e.target.style.backgroundColor = "#333")} // Lighter color on hover
+                onMouseOut={(e) => (e.target.style.backgroundColor = "black")} // Restore original
                 onMouseOver={(e) => (e.target.style.backgroundColor = "#333")}
                 onMouseOut={(e) => (e.target.style.backgroundColor = "black")}
               >
@@ -249,6 +251,7 @@ const Home = () => {
                 ></div>
               )}
             </div>
+
 
             <Button
               className="btn bg-gradient-to-bl"
