@@ -180,18 +180,24 @@ const Home = () => {
           left: 0,
         }}
       >
-        <img src={logo} alt="DateMinder Logo" style={{ marginRight: "1rem", height: "100px" }} />
+        <img
+          src={logo}
+          alt="DateMinder Logo"
+          style={{ marginRight: "1rem", height: "100px" }}
+        />
       </div>
       <div
         className="container justify-center"
-        style={{ display: "flex", justifyContent: "center", marginTop: "3rem", margin: "auto" }}
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          marginTop: "3rem",
+          margin: "auto",
+        }}
       >
         <div id="signInDiv"></div>
         {user && isShown && (
-          <div
-            id="UserDataDiv"
-            style={{ textAlign: "center" }}
-          >
+          <div id="UserDataDiv" style={{ textAlign: "center" }}>
             <div
               style={{
                 marginBottom: "1rem",
@@ -230,8 +236,6 @@ const Home = () => {
                 }}
                 onMouseOver={(e) => (e.target.style.backgroundColor = "#333")} // Lighter color on hover
                 onMouseOut={(e) => (e.target.style.backgroundColor = "black")} // Restore original
-                onMouseOver={(e) => (e.target.style.backgroundColor = "#333")}
-                onMouseOut={(e) => (e.target.style.backgroundColor = "black")}
               >
                 Logout {user.name}
               </button>
@@ -251,7 +255,6 @@ const Home = () => {
                 ></div>
               )}
             </div>
-
 
             <Button
               className="btn bg-gradient-to-bl"
@@ -283,9 +286,11 @@ const Home = () => {
               ))}
             </ul>
             <h2>Document Reading Result:</h2>
-            <textarea 
+            <textarea
               value={formValue.documentContent}
-              onChange={(e) => setFormValue({ documentContent: e.target.value })}
+              onChange={(e) =>
+                setFormValue({ documentContent: e.target.value })
+              }
               style={{
                 textAlign: "center",
                 width: "600px",
