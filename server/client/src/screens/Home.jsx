@@ -1,12 +1,13 @@
-import { useEffect, useState, useRef } from "react";
-import React from "react";
 import "../App.css";
 import { data } from "../data";
+import { Button } from "@material-tailwind/react";
 import { jwtDecode } from "jwt-decode";
+import { useEffect, useState, useRef } from "react";
+import React from "react";
 import Event from "../components/Event";
 import Prompt from "../components/Prompt";
-import { Button } from "@material-tailwind/react";
 import logo from "./images/logo.png";
+import promptWizard from "./images/PromptWizard.png";
 const SCOPE = "https://www.googleapis.com/auth/calendar";
 
 const Home = () => {
@@ -240,21 +241,7 @@ const Home = () => {
                 Logout {user.name}
               </button>
             </div>
-            <div style={{ paddingBottom: 20 }}>
-              {isLoading && ( // Show loading spinner while isLoading is true
-                <div
-                  style={{
-                    border: "8px solid #f3f3f3",
-                    borderRadius: "50%",
-                    borderTop: "8px solid #3498db",
-                    width: "50px",
-                    height: "50px",
-                    animation: "spin 1s linear infinite",
-                    margin: "0 auto",
-                  }}
-                ></div>
-              )}
-            </div>
+
 
             <Button
               className="btn bg-gradient-to-bl"
@@ -286,45 +273,75 @@ const Home = () => {
               ))}
             </ul>
             <h2>Document Reading Result:</h2>
-            <textarea
-              value={formValue.documentContent}
-              onChange={(e) =>
-                setFormValue({ documentContent: e.target.value })
-              }
-              style={{
-                textAlign: "center",
-                width: "600px",
-                height: "200px", // Adjust the height as needed
-                resize: "both", // Allow the user to resize the textarea
-                overflowWrap: "break-word", // Wrap text to next line
-                borderBlockColor: "black",
-                borderWidth: "1px",
-              }}
-            />
-            <form onSubmit={handleInputSubmit} style={{ textAlign: "center" }}>
-              <div className="input-group">
-                <label htmlFor="prompt">Enter your prompt</label>
-                <br />
-                <textarea
-                  style={{
-                    boxSizing: "border-box",
-                    border: "2px solid blue",
-                    width: "50%",
-                    resize: "both",
-                  }}
-                  id="prompt"
-                  value={formValue.prompt}
-                  onChange={handleInputFieldChange}
+            <div style={{ paddingBottom: 20, position: "relative" }}>
+              <textarea
+                value={formValue.documentContent}
+                onChange={(e) =>
+                  setFormValue({ documentContent: e.target.value })
+                }
+                style={{
+                  textAlign: "center",
+                  width: "600px",
+                  height: "200px", // Adjust the height as needed
+                  resize: "both", // Allow the user to resize the textarea
+                  overflowWrap: "break-word", // Wrap text to next line
+                  borderBlockColor: "black",
+                  borderWidth: "1px",
+                }}
+              />
+              {isLoading && ( // Show loading spinner while isLoading is true
+                <div className="loader" style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)" }}>
+                  <span className="bar"></span>
+                  <span className="bar"></span>
+                  <span className="bar"></span>
+                </div>
+              )}
+            </div>
+            <div className="container">
+              {/* Blue Box with Image and Text Fields */}
+              <div className="blue-box">
+                <img
+                  src={promptWizard}
+                  alt="PromptWizard"
+                  style={{ height: "200px", alignSelf: "center"}}
                 />
+                <form onSubmit={handleInputSubmit} style={{ textAlign: "center" }}>
+                  <div className="input-group">
+                    <label htmlFor="prompt">Enter your prompt</label>
+                    <br />
+                    <textarea
+                      style={{
+                        boxSizing: "border-box",
+                        border: "2px solid blue",
+                        width: "50%",
+                        resize: "both",
+                      }}
+                      id="prompt"
+                      value={formValue.prompt}
+                      onChange={handleInputFieldChange}
+                    />
+                  </div>
+                  <br />
+                  <Button className="shadow__btn" type="submit">
+                    Ask
+                  </Button>
+                </form>
+                <div style={{ textAlign: "center" }}>
+                  <h2>Prediction Result:</h2>
+                  <p>{predictionValue}</p>
+                </div>
+                {/* Bubbles */}
+                <div className="bubble bubble1"></div>
+                <div className="bubble bubble2"></div>
+                <div className="bubble bubble3"></div>
+                <div className="bubble bubble4"></div>
+                <div className="bubble bubble5"></div>
+                <div className="bubble bubble6"></div>
+                <div className="bubble bubble7"></div>
+                <div className="bubble bubble8"></div>
+                <div className="bubble bubble9"></div>
+                {/* Add more bubble divs and adjust positions as needed */}
               </div>
-              <br />
-              <Button className="btn bg-gradient-to-bl" type="submit">
-                Ask
-              </Button>
-            </form>
-            <div style={{ textAlign: "center" }}>
-              <h2>Prediction Result:</h2>
-              <p>{predictionValue}</p>
             </div>
           </div>
         )}

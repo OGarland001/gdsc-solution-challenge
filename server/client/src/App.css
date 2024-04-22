@@ -32,11 +32,294 @@
   color: #61dafb;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
+@keyframes floatBubble1 {
+  0% {
+    transform: translate(0, 0);
   }
-  to {
-    transform: rotate(360deg);
+  50% {
+    transform: translate(20px, 20px);
+  }
+  100% {
+    transform: translate(0, 0);
   }
 }
+
+@keyframes floatBubble2 {
+  0% {
+    transform: translate(0, 0);
+  }
+  50% {
+    transform: translate(-20px, 20px);
+  }
+  100% {
+    transform: translate(0, 0);
+  }
+}
+
+@keyframes floatBubble3 {
+  0% {
+    transform: translate(0, 0);
+  }
+  50% {
+    transform: translate(10px, -20px);
+  }
+  100% {
+    transform: translate(0, 0);
+  }
+}
+
+@keyframes floatBubble4 {
+  0% {
+    transform: translate(0, 0);
+  }
+  50% {
+    transform: translate(-30px, -10px);
+  }
+  100% {
+    transform: translate(0, 0);
+  }
+}
+
+@keyframes floatBubble5 {
+  0% {
+    transform: translate(0, 0);
+  }
+  50% {
+    transform: translate(30px, -30px);
+  }
+  100% {
+    transform: translate(0, 0);
+  }
+}
+
+@keyframes floatBubble6 {
+  0% {
+    transform: translate(0, 0);
+  }
+  50% {
+    transform: translate(15px, 30px);
+  }
+  100% {
+    transform: translate(0, 0);
+  }
+}
+
+@keyframes floatBubble7 {
+  0% {
+    transform: translate(0, 0);
+  }
+  50% {
+    transform: translate(-10px, -30px);
+  }
+  100% {
+    transform: translate(0, 0);
+  }
+}
+
+@keyframes floatBubble8 {
+  0% {
+    transform: translate(0, 0);
+  }
+  50% {
+    transform: translate(25px, -15px);
+  }
+  100% {
+    transform: translate(0, 0);
+  }
+}
+
+@keyframes floatBubble9 {
+  0% {
+    transform: translate(0, 0);
+  }
+  50% {
+    transform: translate(-25px, 15px);
+  }
+  100% {
+    transform: translate(0, 0);
+  }
+}
+
+.container {
+  width: 100%; /* Make container full width of the page */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.blue-box {
+  width: 100%;
+  padding: 20px;
+  background: rgb(17, 4, 134);
+  border-radius: 15px;
+  box-shadow: rgb(0,0,0,0.7) 5px 10px 50px ,rgb(0,0,0,0.7) -5px 0px 250px;
+  display: flex;
+  color: white;
+  justify-content: center;
+  position: relative;
+  flex-direction: column;
+  background: linear-gradient(to right, rgb(20, 30, 48), rgb(36, 59, 85));
+  cursor: pointer;
+  transition: all 0.3s ease-in-out;
+  overflow: hidden;
+}
+
+.blue-box:hover {
+  box-shadow: rgb(0,0,0) 5px 10px 50px ,rgb(0,0,0) -5px 0px 250px;
+}
+
+.image-container {
+  flex: 1; /* Grow to fill available space */
+  display: flex;
+  justify-content: center; /* Center horizontally */
+  align-items: center; /* Center vertically */
+}
+
+.box-image {
+  height: 200px; /* Adjust image height as needed */
+}
+
+.text-field,
+.text-area {
+  width: 100%; /* Make the fields fill the box */
+  margin-bottom: 10px; /* Adjust margin as needed */
+}
+
+.bubble {
+  background-color: rgba(111, 202, 255, 0.5); /* Semi-transparent white */
+  border-radius: 50%; /* To make it a circle */
+  position: absolute;
+}
+
+.bubble1 {
+  top: 20%;
+  left: 20%;
+  width: 30px;
+  height: 30px;
+  animation: floatBubble1 5s infinite alternate ease-in-out;
+}
+
+.bubble2 {
+  top: 60%;
+  left: 70%;
+  width: 40px;
+  height: 40px;
+  animation: floatBubble2 6s infinite alternate ease-in-out;
+}
+
+.bubble3 {
+  top: 80%;
+  left: 40%;
+  width: 35px;
+  height: 35px;
+  animation: floatBubble3 7s infinite alternate ease-in-out;
+}
+
+.bubble4 {
+  top: 30%;
+  left: 50%;
+  width: 25px;
+  height: 25px;
+  animation: floatBubble4 4s infinite alternate ease-in-out;
+}
+
+.bubble5 {
+  top: 70%;
+  left: 20%;
+  width: 45px;
+  height: 45px;
+  animation: floatBubble5 5s infinite alternate ease-in-out;
+}
+
+.bubble6 {
+  top: 40%;
+  left: 80%;
+  width: 20px;
+  height: 20px;
+  animation: floatBubble6 6s infinite alternate ease-in-out;
+}
+
+.bubble7 {
+  top: 90%;
+  left: 60%;
+  width: 30px;
+  height: 30px;
+  animation: floatBubble7 7s infinite alternate ease-in-out;
+}
+
+.bubble8 {
+  top: 50%;
+  left: 30%;
+  width: 35px;
+  height: 35px;
+  animation: floatBubble8 4s infinite alternate ease-in-out;
+}
+
+.bubble9 {
+  top: 60%;
+  left: 10%;
+  width: 40px;
+  height: 40px;
+  animation: floatBubble9 5s infinite alternate ease-in-out;
+}
+
+.shadow__btn {
+  padding: 10px 20px;
+  border: none;
+  font-size: 17px;
+  color: #fff;
+  border-radius: 7px;
+  letter-spacing: 4px;
+  font-weight: 700;
+  text-transform: uppercase;
+  transition: 0.5s;
+  transition-property: box-shadow;
+}
+
+.shadow__btn {
+  background: rgb(0,140,255);
+  box-shadow: 0 0 25px rgb(0,140,255);
+}
+
+.shadow__btn:hover {
+  box-shadow: 0 0 5px rgb(0,140,255),
+              0 0 25px rgb(0,140,255),
+              0 0 50px rgb(0,140,255),
+              0 0 100px rgb(0,140,255);
+}
+
+.loader {
+  display: flex;
+  align-items: center;
+}
+
+.bar {
+  display: inline-block;
+  width: 3px;
+  height: 40px;
+  background-color: rgba(41, 161, 252, 0.551);
+  border-radius: 10px;
+  animation: scale-up4 1s linear infinite;
+}
+
+.bar:nth-child(2) {
+  height: 65px;
+  margin: 0 5px;
+  animation-delay: .25s;
+}
+
+.bar:nth-child(3) {
+  animation-delay: .5s;
+}
+
+@keyframes scale-up4 {
+  20% {
+    background-color: #ffff;
+    transform: scaleY(1.5);
+  }
+
+  40% {
+    transform: scaleY(1);
+  }
+}
+
