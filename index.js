@@ -170,7 +170,11 @@ function parseEventData(jsonString) {
 }
 
 
+
 const fetch = require("node-fetch");
+//Todays date is 
+const calendarReferenceText = ' here is the list of my calendar events for reference: ';
+const addEventText = ' only convert the given event to JSON format, not the events from the list. Use this format: { "summary": "Event summary", "start": { "dateTime": "2023-04-10T10:00:00-07:00" }, "end": { "dateTime": "2023-04-10T11:00:00-07:00" } } ';
 
 app.post("/palmrequest", async (req, res) => {
   try {
@@ -179,12 +183,21 @@ app.post("/palmrequest", async (req, res) => {
       "Content-Type": "application/json",
     };
 
+    //console.log(req.body.Context);
     const palmContext = parseEventData(req.body.Context);
+    const currentDateTime = req.body.CurrentDateTime;
+    const TimeZone = req.body.Timezone
+
+    console.log('time zone:', TimeZone);
+    console.log('current time', currentDateTime);
+
+
+    console.log(palmContext);
 
     const data = {
       instances: [
         {
-          prompt: req.body.Prompt + ' here is the list of my calendar events ' + palmContext
+          prompt: req.body.Prompt + calendarReferenceText + palmContext
         },
       ],
       parameters: {
