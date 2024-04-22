@@ -126,8 +126,11 @@ app.post("/process-document", upload.single("file"), async (req, res) => {
     // Now you can access the uploaded file using req.file
     const filePath = req.file.path;
 
-    // Call quickstart function with the file path and get the document content
-    const documentContent = await quickstart(filePath);
+    // Determine file type based on file extension
+    const fileType = path.extname(req.file.originalname).toLowerCase();
+
+    // Call quickstart function with the file path and file type
+    const documentContent = await quickstart(filePath, fileType);
 
     res.status(200).json({ message: documentContent });
   } catch (error) {
