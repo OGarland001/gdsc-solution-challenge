@@ -110,6 +110,10 @@ const Home = () => {
         return eventData;
       });
 
+      const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+      const currentDateTimeString = new Date().toLocaleString();
+      console.log("Current Date and Time (String):", currentDateTimeString);
+
       const response = await fetch("/palmrequest", {
         method: "POST",
         headers: {
@@ -118,6 +122,8 @@ const Home = () => {
         body: JSON.stringify({
           Context: JSON.stringify(eventDataToSend),
           Prompt: formValue.prompt,
+          CurrentDateTime: currentDateTimeString,
+          Timezone: userTimezone
         }),
       });
 
