@@ -19,6 +19,7 @@ const Home = () => {
   const [formValue, setFormValue] = useState({});
   const [predictionValue, setPrediction] = useState([]);
   const [user, setUser] = useState(null);
+  const [prompts, setPrompts] = useState([]);
   const [isLoading, setIsLoading] = useState(false); // Add isLoading state
 
   useEffect(() => {
@@ -124,7 +125,7 @@ const Home = () => {
           Context: JSON.stringify(eventDataToSend),
           Prompt: formValue.prompt,
           CurrentDateTime: currentDateTimeString,
-          Timezone: userTimezone
+          Timezone: userTimezone,
         }),
       });
 
@@ -154,6 +155,36 @@ const Home = () => {
       console.log("In front end:" + data.message);
       setFormValue({ documentContent: data.message }); // Set the documentContent in formValue
       setIsLoading(false); // Set isLoading to false after getting response
+
+      //make call to the palmAI and then console log the events pulled from the data.
+      const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+      const currentDateTimeString = new Date().toLocaleString();
+      const palmResponse = await fetch("/palmrequest", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          Context: "",
+          Prompt: data.message,
+          CurrentDateTime: currentDateTimeString,
+          Timezone: userTimezone,
+          State: "document",
+        }),
+      });
+
+      if (palmResponse.ok) {
+        const data = await palmResponse.json();
+        var dataStr = data.prediction.replace("```", "");
+        var newdataStr = dataStr.replace("```", "");
+        newdataStr = newdataStr.slice(5);
+        console.log("STR data: ", newdataStr);
+        console.log("Received data: ", JSON.parse(newdataStr));
+        setPrompts(JSON.parse(newdataStr));
+        getPromptEvents();
+      } else {
+        throw new Error("Failed to fetch predictions");
+      }
     } catch (error) {
       console.error("Error processing document:", error);
       setIsLoading(false); // Set isLoading to false in case of error
@@ -248,7 +279,6 @@ const Home = () => {
               </button>
             </div>
 
-
             <Button
               className="btn bg-gradient-to-bl"
               onClick={getCalendarEvents}
@@ -270,7 +300,7 @@ const Home = () => {
               style={{ display: "none" }}
               onChange={handleChange}
             />
-            {isPromptShown && <Prompt eventList={data}></Prompt>}
+            {isPromptShown && <Prompt eventList={prompts.events}></Prompt>}
             <ul style={{ textAlign: "left" }}>
               {events?.map((event) => (
                 <li key={event.id}>
@@ -296,7 +326,15 @@ const Home = () => {
                 }}
               />
               {isLoading && ( // Show loading spinner while isLoading is true
-                <div className="loader" style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)" }}>
+                <div
+                  className="loader"
+                  style={{
+                    position: "absolute",
+                    top: "50%",
+                    left: "50%",
+                    transform: "translate(-50%, -50%)",
+                  }}
+                >
                   <span className="bar"></span>
                   <span className="bar"></span>
                   <span className="bar"></span>
@@ -309,9 +347,12 @@ const Home = () => {
                 <img
                   src={promptWizard}
                   alt="PromptWizard"
-                  style={{ height: "200px", alignSelf: "center"}}
+                  style={{ height: "200px", alignSelf: "center" }}
                 />
-                <form onSubmit={handleInputSubmit} style={{ textAlign: "center" }}>
+                <form
+                  onSubmit={handleInputSubmit}
+                  style={{ textAlign: "center" }}
+                >
                   <div className="input-group">
                     <label htmlFor="prompt">Enter your prompt</label>
                     <br />
