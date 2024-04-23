@@ -169,12 +169,57 @@ function parseEventData(jsonString) {
   }
 }
 
+function parseSingleEventData(jsonString) {
+  try {
+    const event = JSON.parse(jsonString);
+    return event;
+  } catch (error) {
+    console.error("Error parsing event data:", error.message);
+    throw new Error("Failed to parse event data");
+  }
+}
+
+// Function to check for event overlap
+function checkOpenDate(currentDates, jsonString) {
+  const request = parseSingleEventData(jsonString);
+
+  const requiredFields = ["summary", "start", "end"];
+  for (const field of requiredFields) {
+    if (!request[field]) {
+      throw new Error(`Missing required field: ${field}`);
+    }
+  }
+
+  if (!request.start || !request.start.dateTime || !request.end || !request.end.dateTime) {
+    throw new Error("Start and end dates with dateTime are required");
+  }
+
+  const newSummary = request.summary;
+  const newStart = new Date(request.start.dateTime);
+  const newEnd = new Date(request.end.dateTime);
+
+  for (const event of currentDates) {
+    const existingSummary = event.summary;
+    const existingStart = new Date(event.start.dateTime);
+    const existingEnd = new Date(event.end.dateTime);
+
+    if (
+      (newStart >= existingStart && newStart < existingEnd) ||
+      (newEnd > existingStart && newEnd <= existingEnd) ||
+      (newStart <= existingStart && newEnd >= existingEnd)
+    ) {
+      return `The new event "${newSummary}" overlaps with your existing event "${existingSummary}"`;
+    }
+  }
+  return null;
+}
+
 
 
 const fetch = require("node-fetch");
 //Todays date is 
 const calendarReferenceText = ' here is the list of my calendar events for reference: ';
-const addEventText = ' only convert the given event to JSON format, not the events from the list. Use this format: { "summary": "Event summary", "start": { "dateTime": "2023-04-10T10:00:00-07:00" }, "end": { "dateTime": "2023-04-10T11:00:00-07:00" } } ';
+const addEventText = ' Convert the previous statment into a new format. Use this format (if there is no description leave blank): { "summary": "Event summary", “Description”: “Event Description”, "start": { "dateTime": "2023-04-10T10:00:00-07:00" }, "end": { "dateTime": "2023-04-10T11:00:00-07:00" } } ';
 
 app.post("/palmrequest", async (req, res) => {
   try {
@@ -197,7 +242,7 @@ app.post("/palmrequest", async (req, res) => {
     const data = {
       instances: [
         {
-          prompt: req.body.Prompt + calendarReferenceText + palmContext
+          prompt: req.body.Prompt + calendarReferenceText + palmContext + ' the current date and time is ' + currentDateTime + ' in this time zone: ' + TimeZone
         },
       ],
       parameters: {
@@ -228,9 +273,18 @@ app.post("/palmrequest", async (req, res) => {
       throw new Error("Invalid response format or missing data in predictions");
     }
 
-    const prediction = result.predictions[0].content;
+    var prediction = result.predictions[0].content;
 
     console.log("Response from Vertex AI: ", prediction);
+
+    //Commented out until add event prompt is created
+    // const openDateMessage = checkOpenDate(palmContext, prediction);
+
+    // if (openDateMessage !== null) {
+    //   prediction = openDateMessage;
+    // }
+
+   
 
     res.status(200).json({ prediction });
   } catch (error) {
