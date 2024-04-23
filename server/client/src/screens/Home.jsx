@@ -155,7 +155,7 @@ const Home = () => {
       });
       const data = await response.json();
       console.log("In front end:" + data.message);
-      setFormValue({ ...formValue, documentContent: data.message }); // Update formValue with documentContent property
+      setFormValue({ documentContent: data.message }); // Set the documentContent in formValue
       setIsLoading(false); // Set isLoading to false after getting response
 
       //make call to the palmAI and then console log the events pulled from the data.
@@ -234,280 +234,235 @@ const Home = () => {
 
   return (
     <div style={{ textAlign: "center" }}>
-      <div
-        style={{
-          backgroundColor: "#333",
-          color: "white",
-          padding: "1rem",
-          width: "100%",
-          top: 0,
-          left: 0,
-        }}
-      >
-        <img
-          src={logo}
-          alt="DateMinder Logo"
-          style={{ marginRight: "1rem", height: "100px" }}
-        />
-      </div>
+    <div
+      style={{
+        backgroundColor: "#333",
+        color: "white",
+        padding: "1rem",
+        width: "100%",
+        top: 0,
+        left: 0,
+      }}
+    >
+      <img
+        src={logo}
+        alt="DateMinder Logo"
+        style={{ marginRight: "1rem", height: "100px" }}
+      />
+    </div>
 
-      <div
-        className="container justify-center"
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          marginTop: "3rem",
-          margin: "auto",
-        }}
-      >
-        <div id="signInDiv"></div>
-        {user && isShown && (
-          <div id="UserDataDiv" style={{ textAlign: "center", marginTop: 15, marginBottom: 15 }}>
-            <div style={{ display: "flex", justifyContent: "center" }}>
-            <Button className="btn bg-gradient-to-bl shadowBtn" onClick={getCalendarEvents} style={{ width: 200, height: 45, marginRight: 10, marginTop: 50 }}>
-              Auth Google Calendar
-            </Button>
-            <div style={{ display: "flex", alignItems: "center" }}>
-              <img
-                src={user.picture}
-                alt="google user img"
-                className="justify-center"
-                style={{
-                  height: "100px",
-                  width: "100px",
-                  borderRadius: "50%",
-                }}
-              />
-            </div>
-            <Button className="btn bg-gradient-to-bl shadowBtn" onClick={logout} style={{ width: 200, height: 45, marginLeft: 10, marginTop: 50 }}>
-              Logout {user.name}
-            </Button>
-            <input
-              type="file"
-              ref={fileInputRef}
-              style={{ display: "none" }}
-              onChange={handleChange}
+    <div
+      className="container justify-center"
+      style={{
+        display: "flex",
+        justifyContent: "center",
+        marginTop: "3rem",
+        margin: "auto",
+      }}
+    >
+      <div id="signInDiv"></div>
+      {user && isShown && (
+        <div id="UserDataDiv" style={{ textAlign: "center", marginTop: 15, marginBottom: 15 }}>
+          <div style={{ display: "flex", justifyContent: "center" }}>
+          <Button className="btn bg-gradient-to-bl shadowBtn" onClick={getCalendarEvents} style={{ width: 200, height: 45, marginRight: 10, marginTop: 50 }}>
+            Auth Google Calendar
+          </Button>
+          <div style={{ display: "flex", alignItems: "center" }}>
+            <img
+              src={user.picture}
+              alt="google user img"
+              className="justify-center"
+              style={{
+                height: "100px",
+                width: "100px",
+                borderRadius: "50%",
+              }}
             />
-            {isPromptShown && <Prompt eventList={prompts.events}></Prompt>}
-            <ul style={{ textAlign: "left" }}>
-              {events?.map((event) => (
-                <li key={event.id}>
-                  <Event description={event.summary} />
-                </li>
-              ))}
-            </ul>
-            <h2>Document Reading Result:</h2>
-            <div style={{ paddingBottom: 20, position: "relative" }}>
-              <textarea
-                value={formValue.documentContent}
-                onChange={(e) =>
-                  setFormValue({ documentContent: e.target.value })
-                }
-                style={{
-                  textAlign: "center",
-                  width: "600px",
-                  height: "200px", // Adjust the height as needed
-                  resize: "both", // Allow the user to resize the textarea
-                  overflowWrap: "break-word", // Wrap text to next line
-                  borderBlockColor: "black",
-                  borderWidth: "1px",
-                }}
+          </div>
+          <Button className="btn bg-gradient-to-bl shadowBtn" onClick={logout} style={{ width: 200, height: 45, marginLeft: 10, marginTop: 50 }}>
+            Logout {user.name}
+          </Button>
+        </div>
+
+          {/* Prompt Wizzard */}
+          <div className="container" style={{ marginTop: 15, marginBottom: 15 }}>
+            <div className="blue-box">
+              <img
+                src={promptWizard}
+                alt="PromptWizard"
+                style={{ height: "200px", alignSelf: "center"}}
               />
-              {isLoading && ( // Show loading spinner while isLoading is true
-                <div
-                  className="loader"
-                  style={{
-                    position: "absolute",
-                    top: "50%",
-                    left: "50%",
-                    transform: "translate(-50%, -50%)",
-                  }}
-                >
-                  <span className="bar"></span>
-                  <span className="bar"></span>
-                  <span className="bar"></span>
+
+              <label htmlFor="prompt">Prompt Wizzard</label>
+
+              <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '20px' }}>
+                <div className="radio-inputs">
+                  <label className="radio">
+                    <input
+                      type="radio"
+                      name="radio"
+                      value="Ask"
+                      checked={formValue.radio === 'Ask'}
+                      onChange={(e) => setFormValue({ ...formValue, radio: e.target.value })}
+                    />
+                    <span className="name">Ask</span>
+                  </label>
+                  <label className="radio">
+                    <input
+                      type="radio"
+                      name="radio"
+                      value="Upload"
+                      checked={formValue.radio === 'Upload'}
+                      onChange={(e) => setFormValue({ ...formValue, radio: e.target.value })}
+                    />
+                    <span className="name">Upload</span>
+                  </label>
+                  <label className="radio">
+                    <input
+                      type="radio"
+                      name="radio"
+                      value="Update"
+                      checked={formValue.radio === 'Update'}
+                      onChange={(e) => setFormValue({ ...formValue, radio: e.target.value })}
+                    />
+                    <span className="name">Update</span>
+                  </label>
+                  <label className="radio">
+                    <input
+                      type="radio"
+                      name="radio"
+                      value="Create"
+                      checked={formValue.radio === 'Create'}
+                      onChange={(e) => setFormValue({ ...formValue, radio: e.target.value })}
+                    />
+                    <span className="name">Create</span>
+                  </label>
+                </div>
+              </div>
+
+              {/* Conditionally render different buttons and text based on the selected radio option */}
+              {formValue.radio === 'Ask' && (
+                <div>
+                  {/* Render buttons and text for "Ask" option */}
+                  <p>Ask your assistant about your calendar</p>
+                  <form onSubmit={handleInputSubmit} style={{ textAlign: "center", marginTop: 10 }}>
+                    <textarea placeholder="Ask your calendar..." class="input" name="text" type="text" id="prompt" value={formValue.prompt} onChange={handleInputFieldChange}></textarea>
+                    <br />
+                    <Button className="shadow__btn" type="submit">
+                      Ask
+                    </Button>
+                  </form>
+                  <div style={{ textAlign: "center" }}>
+                    <h2>Prediction Result:</h2>
+                    <p>{predictionValue}</p>
+                  </div>
                 </div>
               )}
-            </div>
-            <div className="container">
-              {/* Blue Box with Image and Text Fields */}
-              <div className="blue-box">
-                <img
-                  src={promptWizard}
-                  alt="PromptWizard"
-                  style={{ height: "200px", alignSelf: "center" }}
-                />
-
-                <label htmlFor="prompt">Prompt Wizzard</label>
-
-                <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '20px' }}>
-                  <div className="radio-inputs">
-                    <label className="radio">
-                      <input
-                        type="radio"
-                        name="radio"
-                        value="Ask"
-                        checked={formValue.radio === 'Ask'}
-                        onChange={(e) => setFormValue({ ...formValue, radio: e.target.value })}
-                      />
-                      <span className="name">Ask</span>
-                    </label>
-                    <label className="radio">
-                      <input
-                        type="radio"
-                        name="radio"
-                        value="Upload"
-                        checked={formValue.radio === 'Upload'}
-                        onChange={(e) => setFormValue({ ...formValue, radio: e.target.value })}
-                      />
-                      <span className="name">Upload</span>
-                    </label>
-                    <label className="radio">
-                      <input
-                        type="radio"
-                        name="radio"
-                        value="Update"
-                        checked={formValue.radio === 'Update'}
-                        onChange={(e) => setFormValue({ ...formValue, radio: e.target.value })}
-                      />
-                      <span className="name">Update</span>
-                    </label>
-                    <label className="radio">
-                      <input
-                        type="radio"
-                        name="radio"
-                        value="Create"
-                        checked={formValue.radio === 'Create'}
-                        onChange={(e) => setFormValue({ ...formValue, radio: e.target.value })}
-                      />
-                      <span className="name">Create</span>
-                    </label>
-                  </div>
-                </div>
-
-                {/* Conditionally render different buttons and text based on the selected radio option */}
-                {formValue.radio === 'Ask' && (
-                  <div>
-                    {/* Render buttons and text for "Ask" option */}
-                    <p>Ask your assistant about your calendar</p>
-                    <form onSubmit={handleInputSubmit} style={{ textAlign: "center", marginTop: 10 }}>
-                      <textarea placeholder="Ask your calendar..." class="input" name="text" type="text" id="prompt" value={formValue.prompt} onChange={handleInputFieldChange}></textarea>
-                      <br />
-                      <Button className="shadow__btn" type="submit">
-                        Ask
-                      </Button>
-                    </form>
-                    <div style={{ textAlign: "center" }}>
-                      <h2>Prediction Result:</h2>
-                      <p>{predictionValue}</p>
-                    </div>
-                  </div>
-                )}
-                {formValue.radio === 'Upload' && (
-                  <div style={{ display: 'flex', justifyContent: 'center', flexDirection: 'column'}}>
-                    {/* Render buttons and text for "Upload" option */}
-                    <p>Upload images or documents with events or duedates</p>
-                    <p>smart AI will help you add them to your calender</p>
-                    <div
-                      className={`dotted-dash-area ${isDragging ? 'dragover' : ''}`}
-                      onDragOver={handleDragOver}
-                      onDragLeave={handleDragLeave}
-                      onDrop={handleFileDrop}
-                      style={{ 
-                        marginTop: 10, 
-                        marginBottom: 10,
-                        display: "flex",        // Set display to flex
-                        flexDirection: "column", // Align children vertically
-                        alignItems: "center",    // Center items horizontally
-                        justifyContent: "center" // Center items vertically
-                      }}
-                    >
-                      <img
-                        src={upload}
-                        alt="file upload icon"
-                        style={{ height: "100px", marginBottom: 10 }} // Keep existing styles
-                      />
-                      <p>Drag and drop a file here or click here to process it</p>
-                      <Button className="shadow__btn" onClick={handleClick} style={{ marginTop: 10, marginBottom: 10 }}>
-                        Process Document
-                      </Button>
-                      <input
-                        type="file"
-                        ref={fileInputRef}
-                        style={{ display: "none" }}
-                        onChange={handleFileInputChange}
-                      />
-                    </div>
-
+              {formValue.radio === 'Upload' && (
+                <div style={{ display: 'flex', justifyContent: 'center', flexDirection: 'column'}}>
+                  {/* Render buttons and text for "Upload" option */}
+                  <p>Upload images or documents with events or duedates</p>
+                  <p>smart AI will help you add them to your calender</p>
+                  <div
+                    className={`dotted-dash-area ${isDragging ? 'dragover' : ''}`}
+                    onDragOver={handleDragOver}
+                    onDragLeave={handleDragLeave}
+                    onDrop={handleFileDrop}
+                    style={{ 
+                      marginTop: 10, 
+                      marginBottom: 10,
+                      display: "flex",        // Set display to flex
+                      flexDirection: "column", // Align children vertically
+                      alignItems: "center",    // Center items horizontally
+                      justifyContent: "center" // Center items vertically
+                    }}
+                  >
+                    <img
+                      src={upload}
+                      alt="file upload icon"
+                      style={{ height: "100px", marginBottom: 10 }} // Keep existing styles
+                    />
+                    <p>Drag and drop a file here or click here to process it</p>
+                    <Button className="shadow__btn" onClick={handleClick} style={{ marginTop: 10, marginBottom: 10 }}>
+                      Process Document
+                    </Button>
                     <input
                       type="file"
                       ref={fileInputRef}
                       style={{ display: "none" }}
-                      onChange={handleChange}
+                      onChange={handleFileInputChange}
                     />
-
-                    <h2>Document Reading Result:</h2>
-                    <div style={{ paddingBottom: 20, position: "relative" }}>
-                      <textarea
-                        class="textFeild" name="text" type="text"
-                        value={formValue.documentContent}
-                        onChange={(e) =>
-                          setFormValue({ ...formValue, documentContent: e.target.value })
-                        }
-                      />
-                      {isLoading && ( // Show loading spinner while isLoading is true
-                        <div className="loader" style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)" }}>
-                          <span className="bar"></span>
-                          <span className="bar"></span>
-                          <span className="bar"></span>
-                        </div>
-                      )}
-                    </div>
                   </div>
-                )}
-                {formValue.radio === 'Update' && (
-                  <div>
-                    {/* Render buttons and text for "Update" option */}
-                    <button>Update Button</button>
-                    <p>Update Text</p>
+
+                  <input
+                    type="file"
+                    ref={fileInputRef}
+                    style={{ display: "none" }}
+                    onChange={handleChange}
+                  />
+
+                  <h2>Document Reading Result:</h2>
+                  <div style={{ paddingBottom: 20, position: "relative" }}>
+                    <textarea
+                      class="textFeild" name="text" type="text"
+                      value={formValue.documentContent}
+                      onChange={(e) =>
+                        setFormValue({ ...formValue, documentContent: e.target.value })
+                      }
+                    />
+                    {isLoading && ( // Show loading spinner while isLoading is true
+                      <div className="loader" style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)" }}>
+                        <span className="bar"></span>
+                        <span className="bar"></span>
+                        <span className="bar"></span>
+                      </div>
+                    )}
                   </div>
-                )}
-                {formValue.radio === 'Create' && (
-                  <div>
-                    {/* Render buttons and text for "Create" option */}
-                    <button>Create Button</button>
-                    <p>Create Text</p>
+                </div>
+              )}
+              {formValue.radio === 'Update' && (
+                <div>
+                  {/* Render buttons and text for "Update" option */}
+                  <button>Update Button</button>
+                  <p>Update Text</p>
+                </div>
+              )}
+              {formValue.radio === 'Create' && (
+                <div>
+                  {/* Render buttons and text for "Create" option */}
+                  <button>Create Button</button>
+                  <p>Create Text</p>
 
-                    <Button className="btn bg-gradient-to-bl" onClick={() => getPromptEvents(data)}>
-                      Prompt Load
-                    </Button>
+                  <Button className="btn bg-gradient-to-bl" onClick={() => getPromptEvents(data)}>
+                    Prompt Load
+                  </Button>
 
-                    {isPromptShown && <Prompt eventList={data}></Prompt>}
-                    <ul style={{ textAlign: "left" }}>
-                      {events?.map((event) => (
-                        <li key={event.id}>
-                          <Event description={event.summary} />
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
+                  {isPromptShown && <Prompt eventList={prompts.events}></Prompt>}
+                  <ul style={{ textAlign: "left" }}>
+                    {events?.map((event) => (
+                      <li key={event.id}>
+                        <Event description={event.summary} />
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
 
-                <div className="bubble bubble1"></div>
-                <div className="bubble bubble2"></div>
-                <div className="bubble bubble3"></div>
-                <div className="bubble bubble4"></div>
-                <div className="bubble bubble5"></div>
-                <div className="bubble bubble6"></div>
-                <div className="bubble bubble7"></div>
-                <div className="bubble bubble8"></div>
-                <div className="bubble bubble9"></div>
-              </div>
+              <div className="bubble bubble1"></div>
+              <div className="bubble bubble2"></div>
+              <div className="bubble bubble3"></div>
+              <div className="bubble bubble4"></div>
+              <div className="bubble bubble5"></div>
+              <div className="bubble bubble6"></div>
+              <div className="bubble bubble7"></div>
+              <div className="bubble bubble8"></div>
+              <div className="bubble bubble9"></div>
             </div>
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </div>
+  </div>
   );
 };
 
