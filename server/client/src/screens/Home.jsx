@@ -20,6 +20,7 @@ const Home = () => {
   const [formValue, setFormValue] = useState({ radio: 'Ask' }); // Updated formValue state with radio property
   const [predictionValue, setPrediction] = useState([]);
   const [user, setUser] = useState(null);
+  const [prompts, setPrompts] = useState([]);
   const [isLoading, setIsLoading] = useState(false); // Add isLoading state
   const [isDragging] = useState(false); // State variable to track dragging
 
@@ -126,7 +127,7 @@ const Home = () => {
           Context: JSON.stringify(eventDataToSend),
           Prompt: formValue.prompt,
           CurrentDateTime: currentDateTimeString,
-          Timezone: userTimezone
+          Timezone: userTimezone,
         }),
       });
 
@@ -156,6 +157,36 @@ const Home = () => {
       console.log("In front end:" + data.message);
       setFormValue({ ...formValue, documentContent: data.message }); // Update formValue with documentContent property
       setIsLoading(false); // Set isLoading to false after getting response
+
+      //make call to the palmAI and then console log the events pulled from the data.
+      const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+      const currentDateTimeString = new Date().toLocaleString();
+      const palmResponse = await fetch("/palmrequest", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          Context: "",
+          Prompt: data.message,
+          CurrentDateTime: currentDateTimeString,
+          Timezone: userTimezone,
+          State: "document",
+        }),
+      });
+
+      if (palmResponse.ok) {
+        const data = await palmResponse.json();
+        var dataStr = data.prediction.replace("```", "");
+        var newdataStr = dataStr.replace("```", "");
+        newdataStr = newdataStr.slice(5);
+        console.log("STR data: ", newdataStr);
+        console.log("Received data: ", JSON.parse(newdataStr));
+        setPrompts(JSON.parse(newdataStr));
+        getPromptEvents();
+      } else {
+        throw new Error("Failed to fetch predictions");
+      }
     } catch (error) {
       console.error("Error processing document:", error);
       setIsLoading(false); // Set isLoading to false in case of error
@@ -251,15 +282,60 @@ const Home = () => {
             <Button className="btn bg-gradient-to-bl shadowBtn" onClick={logout} style={{ width: 200, height: 45, marginLeft: 10, marginTop: 50 }}>
               Logout {user.name}
             </Button>
-          </div>
-
-            {/* Prompt Wizzard */}
-            <div className="container" style={{ marginTop: 15, marginBottom: 15 }}>
+            <input
+              type="file"
+              ref={fileInputRef}
+              style={{ display: "none" }}
+              onChange={handleChange}
+            />
+            {isPromptShown && <Prompt eventList={prompts.events}></Prompt>}
+            <ul style={{ textAlign: "left" }}>
+              {events?.map((event) => (
+                <li key={event.id}>
+                  <Event description={event.summary} />
+                </li>
+              ))}
+            </ul>
+            <h2>Document Reading Result:</h2>
+            <div style={{ paddingBottom: 20, position: "relative" }}>
+              <textarea
+                value={formValue.documentContent}
+                onChange={(e) =>
+                  setFormValue({ documentContent: e.target.value })
+                }
+                style={{
+                  textAlign: "center",
+                  width: "600px",
+                  height: "200px", // Adjust the height as needed
+                  resize: "both", // Allow the user to resize the textarea
+                  overflowWrap: "break-word", // Wrap text to next line
+                  borderBlockColor: "black",
+                  borderWidth: "1px",
+                }}
+              />
+              {isLoading && ( // Show loading spinner while isLoading is true
+                <div
+                  className="loader"
+                  style={{
+                    position: "absolute",
+                    top: "50%",
+                    left: "50%",
+                    transform: "translate(-50%, -50%)",
+                  }}
+                >
+                  <span className="bar"></span>
+                  <span className="bar"></span>
+                  <span className="bar"></span>
+                </div>
+              )}
+            </div>
+            <div className="container">
+              {/* Blue Box with Image and Text Fields */}
               <div className="blue-box">
                 <img
                   src={promptWizard}
                   alt="PromptWizard"
-                  style={{ height: "200px", alignSelf: "center"}}
+                  style={{ height: "200px", alignSelf: "center" }}
                 />
 
                 <label htmlFor="prompt">Prompt Wizzard</label>
