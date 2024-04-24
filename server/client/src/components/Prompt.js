@@ -155,20 +155,21 @@ function Prompt({ eventList }) {
                 className="mb-2 w-full border border-gray-300 p-2 rounded-md text-black"
               />
             </div>
-            <div class="checkbox-wrapper-8 ml-4 flex flex-col justify-center">
-              <input 
-                type="checkbox" 
-                class="tgl tgl-skewed" 
-                id={`event-checkbox-${item.id}`}
-                checked={selectedEvents.includes(item.id)}
-                onChange={() => toggleEventSelection(item.id)}
-              />
-              <label 
-                for={`event-checkbox-${item.id}`} 
-                data-tg-on="Keep" 
-                data-tg-off="Discard" 
-                class="tgl-btn">
+            <div style={{ display: 'flex', alignItems: 'center', marginTop: '3px' }}>
+              <label class="checkbox-container ml-4 flex flex-col justify-center">
+                <input
+                  class="custom-checkbox" 
+                  checked={selectedEvents.includes(item.id)}
+                  onChange={() => toggleEventSelection(item.id)}
+                  id={`event-checkbox-${item.id}`} 
+                  type="checkbox"/>
+                <span class="checkmark"></span>
               </label>
+              <div style={{ marginBottom: '15px', marginLeft: '2px' }}>
+                <label htmlFor={`event-checkbox-${item.id}`} className="ml-2">
+                  Keep
+                </label>
+              </div>
             </div>
           </div>
         ))}
