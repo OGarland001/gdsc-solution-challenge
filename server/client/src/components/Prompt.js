@@ -2,6 +2,7 @@ import { Button } from "@material-tailwind/react";
 import React, { useState, useEffect } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import "./promptStyle.css";
 
 function Prompt({ eventList }) {
   const [selectedEvents, setSelectedEvents] = useState([]);
@@ -111,25 +112,25 @@ function Prompt({ eventList }) {
             className="border p-4 mb-4 flex flex-wrap items-start"
           >
             <div className="flex-grow">
-              <label className="block mb-2 text-sm font-medium text-gray-900">
+              <label className="block mb-2 text-sm font-medium text-white">
                 Title
               </label>
               <input
                 type="text"
-                className="mb-2 w-full border border-gray-300 p-2 rounded-md"
+                className="mb-2 w-full border border-gray-300 p-2 rounded-md text-black"
                 value={EventTitles[item.id] || ""}
                 onChange={(e) => handleTitleChange(item.id, e.target.value)}
               />
-              <label className="block mb-2 text-sm font-medium text-gray-900">
+              <label className="block mb-2 text-sm font-medium text-white">
                 Description
               </label>
               <input
                 type="text"
-                className="mb-2 w-full border border-gray-300 p-2 rounded-md"
+                className="mb-2 w-full border border-gray-300 p-2 rounded-md text-black"
                 value={EventDescriptions[item.id] || ""}
                 onChange={(e) => handleDescChange(item.id, e.target.value)}
               />
-              <label className="block mb-2 text-sm font-medium text-gray-900">
+              <label className="block mb-2 text-sm font-medium text-white">
                 Start Time
               </label>
               <DatePicker
@@ -139,9 +140,9 @@ function Prompt({ eventList }) {
                 timeFormat="HH:mm"
                 timeIntervals={15}
                 dateFormat="yyyy-MM-dd HH:mm"
-                className="mb-2 w-full border border-gray-300 p-2 rounded-md"
+                className="mb-2 w-full border border-gray-300 p-2 rounded-md text-black"
               />
-              <label className="block mb-2 text-sm font-medium text-gray-900">
+              <label className="block mb-2 text-sm font-medium text-white">
                 End Time
               </label>
               <DatePicker
@@ -151,18 +152,22 @@ function Prompt({ eventList }) {
                 timeFormat="HH:mm"
                 timeIntervals={15}
                 dateFormat="yyyy-MM-dd HH:mm"
-                className="mb-2 w-full border border-gray-300 p-2 rounded-md"
+                className="mb-2 w-full border border-gray-300 p-2 rounded-md text-black"
               />
             </div>
-            <div className="ml-4 flex flex-col justify-center">
-              <input
-                type="checkbox"
+            <div class="checkbox-wrapper-8 ml-4 flex flex-col justify-center">
+              <input 
+                type="checkbox" 
+                class="tgl tgl-skewed" 
                 id={`event-checkbox-${item.id}`}
                 checked={selectedEvents.includes(item.id)}
                 onChange={() => toggleEventSelection(item.id)}
               />
-              <label htmlFor={`event-checkbox-${item.id}`} className="ml-2">
-                Keep
+              <label 
+                for={`event-checkbox-${item.id}`} 
+                data-tg-on="Keep" 
+                data-tg-off="Discard" 
+                class="tgl-btn">
               </label>
             </div>
           </div>
