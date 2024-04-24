@@ -7,6 +7,7 @@ import React from "react";
 import Event from "../components/Event";
 import Prompt from "../components/Prompt";
 import logo from "./images/logo.png";
+import upload from "./images/upload.png";
 import promptWizard from "./images/PromptWizard.png";
 const SCOPE = "https://www.googleapis.com/auth/calendar";
 
@@ -16,10 +17,12 @@ const Home = () => {
   const [tokenClient, setTokenClient] = useState({});
   const [isPromptShown, setIsPromptShown] = useState(false);
   const fileInputRef = useRef(null);
-  const [formValue, setFormValue] = useState({});
+  const [formValue, setFormValue] = useState({ radio: 'Ask' }); // Updated formValue state with radio property
   const [predictionValue, setPrediction] = useState([]);
   const [user, setUser] = useState(null);
+  const [prompts, setPrompts] = useState([]);
   const [isLoading, setIsLoading] = useState(false); // Add isLoading state
+  const [isDragging] = useState(false); // State variable to track dragging
 
   useEffect(() => {
     const google = window.google;
@@ -94,7 +97,7 @@ const Home = () => {
   };
 
   const handleInputFieldChange = (e) => {
-    setFormValue({ prompt: e.target.value });
+    setFormValue({ ...formValue, prompt: e.target.value }); // Update formValue with prompt property
   };
 
   const handleInputSubmit = async (e) => {
@@ -124,7 +127,7 @@ const Home = () => {
           Context: JSON.stringify(eventDataToSend),
           Prompt: formValue.prompt,
           CurrentDateTime: currentDateTimeString,
-          Timezone: userTimezone
+          Timezone: userTimezone,
         }),
       });
 
@@ -154,6 +157,36 @@ const Home = () => {
       console.log("In front end:" + data.message);
       setFormValue({ documentContent: data.message }); // Set the documentContent in formValue
       setIsLoading(false); // Set isLoading to false after getting response
+
+      //make call to the palmAI and then console log the events pulled from the data.
+      const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+      const currentDateTimeString = new Date().toLocaleString();
+      const palmResponse = await fetch("/palmrequest", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          Context: "",
+          Prompt: data.message,
+          CurrentDateTime: currentDateTimeString,
+          Timezone: userTimezone,
+          State: "document",
+        }),
+      });
+
+      if (palmResponse.ok) {
+        const data = await palmResponse.json();
+        var dataStr = data.prediction.replace("```", "");
+        var newdataStr = dataStr.replace("```", "");
+        newdataStr = newdataStr.slice(5);
+        console.log("STR data: ", newdataStr);
+        console.log("Received data: ", JSON.parse(newdataStr));
+        setPrompts(JSON.parse(newdataStr));
+        getPromptEvents();
+      } else {
+        throw new Error("Failed to fetch predictions");
+      }
     } catch (error) {
       console.error("Error processing document:", error);
       setIsLoading(false); // Set isLoading to false in case of error
@@ -175,184 +208,261 @@ const Home = () => {
     window.location = "/";
   };
 
+  const handleFileDrop = (e) => {
+    e.preventDefault();
+    const files = e.dataTransfer.files;
+    handleChange({ target: { files } }); // Pass a fake event object containing the dropped files to handleChange
+  };  
+  
+  const handleFileInputChange = (e) => {
+    const files = e.target.files;
+    handleChange(files);
+  };
+
+  const handleDragOver = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    e.dataTransfer.dropEffect = 'copy';
+    e.currentTarget.classList.add('dragover'); // Add the 'dragover' class to increase opacity
+  };
+  
+  const handleDragLeave = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    e.currentTarget.classList.remove('dragover'); // Remove the 'dragover' class to revert opacity
+  };
+
   return (
     <div style={{ textAlign: "center" }}>
-      <div
-        style={{
-          backgroundColor: "#333",
-          color: "white",
-          padding: "1rem",
-          width: "100%",
-          top: 0,
-          left: 0,
-        }}
-      >
-        <img
-          src={logo}
-          alt="DateMinder Logo"
-          style={{ marginRight: "1rem", height: "100px" }}
-        />
-      </div>
-      <div
-        className="container justify-center"
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          marginTop: "3rem",
-          margin: "auto",
-        }}
-      >
-        <div id="signInDiv"></div>
-        {user && isShown && (
-          <div id="UserDataDiv" style={{ textAlign: "center" }}>
-            <div
+    <div
+      style={{
+        backgroundColor: "#333",
+        color: "white",
+        padding: "1rem",
+        width: "100%",
+        top: 0,
+        left: 0,
+      }}
+    >
+      <img
+        src={logo}
+        alt="DateMinder Logo"
+        style={{ marginRight: "1rem", height: "100px" }}
+      />
+    </div>
+
+    <div
+      className="container justify-center"
+      style={{
+        display: "flex",
+        justifyContent: "center",
+        marginTop: "3rem",
+        margin: "auto",
+      }}
+    >
+      <div id="signInDiv"></div>
+      {user && isShown && (
+        <div id="UserDataDiv" style={{ textAlign: "center", marginTop: 15, marginBottom: 15 }}>
+          <div style={{ display: "flex", justifyContent: "center" }}>
+          <Button className="btn bg-gradient-to-bl shadowBtn" onClick={getCalendarEvents} style={{ width: 200, height: 45, marginRight: 10, marginTop: 50 }}>
+            Auth Google Calendar
+          </Button>
+          <div style={{ display: "flex", alignItems: "center" }}>
+            <img
+              src={user.picture}
+              alt="google user img"
+              className="justify-center"
               style={{
-                marginBottom: "1rem",
-                display: "flex",
-                justifyContent: "center",
-                paddingTop: 15,
-                margin: "auto",
-                paddingBottom: 15,
+                height: "100px",
+                width: "100px",
+                borderRadius: "50%",
               }}
-            >
-              <img
-                src={user.picture}
-                alt="google user img"
-                className="justify-center"
-                style={{
-                  marginRight: "0.5rem",
-                  height: "80px",
-                  width: "80px",
-                  borderRadius: "50%",
-                }}
-              />
-              <button
-                onClick={logout}
-                style={{
-                  color: "white",
-                  backgroundColor: "black",
-                  cursor: "pointer",
-                  padding: 15,
-                  borderRadius: "8px",
-                  height: "40px",
-                  marginTop: "18px",
-                  display: "flex",
-                  justifyContent: "center",
-                  alignItems: "center",
-                  transition: "background-color 0.3s",
-                }}
-                onMouseOver={(e) => (e.target.style.backgroundColor = "#333")} // Lighter color on hover
-                onMouseOut={(e) => (e.target.style.backgroundColor = "black")} // Restore original
-              >
-                Logout {user.name}
-              </button>
-            </div>
-
-
-            <Button
-              className="btn bg-gradient-to-bl"
-              onClick={getCalendarEvents}
-            >
-              Authorize Google Calendar
-            </Button>
-            <Button
-              className="btn bg-gradient-to-bl"
-              onClick={() => getPromptEvents(data)}
-            >
-              Prompt Load
-            </Button>
-            <Button className="btn bg-gradient-to-bl" onClick={handleClick}>
-              Process Document
-            </Button>
-            <input
-              type="file"
-              ref={fileInputRef}
-              style={{ display: "none" }}
-              onChange={handleChange}
             />
-            {isPromptShown && <Prompt eventList={data}></Prompt>}
-            <ul style={{ textAlign: "left" }}>
-              {events?.map((event) => (
-                <li key={event.id}>
-                  <Event description={event.summary} />
-                </li>
-              ))}
-            </ul>
-            <h2>Document Reading Result:</h2>
-            <div style={{ paddingBottom: 20, position: "relative" }}>
-              <textarea
-                value={formValue.documentContent}
-                onChange={(e) =>
-                  setFormValue({ documentContent: e.target.value })
-                }
-                style={{
-                  textAlign: "center",
-                  width: "600px",
-                  height: "200px", // Adjust the height as needed
-                  resize: "both", // Allow the user to resize the textarea
-                  overflowWrap: "break-word", // Wrap text to next line
-                  borderBlockColor: "black",
-                  borderWidth: "1px",
-                }}
+          </div>
+          <Button className="btn bg-gradient-to-bl shadowBtn" onClick={logout} style={{ width: 200, height: 45, marginLeft: 10, marginTop: 50 }}>
+            Logout {user.name}
+          </Button>
+        </div>
+
+          {/* Prompt Wizzard */}
+          <div className="container" style={{ marginTop: 15, marginBottom: 15 }}>
+            <div className="blue-box">
+              <img
+                src={promptWizard}
+                alt="PromptWizard"
+                style={{ height: "200px", alignSelf: "center"}}
               />
-              {isLoading && ( // Show loading spinner while isLoading is true
-                <div className="loader" style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)" }}>
-                  <span className="bar"></span>
-                  <span className="bar"></span>
-                  <span className="bar"></span>
+
+              <label htmlFor="prompt">Prompt Wizzard</label>
+
+              <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '20px' }}>
+                <div className="radio-inputs">
+                  <label className="radio">
+                    <input
+                      type="radio"
+                      name="radio"
+                      value="Ask"
+                      checked={formValue.radio === 'Ask'}
+                      onChange={(e) => setFormValue({ ...formValue, radio: e.target.value })}
+                    />
+                    <span className="name">Ask</span>
+                  </label>
+                  <label className="radio">
+                    <input
+                      type="radio"
+                      name="radio"
+                      value="Upload"
+                      checked={formValue.radio === 'Upload'}
+                      onChange={(e) => setFormValue({ ...formValue, radio: e.target.value })}
+                    />
+                    <span className="name">Upload</span>
+                  </label>
+                  <label className="radio">
+                    <input
+                      type="radio"
+                      name="radio"
+                      value="Update"
+                      checked={formValue.radio === 'Update'}
+                      onChange={(e) => setFormValue({ ...formValue, radio: e.target.value })}
+                    />
+                    <span className="name">Update</span>
+                  </label>
+                  <label className="radio">
+                    <input
+                      type="radio"
+                      name="radio"
+                      value="Create"
+                      checked={formValue.radio === 'Create'}
+                      onChange={(e) => setFormValue({ ...formValue, radio: e.target.value })}
+                    />
+                    <span className="name">Create</span>
+                  </label>
+                </div>
+              </div>
+
+              {/* Conditionally render different buttons and text based on the selected radio option */}
+              {formValue.radio === 'Ask' && (
+                <div>
+                  {/* Render buttons and text for "Ask" option */}
+                  <p>Ask your assistant about your calendar</p>
+                  <form onSubmit={handleInputSubmit} style={{ textAlign: "center", marginTop: 10 }}>
+                    <textarea placeholder="Ask your calendar..." class="input" name="text" type="text" id="prompt" value={formValue.prompt} onChange={handleInputFieldChange}></textarea>
+                    <br />
+                    <Button className="shadow__btn" type="submit">
+                      Ask
+                    </Button>
+                  </form>
+                  <div style={{ textAlign: "center" }}>
+                    <h2>Prediction Result:</h2>
+                    <p>{predictionValue}</p>
+                  </div>
                 </div>
               )}
-            </div>
-            <div className="container">
-              {/* Blue Box with Image and Text Fields */}
-              <div className="blue-box">
-                <img
-                  src={promptWizard}
-                  alt="PromptWizard"
-                  style={{ height: "200px", alignSelf: "center"}}
-                />
-                <form onSubmit={handleInputSubmit} style={{ textAlign: "center" }}>
-                  <div className="input-group">
-                    <label htmlFor="prompt">Enter your prompt</label>
-                    <br />
-                    <textarea
-                      style={{
-                        boxSizing: "border-box",
-                        border: "2px solid blue",
-                        width: "50%",
-                        resize: "both",
-                      }}
-                      id="prompt"
-                      value={formValue.prompt}
-                      onChange={handleInputFieldChange}
+              {formValue.radio === 'Upload' && (
+                <div style={{ display: 'flex', justifyContent: 'center', flexDirection: 'column'}}>
+                  {/* Render buttons and text for "Upload" option */}
+                  <p>Upload images or documents with events or duedates</p>
+                  <p>smart AI will help you add them to your calender</p>
+                  <div
+                    className={`dotted-dash-area ${isDragging ? 'dragover' : ''}`}
+                    onDragOver={handleDragOver}
+                    onDragLeave={handleDragLeave}
+                    onDrop={handleFileDrop}
+                    style={{ 
+                      marginTop: 10, 
+                      marginBottom: 10,
+                      display: "flex",        // Set display to flex
+                      flexDirection: "column", // Align children vertically
+                      alignItems: "center",    // Center items horizontally
+                      justifyContent: "center" // Center items vertically
+                    }}
+                  >
+                    <img
+                      src={upload}
+                      alt="file upload icon"
+                      style={{ height: "100px", marginBottom: 10 }} // Keep existing styles
+                    />
+                    <p>Drag and drop a file here or click here to process it</p>
+                    <Button className="shadow__btn" onClick={handleClick} style={{ marginTop: 10, marginBottom: 10 }}>
+                      Process Document
+                    </Button>
+                    <input
+                      type="file"
+                      ref={fileInputRef}
+                      style={{ display: "none" }}
+                      onChange={handleFileInputChange}
                     />
                   </div>
-                  <br />
-                  <Button className="shadow__btn" type="submit">
-                    Ask
-                  </Button>
-                </form>
-                <div style={{ textAlign: "center" }}>
-                  <h2>Prediction Result:</h2>
-                  <p>{predictionValue}</p>
+
+                  <input
+                    type="file"
+                    ref={fileInputRef}
+                    style={{ display: "none" }}
+                    onChange={handleChange}
+                  />
+
+                  <h2>Document Reading Result:</h2>
+                  <div style={{ paddingBottom: 20, position: "relative" }}>
+                    <textarea
+                      class="textFeild" name="text" type="text"
+                      value={formValue.documentContent}
+                      onChange={(e) =>
+                        setFormValue({ ...formValue, documentContent: e.target.value })
+                      }
+                    />
+                    {isLoading && ( // Show loading spinner while isLoading is true
+                      <div className="loader" style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)" }}>
+                        <span className="bar"></span>
+                        <span className="bar"></span>
+                        <span className="bar"></span>
+                      </div>
+                    )}
+                  </div>
                 </div>
-                {/* Bubbles */}
-                <div className="bubble bubble1"></div>
-                <div className="bubble bubble2"></div>
-                <div className="bubble bubble3"></div>
-                <div className="bubble bubble4"></div>
-                <div className="bubble bubble5"></div>
-                <div className="bubble bubble6"></div>
-                <div className="bubble bubble7"></div>
-                <div className="bubble bubble8"></div>
-                <div className="bubble bubble9"></div>
-                {/* Add more bubble divs and adjust positions as needed */}
-              </div>
+              )}
+              {formValue.radio === 'Update' && (
+                <div>
+                  {/* Render buttons and text for "Update" option */}
+                  <button>Update Button</button>
+                  <p>Update Text</p>
+                </div>
+              )}
+              {formValue.radio === 'Create' && (
+                <div>
+                  {/* Render buttons and text for "Create" option */}
+                  <button>Create Button</button>
+                  <p>Create Text</p>
+
+                  <Button className="btn bg-gradient-to-bl" onClick={() => getPromptEvents(data)}>
+                    Prompt Load
+                  </Button>
+
+                  {isPromptShown && <Prompt eventList={prompts.events}></Prompt>}
+                  <ul style={{ textAlign: "left" }}>
+                    {events?.map((event) => (
+                      <li key={event.id}>
+                        <Event description={event.summary} />
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              <div className="bubble bubble1"></div>
+              <div className="bubble bubble2"></div>
+              <div className="bubble bubble3"></div>
+              <div className="bubble bubble4"></div>
+              <div className="bubble bubble5"></div>
+              <div className="bubble bubble6"></div>
+              <div className="bubble bubble7"></div>
+              <div className="bubble bubble8"></div>
+              <div className="bubble bubble9"></div>
             </div>
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </div>
+  </div>
   );
 };
 
