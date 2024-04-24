@@ -12,6 +12,7 @@ const { JWT } = require("google-auth-library");
 const aiplatform = require("@google-cloud/aiplatform");
 const { PredictionServiceClient } = aiplatform.v1;
 const { helpers } = aiplatform;
+const { v4: uuidv4 } = require('uuid');
 
 app.use(
   cors({
@@ -226,6 +227,25 @@ function checkOpenDate(currentDates, jsonString) {
   }
   return null;
 }
+
+function buildConferenceString()
+{
+  const requestId = uuidv4();
+
+  const conferenceData = {
+      createRequest: {
+          requestId: requestId,
+          conferenceSolutionKey: {
+              type: "hangoutsMeet",  
+          },
+      },
+  };
+
+  return conferenceData;
+
+}
+
+
 
 const fetch = require("node-fetch");
 //Todays date is
