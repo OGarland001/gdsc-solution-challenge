@@ -111,25 +111,25 @@ function Prompt({ eventList }) {
             className="border p-4 mb-4 flex flex-wrap items-start"
           >
             <div className="flex-grow">
-              <label className="block mb-2 text-sm font-medium text-gray-900">
+              <label className="block mb-2 text-sm font-medium text-white">
                 Title
               </label>
               <input
                 type="text"
-                className="mb-2 w-full border border-gray-300 p-2 rounded-md"
+                className="mb-2 w-full border border-gray-300 p-2 rounded-md text-black"
                 value={EventTitles[item.id] || ""}
                 onChange={(e) => handleTitleChange(item.id, e.target.value)}
               />
-              <label className="block mb-2 text-sm font-medium text-gray-900">
+              <label className="block mb-2 text-sm font-medium text-white">
                 Description
               </label>
               <input
                 type="text"
-                className="mb-2 w-full border border-gray-300 p-2 rounded-md"
+                className="mb-2 w-full border border-gray-300 p-2 rounded-md text-black"
                 value={EventDescriptions[item.id] || ""}
                 onChange={(e) => handleDescChange(item.id, e.target.value)}
               />
-              <label className="block mb-2 text-sm font-medium text-gray-900">
+              <label className="block mb-2 text-sm font-medium text-white">
                 Start Time
               </label>
               <DatePicker
@@ -139,9 +139,9 @@ function Prompt({ eventList }) {
                 timeFormat="HH:mm"
                 timeIntervals={15}
                 dateFormat="yyyy-MM-dd HH:mm"
-                className="mb-2 w-full border border-gray-300 p-2 rounded-md"
+                className="mb-2 w-full border border-gray-300 p-2 rounded-md text-black"
               />
-              <label className="block mb-2 text-sm font-medium text-gray-900">
+              <label className="block mb-2 text-sm font-medium text-white">
                 End Time
               </label>
               <DatePicker
@@ -151,7 +151,7 @@ function Prompt({ eventList }) {
                 timeFormat="HH:mm"
                 timeIntervals={15}
                 dateFormat="yyyy-MM-dd HH:mm"
-                className="mb-2 w-full border border-gray-300 p-2 rounded-md"
+                className="mb-2 w-full border border-gray-300 p-2 rounded-md text-black"
               />
             </div>
             <div className="ml-4 flex flex-col justify-center">
