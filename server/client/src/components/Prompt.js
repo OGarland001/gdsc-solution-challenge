@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { v4 as uuidv4 } from "uuid";
+import "./promptStyle.css";
 
 function Prompt({ eventList, token, email }) {
   const [selectedEvents, setSelectedEvents] = useState([]);
@@ -256,16 +257,20 @@ function Prompt({ eventList, token, email }) {
                 className="mb-2 w-full border border-gray-300 p-2 rounded-md text-black"
               />
             </div>
-            <div className="ml-4 flex flex-col justify-center">
+            <div class="checkbox-wrapper-8 ml-4 flex flex-col justify-center">
               <input
                 type="checkbox"
+                class="tgl tgl-skewed"
                 id={`event-checkbox-${item.id}`}
                 checked={selectedEvents.includes(item.id)}
                 onChange={() => toggleEventSelection(item.id)}
               />
-              <label htmlFor={`event-checkbox-${item.id}`} className="ml-2">
-                Keep
-              </label>
+              <label
+                for={`event-checkbox-${item.id}`}
+                data-tg-on="Keep"
+                data-tg-off="Discard"
+                class="tgl-btn"
+              ></label>
             </div>
           </div>
         ))}

@@ -245,6 +245,22 @@ function buildConferenceString()
 
 }
 
+function findEmails(givenPrompt)
+{
+  var foundEmails =[];
+  var emailRegex = /(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))/;
+
+  while (match = emailRegex.exec(searchInThisString)){
+
+      foundEmails.push(match[0]);
+
+      searchInThisString= searchInThisString.replace(match[0],"")
+  }
+
+  var result = foundEmails;
+  return result;
+}
+
 
 
 const fetch = require("node-fetch");
@@ -298,7 +314,56 @@ app.post("/palmrequest", async (req, res) => {
           topK: 40,
         },
       };
-    } else {
+    
+    } 
+    else if(state == 'create')
+    {
+      var createPromptTxt =
+      'Please extract any events and class times mentioned in the next prompt provided. This includes assignments, classes/lectures, project milestones, and other relevant activities. Ensure to include details such as event titles, descriptions, start times, and end times. The extracted information will be used to create new calendar events. Format the output in the JSON format specified below and make sure it is complete and finished must be full json. If no events are found or details are missing, please include "N/A" in the corresponding fields to ensure completeness and flexibility. json event format:{summary: "testEvent1", description: "testDescription1", endTime: "2024-02-19T09:00:00-05:00", startTime: "2024-02-17T09:00:00-05:00",}';
+
+
+      const emailList = findEmails(req.body.Prompt);
+
+      if (emailList != null) {
+        createPromptTxt = createPromptTxt.substring(0, createPromptTxt.length - 1);
+
+        const attendees = emailList.map(email => ({ 'email': email }));
+        const attendeesJsonString = JSON.stringify(attendees);
+
+        createPromptTxt += ', "attendees": ' + attendeesJsonString;
+
+      }
+
+      if (req.body.CreateMeeting) 
+      {
+        const conferenceJsonString = JSON.stringify(buildConferenceString());
+        createPromptTxt = createPromptTxt.replace('}', ', ' + conferenceJsonString.substring(1));
+      }
+
+      data = {
+        instances: [
+          {
+            prompt:
+              createPromptTxt +
+              req.body.Prompt +
+              calendarReferenceText +
+              palmContext +
+              " the current date and time is " +
+              currentDateTime +
+              " in this time zone: " +
+              TimeZone,
+          },
+        ],
+        parameters: {
+          temperature: 0.2,
+          maxOutputTokens: 2048,
+          topP: 0.95,
+          topK: 40,
+        },
+      };
+
+    }
+    else {
       data = {
         instances: [
           {
@@ -342,12 +407,14 @@ app.post("/palmrequest", async (req, res) => {
     console.log("Response from Vertex AI: ", prediction);
 
     //Commented out until add event prompt is created
-    // const openDateMessage = checkOpenDate(palmContext, prediction);
-
-    // if (openDateMessage !== null) {
-    //   prediction = openDateMessage;
-    // }
-
+    if(state == 'create')
+    {
+      const openDateMessage = checkOpenDate(palmContext, prediction);
+      if (openDateMessage !== null) {
+        prediction = openDateMessage;
+      }
+    }
+    
     res.status(200).json({ prediction });
   } catch (error) {
     console.error("Error in palmrequest:", error.message);

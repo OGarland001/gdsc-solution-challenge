@@ -235,6 +235,14 @@ const Home = () => {
     e.currentTarget.classList.remove("dragover"); // Remove the 'dragover' class to revert opacity
   };
 
+  const [isMoonShowing, setIsMoonShowing] = useState(false);
+
+  const handleChangeLightDarkMode = () => {
+    setIsMoonShowing(!isMoonShowing);
+    // Toggle background color based on the state of isMoonShowing
+    document.body.style.backgroundColor = isMoonShowing ? "white" : "#222222";
+  };
+
   return (
     <div style={{ textAlign: "center" }}>
       <div
@@ -243,15 +251,63 @@ const Home = () => {
           color: "white",
           padding: "1rem",
           width: "100%",
-          top: 0,
-          left: 0,
+          display: "flex",
+          alignItems: "center", // Align items vertically
+          justifyContent: "space-between", // Distribute space between elements
         }}
       >
-        <img
-          src={logo}
-          alt="DateMinder Logo"
-          style={{ marginRight: "1rem", height: "100px" }}
-        />
+        <div style={{ display: "flex", alignItems: "center" }}>
+          <img
+            src={logo}
+            alt="DateMinder Logo"
+            style={{ marginRight: "1rem", height: "100px" }}
+          />
+        </div>
+
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            width: "fit-content",
+            transform: "scale(0.5)",
+          }}
+        >
+          <label className="theme-switch">
+            <input
+              type="checkbox"
+              className="theme-switch__checkbox"
+              onChange={handleChangeLightDarkMode}
+            />
+            <div className="theme-switch__container">
+              <div className="theme-switch__clouds"></div>
+              <div className="theme-switch__stars-container">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 144 55"
+                  fill="none"
+                ></svg>
+              </div>
+              <div className="theme-switch__circle-container">
+                <div className="theme-switch__sun-moon-container">
+                  <div
+                    className={`theme-switch__moon${
+                      isMoonShowing ? " visible" : ""
+                    }`}
+                  >
+                    <div className="theme-switch__spot"></div>
+                    <div className="theme-switch__spot"></div>
+                    <div className="theme-switch__spot"></div>
+                  </div>
+                  <div
+                    className={`theme-switch__sun${
+                      isMoonShowing ? "" : " visible"
+                    }`}
+                  ></div>
+                </div>
+              </div>
+            </div>
+          </label>
+        </div>
       </div>
 
       <div
@@ -389,7 +445,11 @@ const Home = () => {
                     <p>Ask your assistant about your calendar</p>
                     <form
                       onSubmit={handleInputSubmit}
-                      style={{ textAlign: "center", marginTop: 10 }}
+                      style={{
+                        textAlign: "center",
+                        marginTop: 10,
+                        marginBottom: 20,
+                      }}
                     >
                       <textarea
                         placeholder="Ask your calendar..."
@@ -405,9 +465,44 @@ const Home = () => {
                         Ask
                       </Button>
                     </form>
-                    <div style={{ textAlign: "center" }}>
-                      <h2>Prediction Result:</h2>
-                      <p>{predictionValue}</p>
+                    <div style={{ textAlign: "center", top: 10 }}>
+                      <h2>AI Response:</h2>
+                      <div
+                        style={{
+                          paddingBottom: 20,
+                          position: "relative",
+                          marginTop: 10,
+                        }}
+                      >
+                        <textarea
+                          class="textFeildResponse"
+                          name="text"
+                          type="text"
+                          value={predictionValue}
+                          onChange={(e) =>
+                            setFormValue({
+                              ...formValue,
+                              documentContent: e.target.value,
+                            })
+                          }
+                          disabled
+                        />
+                        {isLoading && ( // Show loading spinner while isLoading is true
+                          <div
+                            className="loader"
+                            style={{
+                              position: "absolute",
+                              top: "50%",
+                              left: "50%",
+                              transform: "translate(-50%, -50%)",
+                            }}
+                          >
+                            <span className="bar"></span>
+                            <span className="bar"></span>
+                            <span className="bar"></span>
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </div>
                 )}
