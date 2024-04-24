@@ -25,6 +25,7 @@ const Home = () => {
   const [isLoading, setIsLoading] = useState(false); // Add isLoading state
   const [isDragging] = useState(false); // State variable to track dragging
   const [UserEmail, setUserEmail] = useState("");
+  const [isAuthorizedWithCalendar, setIsAuthorized] = useState(false);
 
   useEffect(() => {
     const google = window.google;
@@ -70,6 +71,7 @@ const Home = () => {
                   console.log(data);
                   setEvents(data.items);
                   setCalendarToken(tokenResponse.access_token);
+                  setIsAuthorized(!isAuthorizedWithCalendar);
                 });
             }
           },
@@ -89,7 +91,7 @@ const Home = () => {
       theme: "outline",
       size: "large",
     });
-  }, [UserEmail, googleCalendarToken]);
+  }, [UserEmail, googleCalendarToken, isAuthorizedWithCalendar]);
 
   const toggle = () => {
     setIsShown((isShown) => !isShown);
@@ -326,18 +328,6 @@ const Home = () => {
             style={{ textAlign: "center", marginTop: 15, marginBottom: 15 }}
           >
             <div style={{ display: "flex", justifyContent: "center" }}>
-              <Button
-                className="btn bg-gradient-to-bl shadowBtn"
-                onClick={getCalendarEvents}
-                style={{
-                  width: 200,
-                  height: 45,
-                  marginRight: 10,
-                  marginTop: 50,
-                }}
-              >
-                Auth Google Calendar
-              </Button>
               <div style={{ display: "flex", alignItems: "center" }}>
                 <img
                   src={user.picture}
@@ -377,258 +367,294 @@ const Home = () => {
                 />
 
                 <label htmlFor="prompt">Prompt Wizzard</label>
-
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "center",
-                    alignItems: "center",
-                    padding: "20px",
-                  }}
-                >
-                  <div className="radio-inputs">
-                    <label className="radio">
-                      <input
-                        type="radio"
-                        name="radio"
-                        value="Ask"
-                        checked={formValue.radio === "Ask"}
-                        onChange={(e) =>
-                          setFormValue({ ...formValue, radio: e.target.value })
-                        }
-                      />
-                      <span className="name">Ask</span>
-                    </label>
-                    <label className="radio">
-                      <input
-                        type="radio"
-                        name="radio"
-                        value="Upload"
-                        checked={formValue.radio === "Upload"}
-                        onChange={(e) =>
-                          setFormValue({ ...formValue, radio: e.target.value })
-                        }
-                      />
-                      <span className="name">Upload</span>
-                    </label>
-                    <label className="radio">
-                      <input
-                        type="radio"
-                        name="radio"
-                        value="Update"
-                        checked={formValue.radio === "Update"}
-                        onChange={(e) =>
-                          setFormValue({ ...formValue, radio: e.target.value })
-                        }
-                      />
-                      <span className="name">Update</span>
-                    </label>
-                    <label className="radio">
-                      <input
-                        type="radio"
-                        name="radio"
-                        value="Create"
-                        checked={formValue.radio === "Create"}
-                        onChange={(e) =>
-                          setFormValue({ ...formValue, radio: e.target.value })
-                        }
-                      />
-                      <span className="name">Create</span>
-                    </label>
-                  </div>
-                </div>
-
-                {/* Conditionally render different buttons and text based on the selected radio option */}
-                {formValue.radio === "Ask" && (
-                  <div>
-                    {/* Render buttons and text for "Ask" option */}
-                    <p>Ask your assistant about your calendar</p>
-                    <form
-                      onSubmit={handleInputSubmit}
+                {user && isShown && !isAuthorizedWithCalendar && (
+                  <div style={{ display: "flex", justifyContent: "center" }}>
+                    <Button
+                      className="shadow__btn"
+                      onClick={getCalendarEvents}
                       style={{
-                        textAlign: "center",
-                        marginTop: 10,
-                        marginBottom: 20,
+                        width: 200,
+                        height: 65,
+                        marginRight: 10,
+                        marginTop: 50,
                       }}
                     >
-                      <textarea
-                        placeholder="Ask your calendar..."
-                        class="input"
-                        name="text"
-                        type="text"
-                        id="prompt"
-                        value={formValue.prompt}
-                        onChange={handleInputFieldChange}
-                      ></textarea>
-                      <br />
-                      <Button className="shadow__btn" type="submit">
-                        Ask
-                      </Button>
-                    </form>
-                    <div style={{ textAlign: "center", top: 10 }}>
-                      <h2>AI Response:</h2>
-                      <div
-                        style={{
-                          paddingBottom: 20,
-                          position: "relative",
-                          marginTop: 10,
-                        }}
-                      >
-                        <textarea
-                          class="textFeildResponse"
-                          name="text"
-                          type="text"
-                          value={predictionValue}
-                          onChange={(e) =>
-                            setFormValue({
-                              ...formValue,
-                              documentContent: e.target.value,
-                            })
-                          }
-                          disabled
-                        />
-                        {isLoading && ( // Show loading spinner while isLoading is true
-                          <div
-                            className="loader"
-                            style={{
-                              position: "absolute",
-                              top: "50%",
-                              left: "50%",
-                              transform: "translate(-50%, -50%)",
-                            }}
-                          >
-                            <span className="bar"></span>
-                            <span className="bar"></span>
-                            <span className="bar"></span>
-                          </div>
-                        )}
+                      Authorize Google Calendar To Continue...
+                    </Button>
+                  </div>
+                )}
+
+                {user && isShown && isAuthorizedWithCalendar && (
+                  <div>
+                    <div
+                      style={{
+                        display: "flex",
+                        justifyContent: "center",
+                        alignItems: "center",
+                        padding: "20px",
+                      }}
+                    >
+                      <div className="radio-inputs">
+                        <label className="radio">
+                          <input
+                            type="radio"
+                            name="radio"
+                            value="Ask"
+                            checked={formValue.radio === "Ask"}
+                            onChange={(e) =>
+                              setFormValue({
+                                ...formValue,
+                                radio: e.target.value,
+                              })
+                            }
+                          />
+                          <span className="name">Ask</span>
+                        </label>
+                        <label className="radio">
+                          <input
+                            type="radio"
+                            name="radio"
+                            value="Upload"
+                            checked={formValue.radio === "Upload"}
+                            onChange={(e) =>
+                              setFormValue({
+                                ...formValue,
+                                radio: e.target.value,
+                              })
+                            }
+                          />
+                          <span className="name">Upload</span>
+                        </label>
+                        <label className="radio">
+                          <input
+                            type="radio"
+                            name="radio"
+                            value="Update"
+                            checked={formValue.radio === "Update"}
+                            onChange={(e) =>
+                              setFormValue({
+                                ...formValue,
+                                radio: e.target.value,
+                              })
+                            }
+                          />
+                          <span className="name">Update</span>
+                        </label>
+                        <label className="radio">
+                          <input
+                            type="radio"
+                            name="radio"
+                            value="Create"
+                            checked={formValue.radio === "Create"}
+                            onChange={(e) =>
+                              setFormValue({
+                                ...formValue,
+                                radio: e.target.value,
+                              })
+                            }
+                          />
+                          <span className="name">Create</span>
+                        </label>
                       </div>
                     </div>
-                  </div>
-                )}
-                {formValue.radio === "Upload" && (
-                  <div
-                    style={{
-                      display: "flex",
-                      justifyContent: "center",
-                      flexDirection: "column",
-                    }}
-                  >
-                    {/* Render buttons and text for "Upload" option */}
-                    <p>Upload images or documents with events or duedates</p>
-                    <p>smart AI will help you add them to your calender</p>
-                    <div
-                      className={`dotted-dash-area ${
-                        isDragging ? "dragover" : ""
-                      }`}
-                      onDragOver={handleDragOver}
-                      onDragLeave={handleDragLeave}
-                      onDrop={handleFileDrop}
-                      style={{
-                        marginTop: 10,
-                        marginBottom: 10,
-                        display: "flex", // Set display to flex
-                        flexDirection: "column", // Align children vertically
-                        alignItems: "center", // Center items horizontally
-                        justifyContent: "center", // Center items vertically
-                      }}
-                    >
-                      <img
-                        src={upload}
-                        alt="file upload icon"
-                        style={{ height: "100px", marginBottom: 10 }} // Keep existing styles
-                      />
-                      <p>
-                        Drag and drop a file here or click here to process it
-                      </p>
-                      <Button
-                        className="shadow__btn"
-                        onClick={handleClick}
-                        style={{ marginTop: 10, marginBottom: 10 }}
-                      >
-                        Process Document
-                      </Button>
-                      <input
-                        type="file"
-                        ref={fileInputRef}
-                        style={{ display: "none" }}
-                        onChange={handleFileInputChange}
-                      />
-                    </div>
 
-                    <input
-                      type="file"
-                      ref={fileInputRef}
-                      style={{ display: "none" }}
-                      onChange={handleChange}
-                    />
-
-                    <h2>Document Reading Result:</h2>
-                    <div style={{ paddingBottom: 20, position: "relative" }}>
-                      <textarea
-                        class="textFeild"
-                        name="text"
-                        type="text"
-                        value={formValue.documentContent}
-                        onChange={(e) =>
-                          setFormValue({
-                            ...formValue,
-                            documentContent: e.target.value,
-                          })
-                        }
-                      />
-                      {isLoading && ( // Show loading spinner while isLoading is true
-                        <div
-                          className="loader"
+                    {formValue.radio === "Ask" && (
+                      <div>
+                        {/* Render buttons and text for "Ask" option */}
+                        <p>Ask your assistant about your calendar</p>
+                        <form
+                          onSubmit={handleInputSubmit}
                           style={{
-                            position: "absolute",
-                            top: "50%",
-                            left: "50%",
-                            transform: "translate(-50%, -50%)",
+                            textAlign: "center",
+                            marginTop: 10,
+                            marginBottom: 20,
                           }}
                         >
-                          <span className="bar"></span>
-                          <span className="bar"></span>
-                          <span className="bar"></span>
+                          <textarea
+                            placeholder="Ask your calendar..."
+                            class="input"
+                            name="text"
+                            type="text"
+                            id="prompt"
+                            value={formValue.prompt}
+                            onChange={handleInputFieldChange}
+                          ></textarea>
+                          <br />
+                          <Button className="shadow__btn" type="submit">
+                            Ask
+                          </Button>
+                        </form>
+                        <div style={{ textAlign: "center", top: 10 }}>
+                          <h2>AI Response:</h2>
+                          <div
+                            style={{
+                              paddingBottom: 20,
+                              position: "relative",
+                              marginTop: 10,
+                            }}
+                          >
+                            <textarea
+                              class="textFeildResponse"
+                              name="text"
+                              type="text"
+                              value={predictionValue}
+                              onChange={(e) =>
+                                setFormValue({
+                                  ...formValue,
+                                  documentContent: e.target.value,
+                                })
+                              }
+                              disabled
+                            />
+                            {isLoading && ( // Show loading spinner while isLoading is true
+                              <div
+                                className="loader"
+                                style={{
+                                  position: "absolute",
+                                  top: "50%",
+                                  left: "50%",
+                                  transform: "translate(-50%, -50%)",
+                                }}
+                              >
+                                <span className="bar"></span>
+                                <span className="bar"></span>
+                                <span className="bar"></span>
+                              </div>
+                            )}
+                          </div>
                         </div>
-                      )}
-                    </div>
-                  </div>
-                )}
-                {formValue.radio === "Update" && (
-                  <div>
-                    {/* Render buttons and text for "Update" option */}
-                    <button>Update Button</button>
-                    <p>Update Text</p>
-                  </div>
-                )}
-                {formValue.radio === "Create" && (
-                  <div>
-                    {/* Render buttons and text for "Create" option */}
-                    <button>Create Button</button>
-                    <p>Create Text</p>
-
-                    <Button
-                      className="btn bg-gradient-to-bl"
-                      onClick={() => getPromptEvents(data)}
-                    >
-                      Prompt Load
-                    </Button>
-
-                    {isPromptShown && (
-                      <Prompt
-                        eventList={prompts.events}
-                        token={googleCalendarToken}
-                        email={UserEmail}
-                      ></Prompt>
+                      </div>
                     )}
-                    <ul style={{ textAlign: "left" }}>
-                      {events?.map((event) => (
-                        <li key={event.id}>
-                          <Event description={event.summary} />
-                        </li>
-                      ))}
-                    </ul>
+                    {formValue.radio === "Upload" && (
+                      <div
+                        style={{
+                          display: "flex",
+                          justifyContent: "center",
+                          flexDirection: "column",
+                        }}
+                      >
+                        {/* Render buttons and text for "Upload" option */}
+                        <p>
+                          Upload images or documents with events or duedates
+                        </p>
+                        <p>smart AI will help you add them to your calender</p>
+                        <div
+                          className={`dotted-dash-area ${
+                            isDragging ? "dragover" : ""
+                          }`}
+                          onDragOver={handleDragOver}
+                          onDragLeave={handleDragLeave}
+                          onDrop={handleFileDrop}
+                          style={{
+                            marginTop: 10,
+                            marginBottom: 10,
+                            display: "flex", // Set display to flex
+                            flexDirection: "column", // Align children vertically
+                            alignItems: "center", // Center items horizontally
+                            justifyContent: "center", // Center items vertically
+                          }}
+                        >
+                          <img
+                            src={upload}
+                            alt="file upload icon"
+                            style={{ height: "100px", marginBottom: 10 }} // Keep existing styles
+                          />
+                          <p>
+                            Drag and drop a file here or click here to process
+                            it
+                          </p>
+                          <Button
+                            className="shadow__btn"
+                            onClick={handleClick}
+                            style={{ marginTop: 10, marginBottom: 10 }}
+                          >
+                            Process Document
+                          </Button>
+                          <input
+                            type="file"
+                            ref={fileInputRef}
+                            style={{ display: "none" }}
+                            onChange={handleFileInputChange}
+                          />
+                        </div>
+
+                        <input
+                          type="file"
+                          ref={fileInputRef}
+                          style={{ display: "none" }}
+                          onChange={handleChange}
+                        />
+
+                        <h2>Document Reading Result:</h2>
+                        <div
+                          style={{ paddingBottom: 20, position: "relative" }}
+                        >
+                          <textarea
+                            class="textFeild"
+                            name="text"
+                            type="text"
+                            value={formValue.documentContent}
+                            onChange={(e) =>
+                              setFormValue({
+                                ...formValue,
+                                documentContent: e.target.value,
+                              })
+                            }
+                          />
+                          {isLoading && ( // Show loading spinner while isLoading is true
+                            <div
+                              className="loader"
+                              style={{
+                                position: "absolute",
+                                top: "50%",
+                                left: "50%",
+                                transform: "translate(-50%, -50%)",
+                              }}
+                            >
+                              <span className="bar"></span>
+                              <span className="bar"></span>
+                              <span className="bar"></span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    )}
+                    {formValue.radio === "Update" && (
+                      <div>
+                        {/* Render buttons and text for "Update" option */}
+                        <button>Update Button</button>
+                        <p>Update Text</p>
+                      </div>
+                    )}
+                    {formValue.radio === "Create" && (
+                      <div>
+                        {/* Render buttons and text for "Create" option */}
+                        <button>Create Button</button>
+                        <p>Create Text</p>
+
+                        <Button
+                          className="btn bg-gradient-to-bl"
+                          onClick={() => getPromptEvents(data)}
+                        >
+                          Prompt Load
+                        </Button>
+
+                        {isPromptShown && (
+                          <Prompt
+                            eventList={prompts.events}
+                            token={googleCalendarToken}
+                            email={UserEmail}
+                          ></Prompt>
+                        )}
+                        <ul style={{ textAlign: "left" }}>
+                          {events?.map((event) => (
+                            <li key={event.id}>
+                              <Event description={event.summary} />
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
                   </div>
                 )}
 
