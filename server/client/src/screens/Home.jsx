@@ -338,7 +338,7 @@ const Home = () => {
               </div>
             </div>
 
-            {/* Prompt Wizzard */}
+            {/* Prompt Wizard */}
             <div
               className="container"
               style={{ marginTop: 0, marginBottom: 15 }}
@@ -351,7 +351,7 @@ const Home = () => {
                 />
 
                 <div style={{ position: "relative", marginTop: "3%" }}>
-                  <label htmlFor="prompt">Prompt Wizzard</label>
+                  <label htmlFor="prompt">Prompt Wizard</label>
 
                   {user && isShown && !isAuthorizedWithCalendar && (
                     <div style={{ display: "flex", justifyContent: "center" }}>
@@ -444,7 +444,13 @@ const Home = () => {
                           </label>
                         </div>
                       </div>
+                    </div>
+                  )}
+                </div>
 
+                {user && isShown && isAuthorizedWithCalendar && (
+                  <div class="scroll-content">
+                    <div>
                       {/* Conditionally render different buttons and text based on the selected radio option */}
                       <div>
                         {/* Your other JSX content */}
@@ -572,8 +578,7 @@ const Home = () => {
                       {formValue.radio === "Create" && (
                         <div>
                           {/* Render buttons and text for "Create" option */}
-                          <button>Create Button</button>
-                          <p>Create Text</p>
+                          <p>Review the events to add to the calendar here</p>
 
                           {isPromptShown && (
                             <Prompt
@@ -585,8 +590,9 @@ const Home = () => {
                         </div>
                       )}
                     </div>
-                  )}
-                </div>
+                  </div>
+                )}
+                
                 <div
                   class="row"
                   style={{ display: "flex", alignItems: "center" }}
