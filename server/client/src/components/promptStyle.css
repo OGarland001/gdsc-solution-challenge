@@ -18,9 +18,9 @@
 
 .checkmark {
   position: absolute;
-  top: 50%;      /* Center vertically */
+  top: 50%; /* Center vertically */
   left: 0;
-  transform: translateY(-50%);  /* Center vertically */
+  transform: translateY(-50%); /* Center vertically */
   height: 25px;
   width: 25px;
   background-color: #eee;
@@ -33,9 +33,9 @@
   content: "";
   position: absolute;
   display: none;
-  left: 50%;     /* Center horizontally */
-  top: 50%;      /* Center vertically */
-  transform: translate(-50%, -50%) rotate(45deg);  /* Center and rotate */
+  left: 50%; /* Center horizontally */
+  top: 50%; /* Center vertically */
+  transform: translate(-50%, -50%) rotate(45deg); /* Center and rotate */
   width: 5px;
   height: 10px;
   border: solid white;
@@ -63,4 +63,51 @@
 
 .custom-checkbox:checked ~ .checkmark:after {
   animation: checkAnim 0.2s forwards;
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5); /* semi-transparent background */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999; /* ensure it's above other content */
+}
+
+.modal {
+  background-color: white;
+  padding: 20px;
+  border-radius: 8px;
+  max-width: 80%;
+  max-height: 80%;
+  overflow: auto; /* enable scrolling if content exceeds the viewport */
+}
+
+.close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  cursor: pointer;
+}
+
+.blue-box {
+  width: 100%;
+  padding: 20px;
+  background: rgb(17, 4, 134);
+  border-radius: 15px;
+  box-shadow: rgb(0, 0, 0, 0.7) 5px 10px 50px, rgb(0, 0, 0, 0.7) -5px 0px 250px;
+  display: flex;
+  color: white;
+  justify-content: center;
+  position: relative;
+  flex-direction: column;
+  background: linear-gradient(to right, rgb(20, 30, 48), rgb(36, 59, 85));
+  cursor: pointer;
+  transition: all 0.3s ease-in-out;
+  overflow: hidden;
+  z-index: -2;
 }
