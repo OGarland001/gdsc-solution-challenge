@@ -244,51 +244,7 @@ const Home = () => {
 
   return (
     <div style={{ textAlign: "center" }}>
-    <div
-      style={{
-        backgroundColor: "#333",
-        color: "white",
-        padding: "1rem",
-        width: "100%",
-        display: "flex",
-        alignItems: "center", // Align items vertically
-        justifyContent: "space-between" // Distribute space between elements
-      }}
-    >
-      <div style={{ display: "flex", alignItems: "center" }}>
-        <img
-          src={logo}
-          alt="DateMinder Logo"
-          style={{ marginRight: "1rem", height: "100px" }}
-        />
-      </div>
-
-      <div style={{ display: "flex", alignItems: "center", width: "fit-content", transform: "scale(0.5)" }}>
-        <label className="theme-switch">
-          <input
-            type="checkbox"
-            className="theme-switch__checkbox"
-            onChange={handleChangeLightDarkMode}
-          />
-          <div className="theme-switch__container">
-            <div className="theme-switch__clouds"></div>
-            <div className="theme-switch__stars-container">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 144 55" fill="none"></svg>
-            </div>
-            <div className="theme-switch__circle-container">
-              <div className="theme-switch__sun-moon-container">
-                <div className={`theme-switch__moon${isMoonShowing ? ' visible' : ''}`}>
-                  <div className="theme-switch__spot"></div>
-                  <div className="theme-switch__spot"></div>
-                  <div className="theme-switch__spot"></div>
-                </div>
-                <div className={`theme-switch__sun${isMoonShowing ? '' : ' visible'}`}></div>
-              </div>
-            </div>
-          </div>
-        </label>
-      </div>
-    </div>
+     
 
     <div
       className="container justify-center"
@@ -303,26 +259,35 @@ const Home = () => {
       {user && isShown && (
         <div id="UserDataDiv" style={{ textAlign: "center", marginTop: 15, marginBottom: 15 }}>
           <div style={{ display: "flex", justifyContent: "center" }}>
-          
-          <div style={{ display: "flex", alignItems: "center" }}>
-            <img
-              src={user.picture}
-              alt="google user img"
-              className="justify-center"
-              style={{
-                height: "100px",
-                width: "100px",
-                borderRadius: "50%",
-              }}
-            />
-          </div>
-          <Button className="btn bg-gradient-to-bl shadowBtn" onClick={logout} style={{ width: 200, height: 45, marginLeft: 10, marginTop: 50 }}>
-            Logout {user.name}
-          </Button>
         </div>
 
+        <div className="white-box" style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+            {/* Row for other elements */}
+              <div className="row" style={{ display: "flex", alignItems: "center", justifyContent: "center", paddingBottom:"10px", position: "relative", zIndex: 2 }}>
+
+
+              <div style={{ marginRight: "1rem" }}>
+                <img
+                  src={user.picture}
+                  alt="google user img"
+                  className="justify-center"
+                  style={{
+                    width: "80%",
+                    borderRadius: "50%",
+                    zIndex: "2",
+                  }}
+                />
+              </div>
+              <Button className="shadow__btn" onClick={logout} style={{ height: 45 }}>
+                Logout {user.name}
+              </Button>
+
+              
+            </div>
+          </div>
+
           {/* Prompt Wizzard */}
-            <div className="container" style={{ marginTop: 15, marginBottom: 15 }}>
+            <div className="container" style={{ marginTop: 0, marginBottom: 15 }}>
               <div className="blue-box">
                 <img
                   src={promptWizard}
@@ -330,85 +295,175 @@ const Home = () => {
                   style={{ height: "200px", alignSelf: "center"}}
                 />
 
-                <label htmlFor="prompt">Prompt Wizzard</label>
-
-                {user && isShown && !isAuthorizedWithCalendar && (
-                  <div style={{ display: "flex", justifyContent: "center" }}>
-                    <Button className="shadow__btn" onClick={getCalendarEvents} style={{ width: 200, height: 65, marginRight: 10, marginTop: 50 }}>
-                      Authorize Google Calendar To Continue...
-                    </Button>
-                  </div>
-                )}
-
-                {user && isShown && isAuthorizedWithCalendar && (
-                  <div>
-                    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '20px' }}>
-                      <div className="radio-inputs">
-                        <label className="radio">
-                          <input
-                            type="radio"
-                            name="radio"
-                            value="Ask"
-                            checked={formValue.radio === 'Ask'}
-                            onChange={(e) => setFormValue({ ...formValue, radio: e.target.value })}
-                          />
-                          <span className="name">Ask</span>
-                        </label>
-                        <label className="radio">
-                          <input
-                            type="radio"
-                            name="radio"
-                            value="Upload"
-                            checked={formValue.radio === 'Upload'}
-                            onChange={(e) => setFormValue({ ...formValue, radio: e.target.value })}
-                          />
-                          <span className="name">Upload</span>
-                        </label>
-                        <label className="radio">
-                          <input
-                            type="radio"
-                            name="radio"
-                            value="Update"
-                            checked={formValue.radio === 'Update'}
-                            onChange={(e) => setFormValue({ ...formValue, radio: e.target.value })}
-                          />
-                          <span className="name">Update</span>
-                        </label>
-                        <label className="radio">
-                          <input
-                            type="radio"
-                            name="radio"
-                            value="Create"
-                            checked={formValue.radio === 'Create'}
-                            onChange={(e) => setFormValue({ ...formValue, radio: e.target.value })}
-                          />
-                          <span className="name">Create</span>
-                        </label>
+                <div style={{ marginRight: "1rem", transform: "scale(0.4)", position: "relative", marginLeft: "79%", marginTop: "-230px" }}>
+                  <label className="theme-switch">
+                    <input
+                      type="checkbox"
+                      className="theme-switch__checkbox"
+                      onChange={handleChangeLightDarkMode}
+                    />
+                    <div className="theme-switch__container">
+                      <div className="theme-switch__clouds"></div>
+                      <div className="theme-switch__stars-container">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 144 55" fill="none"></svg>
+                      </div>
+                      <div className="theme-switch__circle-container">
+                        <div className="theme-switch__sun-moon-container">
+                          <div className={`theme-switch__moon${isMoonShowing ? ' visible' : ''}`}>
+                            <div className="theme-switch__spot"></div>
+                            <div className="theme-switch__spot"></div>
+                            <div className="theme-switch__spot"></div>
+                          </div>
+                          <div className={`theme-switch__sun${isMoonShowing ? '' : ' visible'}`}></div>
+                        </div>
                       </div>
                     </div>
+                  </label>
+                </div>
 
-                    {/* Conditionally render different buttons and text based on the selected radio option */}
-                    {formValue.radio === 'Ask' && (
-                      <div>
-                        {/* Render buttons and text for "Ask" option */}
-                        <p>Ask your assistant about your calendar</p>
-                        <form onSubmit={handleInputSubmit} style={{ textAlign: "center", marginTop: 10, marginBottom: 20 }}>
-                          <textarea placeholder="Ask your calendar..." class="input" name="text" type="text" id="prompt" value={formValue.prompt} onChange={handleInputFieldChange}></textarea>
-                          <br />
-                          <Button className="shadow__btn" type="submit">
-                            Ask
-                          </Button>
-                        </form>
-                        <div style={{ textAlign: "center", top: 10 }}>
-                          <h2>AI Response:</h2>
-                          <div style={{ paddingBottom: 20, position: "relative", marginTop: 10 }}>
+                <div style={{ position: "relative", marginTop: "45%" }}>
+                  <label htmlFor="prompt">Prompt Wizzard</label>
+
+                  {user && isShown && !isAuthorizedWithCalendar && (
+                    <div style={{ display: "flex", justifyContent: "center" }}>
+                      <Button className="shadow__btn" onClick={getCalendarEvents} style={{ width: 200, height: 65, marginRight: 10, marginTop: 20, marginBottom: 20 }}>
+                        Authorize Google Calendar To Continue...
+                      </Button>
+                    </div>
+                  )}
+
+                  {user && isShown && isAuthorizedWithCalendar && (
+                    <div>
+                      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '20px' }}>
+                        <div className="radio-inputs">
+                          <label className="radio">
+                            <input
+                              type="radio"
+                              name="radio"
+                              value="Ask"
+                              checked={formValue.radio === 'Ask'}
+                              onChange={(e) => setFormValue({ ...formValue, radio: e.target.value })}
+                            />
+                            <span className="name">Ask</span>
+                          </label>
+                          <label className="radio">
+                            <input
+                              type="radio"
+                              name="radio"
+                              value="Upload"
+                              checked={formValue.radio === 'Upload'}
+                              onChange={(e) => setFormValue({ ...formValue, radio: e.target.value })}
+                            />
+                            <span className="name">Upload</span>
+                          </label>
+                          <label className="radio">
+                            <input
+                              type="radio"
+                              name="radio"
+                              value="Update"
+                              checked={formValue.radio === 'Update'}
+                              onChange={(e) => setFormValue({ ...formValue, radio: e.target.value })}
+                            />
+                            <span className="name">Update</span>
+                          </label>
+                          <label className="radio">
+                            <input
+                              type="radio"
+                              name="radio"
+                              value="Create"
+                              checked={formValue.radio === 'Create'}
+                              onChange={(e) => setFormValue({ ...formValue, radio: e.target.value })}
+                            />
+                            <span className="name">Create</span>
+                          </label>
+                        </div>
+                      </div>
+
+                      {/* Conditionally render different buttons and text based on the selected radio option */}
+                      {formValue.radio === 'Ask' && (
+                        <div>
+                          {/* Render buttons and text for "Ask" option */}
+                          <p>Ask your assistant about your calendar</p>
+                          <form onSubmit={handleInputSubmit} style={{ textAlign: "center", marginTop: 10, marginBottom: 20 }}>
+                            <textarea placeholder="Ask your calendar..." class="input" name="text" type="text" id="prompt" value={formValue.prompt} onChange={handleInputFieldChange}></textarea>
+                            <br />
+                            <Button className="shadow__btn" type="submit">
+                              Ask
+                            </Button>
+                          </form>
+                          <div style={{ textAlign: "center", top: 10 }}>
+                            <h2>AI Response:</h2>
+                            <div style={{ paddingBottom: 20, position: "relative", marginTop: 10 }}>
+                              <textarea
+                                class="textFeildResponse" name="text" type="text"
+                                value={predictionValue}
+                                onChange={(e) =>
+                                  setFormValue({ ...formValue, documentContent: e.target.value })
+                                }
+                                disabled
+                              />
+                              {isLoading && ( // Show loading spinner while isLoading is true
+                                <div className="loader" style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)" }}>
+                                  <span className="bar"></span>
+                                  <span className="bar"></span>
+                                  <span className="bar"></span>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                      {formValue.radio === 'Upload' && (
+                        <div style={{ display: 'flex', justifyContent: 'center', flexDirection: 'column'}}>
+                          {/* Render buttons and text for "Upload" option */}
+                          <p>Upload images or documents with events or duedates</p>
+                          <p>smart AI will help you add them to your calender</p>
+                          <div
+                            className={`dotted-dash-area ${isDragging ? 'dragover' : ''}`}
+                            onDragOver={handleDragOver}
+                            onDragLeave={handleDragLeave}
+                            onDrop={handleFileDrop}
+                            style={{ 
+                              marginTop: 10, 
+                              marginBottom: 10,
+                              display: "flex",        // Set display to flex
+                              flexDirection: "column", // Align children vertically
+                              alignItems: "center",    // Center items horizontally
+                              justifyContent: "center" // Center items vertically
+                            }}
+                          >
+                            <img
+                              src={upload}
+                              alt="file upload icon"
+                              style={{ height: "100px", marginBottom: 10 }} // Keep existing styles
+                            />
+                            <p>Drag and drop a file here or click here to process it</p>
+                            <Button className="shadow__btn" onClick={handleClick} style={{ marginTop: 10, marginBottom: 10 }}>
+                              Process Document
+                            </Button>
+                            <input
+                              type="file"
+                              ref={fileInputRef}
+                              style={{ display: "none" }}
+                              onChange={handleFileInputChange}
+                            />
+                          </div>
+
+                          <input
+                            type="file"
+                            ref={fileInputRef}
+                            style={{ display: "none" }}
+                            onChange={handleChange}
+                          />
+
+                          <h2>Document Reading Result:</h2>
+                          <div style={{ paddingBottom: 20, position: "relative" }}>
                             <textarea
-                              class="textFeildResponse" name="text" type="text"
-                              value={predictionValue}
+                              class="textFeild" name="text" type="text"
+                              value={formValue.documentContent}
                               onChange={(e) =>
                                 setFormValue({ ...formValue, documentContent: e.target.value })
                               }
-                              disabled
                             />
                             {isLoading && ( // Show loading spinner while isLoading is true
                               <div className="loader" style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)" }}>
@@ -419,99 +474,45 @@ const Home = () => {
                             )}
                           </div>
                         </div>
-                      </div>
-                    )}
-                    {formValue.radio === 'Upload' && (
-                      <div style={{ display: 'flex', justifyContent: 'center', flexDirection: 'column'}}>
-                        {/* Render buttons and text for "Upload" option */}
-                        <p>Upload images or documents with events or duedates</p>
-                        <p>smart AI will help you add them to your calender</p>
-                        <div
-                          className={`dotted-dash-area ${isDragging ? 'dragover' : ''}`}
-                          onDragOver={handleDragOver}
-                          onDragLeave={handleDragLeave}
-                          onDrop={handleFileDrop}
-                          style={{ 
-                            marginTop: 10, 
-                            marginBottom: 10,
-                            display: "flex",        // Set display to flex
-                            flexDirection: "column", // Align children vertically
-                            alignItems: "center",    // Center items horizontally
-                            justifyContent: "center" // Center items vertically
-                          }}
-                        >
-                          <img
-                            src={upload}
-                            alt="file upload icon"
-                            style={{ height: "100px", marginBottom: 10 }} // Keep existing styles
-                          />
-                          <p>Drag and drop a file here or click here to process it</p>
-                          <Button className="shadow__btn" onClick={handleClick} style={{ marginTop: 10, marginBottom: 10 }}>
-                            Process Document
+                      )}
+                      {formValue.radio === 'Update' && (
+                        <div>
+                          {/* Render buttons and text for "Update" option */}
+                          <button>Update Button</button>
+                          <p>Update Text</p>
+                        </div>
+                      )}
+                      {formValue.radio === 'Create' && (
+                        <div>
+                          {/* Render buttons and text for "Create" option */}
+                          <button>Create Button</button>
+                          <p>Create Text</p>
+
+                          <Button className="btn bg-gradient-to-bl" onClick={() => getPromptEvents(data)}>
+                            Prompt Load
                           </Button>
-                          <input
-                            type="file"
-                            ref={fileInputRef}
-                            style={{ display: "none" }}
-                            onChange={handleFileInputChange}
-                          />
+
+                          {isPromptShown && <Prompt eventList={prompts.events}></Prompt>}
+                          <ul style={{ textAlign: "left" }}>
+                            {events?.map((event) => (
+                              <li key={event.id}>
+                                <Event description={event.summary} />
+                              </li>
+                            ))}
+                          </ul>
                         </div>
-
-                        <input
-                          type="file"
-                          ref={fileInputRef}
-                          style={{ display: "none" }}
-                          onChange={handleChange}
-                        />
-
-                        <h2>Document Reading Result:</h2>
-                        <div style={{ paddingBottom: 20, position: "relative" }}>
-                          <textarea
-                            class="textFeild" name="text" type="text"
-                            value={formValue.documentContent}
-                            onChange={(e) =>
-                              setFormValue({ ...formValue, documentContent: e.target.value })
-                            }
-                          />
-                          {isLoading && ( // Show loading spinner while isLoading is true
-                            <div className="loader" style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)" }}>
-                              <span className="bar"></span>
-                              <span className="bar"></span>
-                              <span className="bar"></span>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    )}
-                    {formValue.radio === 'Update' && (
-                      <div>
-                        {/* Render buttons and text for "Update" option */}
-                        <button>Update Button</button>
-                        <p>Update Text</p>
-                      </div>
-                    )}
-                    {formValue.radio === 'Create' && (
-                      <div>
-                        {/* Render buttons and text for "Create" option */}
-                        <button>Create Button</button>
-                        <p>Create Text</p>
-
-                        <Button className="btn bg-gradient-to-bl" onClick={() => getPromptEvents(data)}>
-                          Prompt Load
-                        </Button>
-
-                        {isPromptShown && <Prompt eventList={prompts.events}></Prompt>}
-                        <ul style={{ textAlign: "left" }}>
-                          {events?.map((event) => (
-                            <li key={event.id}>
-                              <Event description={event.summary} />
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    )}
-                  </div>
-                )}
+                      )}
+                    </div>
+                  )}
+                </div>
+                
+                <div>
+                  <img
+                    src={logo}
+                    alt="DateMinder Logo"
+                    style={{ width: "100px" }}
+                  />
+                </div>
 
                 <div className="bubble bubble1"></div>
                 <div className="bubble bubble2"></div>
