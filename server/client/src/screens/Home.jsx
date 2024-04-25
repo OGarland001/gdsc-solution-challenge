@@ -129,6 +129,7 @@ const Home = () => {
 
       setIsLoading(true);
       setAiResponse('');
+      
 
       const response = await fetch("/palmrequest", {
         method: "POST",
@@ -137,7 +138,7 @@ const Home = () => {
         },
         body: JSON.stringify({
           Context: JSON.stringify(eventDataToSend),
-          Prompt: formValue.prompt,
+          Prompt: typedText,
           CurrentDateTime: currentDateTimeString,
           Timezone: userTimezone,
         }),
