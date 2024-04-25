@@ -412,13 +412,15 @@
 .loader {
   display: flex;
   align-items: center;
+  position: absolute;
+  z-index: 5;
 }
 
 .bar {
   display: inline-block;
   width: 3px;
   height: 40px;
-  background-color: rgba(41, 161, 252, 0.551);
+  background-color: rgba(251, 253, 255, 0.724);
   border-radius: 10px;
   animation: scale-up4 1s linear infinite;
 }

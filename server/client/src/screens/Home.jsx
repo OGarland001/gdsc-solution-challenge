@@ -29,6 +29,7 @@ const Home = () => {
   const [typedText, setTypedText] = useState("");
   const [aiResponse, setAiResponse] = useState("");
   const [isMoonShowing, setIsMoonShowing] = useState(false);
+  const [isLoadingFile, setIsLoadingFile] = useState(false);
 
   const handleChangeLightDarkMode = () => {
     setIsMoonShowing(!isMoonShowing);
@@ -165,7 +166,8 @@ const Home = () => {
     const file = event.target.files[0];
     const formData = new FormData();
     formData.append("file", file);
-    setIsLoading(true); // Set isLoading to true while waiting for response
+    setFormValue({ ...formValue, radio: "Create" });
+    setIsLoadingFile(true); // Set isLoading to true while waiting for response
     try {
       const response = await fetch("/process-document", {
         method: "POST",
@@ -173,10 +175,12 @@ const Home = () => {
       });
       const data = await response.json();
       console.log("In front end:" + data.message);
-      setFormValue({ documentContent: data.message }); // Set the documentContent in formValue
-      setIsLoading(false); // Set isLoading to false after getting response
-
-      //make call to the palmAI and then console log the events pulled from the data.
+      setFormValue((prevFormValue) => ({
+        ...prevFormValue,
+        documentContent: data.message, // Update only the documentContent property
+      }));
+  
+      // Make call to the palmAI and then console log the events pulled from the data.
       const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
       const currentDateTimeString = new Date().toLocaleString();
       const palmResponse = await fetch("/palmrequest", {
@@ -192,26 +196,28 @@ const Home = () => {
           State: "document",
         }),
       });
-
+  
       if (palmResponse.ok) {
-        const data = await palmResponse.json();
-        var dataStr = data.prediction.replace("```", "");
+        const palmData = await palmResponse.json();
+        var dataStr = palmData.prediction.replace("```", "");
         var newdataStr = dataStr.replace("```", "");
         newdataStr = newdataStr.slice(5);
         console.log("STR data: ", newdataStr);
         console.log("Received data: ", JSON.parse(newdataStr));
         setPrompts(JSON.parse(newdataStr));
+        setIsLoadingFile(false);
         getPromptEvents();
       } else {
         throw new Error("Failed to fetch predictions");
       }
     } catch (error) {
       console.error("Error processing document:", error);
-      setIsLoading(false); // Set isLoading to false in case of error
+      setIsLoadingFile(false); // Set isLoading to false in case of error
     }
-  };
+  };  
 
   const getPromptEvents = (data) => {
+    setFormValue({ ...formValue, radio: "Create" });
     setIsPromptShown((isPromptShown) => !isPromptShown);
   };
 
@@ -228,11 +234,14 @@ const Home = () => {
 
   const handleFileDrop = (e) => {
     e.preventDefault();
+    setIsLoadingFile(true);
     const files = e.dataTransfer.files;
     handleChange({ target: { files } }); // Pass a fake event object containing the dropped files to handleChange
   };
 
   const handleFileInputChange = (e) => {
+    setFormValue({ ...formValue, radio: "Create" });
+    setIsLoadingFile(true);
     const files = e.target.files;
     handleChange(files);
   };
@@ -276,7 +285,7 @@ const Home = () => {
   };
 
   return (
-    <div style={{ textAlign: "center" }}>
+    <div style={{ textAlign: "center" }}> 
       <div
         className="container justify-center"
         style={{
@@ -471,12 +480,8 @@ const Home = () => {
                           }}
                         >
                           {/* Render buttons and text for "Upload" option */}
-                          <p>
-                            Upload images or documents with events or duedates
-                          </p>
-                          <p>
-                            smart AI will help you add them to your calender
-                          </p>
+                          <p>Upload images or documents with events or duedates</p>
+                          <p>smart AI will help you add them to your calendar</p>
                           <div
                             className={`dotted-dash-area ${
                               isDragging ? "dragover" : ""
@@ -493,28 +498,26 @@ const Home = () => {
                               justifyContent: "center", // Center items vertically
                             }}
                           >
-                            <img
-                              src={upload}
-                              alt="file upload icon"
-                              style={{ height: "100px", marginBottom: 10 }} // Keep existing styles
-                            />
-                            <p>
-                              Drag and drop a file here or click here to process
-                              it
-                            </p>
-                            <Button
-                              className="shadow__btn"
-                              onClick={handleClick}
-                              style={{ marginTop: 10, marginBottom: 10 }}
-                            >
-                              Process Document
-                            </Button>
-                            <input
-                              type="file"
-                              ref={fileInputRef}
-                              style={{ display: "none" }}
-                              onChange={handleFileInputChange}
-                            />
+                          <img
+                            src={upload}
+                            alt="file upload icon"
+                            style={{ height: "100px", marginBottom: 10 }} // Keep existing styles
+                          />
+                          <p>Drag and drop a file here or click here to process it</p>
+                          <Button
+                            className="shadow__btn"
+                            onClick={handleClick}
+                            style={{ marginTop: 10, marginBottom: 10 }}
+                          >
+                            Process Document
+                          </Button>
+                          <input
+                            type="file"
+                            ref={fileInputRef}
+                            style={{ display: "none" }}
+                            onChange={handleFileInputChange}
+                          />
+
                           </div>
                           <input
                             type="file"
@@ -522,39 +525,6 @@ const Home = () => {
                             style={{ display: "none" }}
                             onChange={handleChange}
                           />
-
-                          <h2>Document Reading Result:</h2>
-                          <div
-                            style={{ paddingBottom: 20, position: "relative" }}
-                          >
-                            <textarea
-                              class="textFeild"
-                              name="text"
-                              type="text"
-                              value={formValue.documentContent}
-                              onChange={(e) =>
-                                setFormValue({
-                                  ...formValue,
-                                  documentContent: e.target.value,
-                                })
-                              }
-                            />
-                            {isLoading && ( // Show loading spinner while isLoading is true
-                              <div
-                                className="loader"
-                                style={{
-                                  position: "absolute",
-                                  top: "50%",
-                                  left: "50%",
-                                  transform: "translate(-50%, -50%)",
-                                }}
-                              >
-                                <span className="bar"></span>
-                                <span className="bar"></span>
-                                <span className="bar"></span>
-                              </div>
-                            )}
-                          </div>
                         </div>
                       )}
                       {formValue.radio === "Update" && (
@@ -581,7 +551,23 @@ const Home = () => {
                           {/* Render buttons and text for "Create" option */}
                           <p>Review the events to add to the calendar here</p>
 
-                          {isPromptShown && (
+                          {isLoadingFile && (
+                              <div
+                                className="loader"
+                                style={{
+                                  position: "absolute",
+                                  top: "50%",
+                                  left: "50%",
+                                  transform: "translate(-50%, -50%)",
+                                }}
+                              >
+                                <span className="bar"></span>
+                                <span className="bar"></span>
+                                <span className="bar"></span>
+                              </div>
+                          )}
+
+                          {!isLoadingFile && isPromptShown && (
                             <Prompt
                               eventList={prompts.events}
                               token={googleCalendarToken}
