@@ -186,31 +186,8 @@ function Prompt({ eventList, token, email }) {
   };
   return (
     <div>
-      <h1>Prompt Results</h1>
       <p>Please review the suggestions before submit.</p>
       <br />
-
-      {/* Warning Modal Overlay */}
-      {showWarning && (
-        <div className="modal-overlay">
-          <div className="modal blue-box">
-            <span className="close" onClick={() => setShowWarning(false)}>
-              &times;
-            </span>
-            <p class="text-white">
-              Please check changes with the real calendar before proceeding.
-              Would you like to revert the changes?
-            </p>
-            <button
-              onClick={revertEvents}
-              class="focus:outline-none text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-900"
-            >
-              Revert Changes
-            </button>
-          </div>
-        </div>
-      )}
-
       {EventTitles &&
         EventDescriptions &&
         eventList.map((item) => (
@@ -295,8 +272,11 @@ function Prompt({ eventList, token, email }) {
         >
           Add to Calendar
         </Button>
-        <Button className="text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-red-700 dark:focus:ring-red-800">
-          Cancel
+        <Button 
+          onClick={revertEvents}
+          className="text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-red-700 dark:focus:ring-red-800"
+        >
+          Revert Changes
         </Button>
       </div>
     </div>
