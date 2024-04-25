@@ -2,7 +2,7 @@
   display: inline-block;
   position: relative;
   padding-left: 20px;
-  margin-bottom: 12px;
+  margin-bottom: 3px;
   cursor: pointer;
   font-size: 16px;
   user-select: none;
@@ -79,7 +79,7 @@
 }
 
 .modal {
-  background-color: white;
+  background-color: rgb(255, 255, 255);
   padding: 20px;
   border-radius: 8px;
   max-width: 80%;
@@ -110,4 +110,15 @@
   transition: all 0.3s ease-in-out;
   overflow: hidden;
   z-index: -2;
+}
+
+.eventBox{
+  background-color: rgba(255, 255, 255, 0.40);
+  width: 95%;
+  min-height: 20px; /* Set a minimum height */
+  padding: 10px;
+  border: 2px solid white;
+  border-radius: 5px;
+  box-shadow: -3px -3px 15px rgb(0,140,255);
+  margin-bottom: 4px;
 }

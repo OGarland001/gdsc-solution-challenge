@@ -193,9 +193,27 @@ function Prompt({ eventList, token, email }) {
         eventList.map((item) => (
           <div
             key={item.id}
-            className="border p-4 mb-4 flex flex-wrap items-start"
+            // className="border p-4 mb-4 flex flex-wrap items-start"
+            className="eventBox"
           >
             <div className="flex-grow">
+              <div class="flex items-center">
+                <label class="checkbox-container">
+                <input
+                  class="custom-checkbox"
+                  checked={selectedEvents.includes(item.id)}
+                  onChange={() => toggleEventSelection(item.id)}
+                  id={`event-checkbox-${item.id}`}
+                  type="checkbox"
+                />
+                <span class="checkmark"></span>
+                </label>
+                <div style={{ marginLeft: "5px" }}>
+                  <label htmlFor={`event-checkbox-${item.id}`} className="ml-2">
+                    Keep
+                  </label>
+                </div>
+              </div>
               <label className="block mb-2 text-sm font-medium text-white">
                 Title
               </label>
@@ -246,21 +264,6 @@ function Prompt({ eventList, token, email }) {
                 marginTop: "3px",
               }}
             >
-              <label class="checkbox-container ml-4 flex flex-col justify-center">
-                <input
-                  class="custom-checkbox"
-                  checked={selectedEvents.includes(item.id)}
-                  onChange={() => toggleEventSelection(item.id)}
-                  id={`event-checkbox-${item.id}`}
-                  type="checkbox"
-                />
-                <span class="checkmark"></span>
-              </label>
-              <div style={{ marginBottom: "15px", marginLeft: "2px" }}>
-                <label htmlFor={`event-checkbox-${item.id}`} className="ml-2">
-                  Keep
-                </label>
-              </div>
             </div>
           </div>
         ))}
