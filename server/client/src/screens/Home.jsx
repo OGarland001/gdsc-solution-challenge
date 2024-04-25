@@ -20,7 +20,6 @@ const Home = () => {
   const [isPromptShown, setIsPromptShown] = useState(false);
   const fileInputRef = useRef(null);
   const [formValue, setFormValue] = useState({ radio: "Ask" }); // Updated formValue state with radio property
-  const [predictionValue, setPrediction] = useState([]);
   const [user, setUser] = useState(null);
   const [prompts, setPrompts] = useState([]);
   const [isLoading, setIsLoading] = useState(false); // Add isLoading state
@@ -29,6 +28,13 @@ const Home = () => {
   const [isAuthorizedWithCalendar, setIsAuthorized] = useState(false);
   const [typedText, setTypedText] = useState("");
   const [aiResponse, setAiResponse] = useState("");
+  const [isMoonShowing, setIsMoonShowing] = useState(false);
+
+  const handleChangeLightDarkMode = () => {
+    setIsMoonShowing(!isMoonShowing);
+    // Toggle background color based on the state of isMoonShowing
+    document.body.style.backgroundColor = isMoonShowing ? "white" : "#222222";
+  };
 
   useEffect(() => {
     const google = window.google;
@@ -242,14 +248,6 @@ const Home = () => {
     e.preventDefault();
     e.stopPropagation();
     e.currentTarget.classList.remove("dragover"); // Remove the 'dragover' class to revert opacity
-  };
-
-  const [isMoonShowing, setIsMoonShowing] = useState(false);
-
-  const handleChangeLightDarkMode = () => {
-    setIsMoonShowing(!isMoonShowing);
-    // Toggle background color based on the state of isMoonShowing
-    document.body.style.backgroundColor = isMoonShowing ? "white" : "#222222";
   };
 
   const simulateTyping = (text) => {
