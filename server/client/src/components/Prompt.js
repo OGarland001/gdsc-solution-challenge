@@ -2,14 +2,32 @@ import { Button } from "@material-tailwind/react";
 import React, { useState, useEffect } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import { v4 as uuidv4 } from "uuid";
 import "./promptStyle.css";
 
-function Prompt({ eventList }) {
+function Prompt({ eventList, token, email }) {
   const [selectedEvents, setSelectedEvents] = useState([]);
   const [startTimes, setStartTimes] = useState({});
   const [endTimes, setEndTimes] = useState({});
   const [EventTitles, setEventTitles] = useState({});
   const [EventDescriptions, setEventDescriptions] = useState({});
+  const [revertIdList, setRevertIdList] = useState([]);
+  const [showWarning, setShowWarning] = useState(false);
+
+  function generateUniqueEventId() {
+    const uuid = uuidv4().replace(/-/g, ""); // Generate a UUID and remove dashes
+    let randomString = "";
+
+    // Generate a random string containing only lowercase letters between 'a' and 'v'
+    for (let i = 0; i < 6; i++) {
+      randomString += String.fromCharCode(Math.floor(Math.random() * 22) + 97); // ASCII code for 'a' is 97
+    }
+
+    const eventId = uuid.slice(0, 20) + randomString; // Combine UUID and random string
+
+    // Ensure eventId length is between 5 and 1024 characters
+    return eventId.substring(0, Math.min(1024, Math.max(5, eventId.length)));
+  }
 
   useEffect(() => {
     const initialStartTimes = {};
@@ -96,13 +114,97 @@ function Prompt({ eventList }) {
       };
     });
     console.log("Selected Events:", selectedEventDetails);
+    const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    const newRevertIdList = [];
+    selectedEventDetails.forEach((event) => {
+      var eventId = generateUniqueEventId();
+      newRevertIdList.push(eventId);
+      fetch(
+        `https://www.googleapis.com/calendar/v3/calendars/${email}/events`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            id: eventId,
+            start: { dateTime: event.startTime, timeZone: timeZone },
+            end: { dateTime: event.endTime, timeZone: timeZone },
+            description: event.description,
+            summary: event.title,
+          }),
+        }
+      )
+        .then((response) => {
+          // Check for successful response
+          if (response.ok) {
+            console.log("Event created successfully");
+          } else {
+            console.error("Failed to create event:", response.statusText);
+          }
+        })
+        .catch((error) => {
+          console.error("Error:", error);
+        });
+    });
+    setRevertIdList(newRevertIdList);
+    setShowWarning(true); // Show warning after creating events
   };
 
+  // Function to revert events
+  const revertEvents = () => {
+    // Implement event reverting logic here
+    console.log("Reverting events...");
+
+    revertIdList.forEach((id) => {
+      fetch(
+        `https://www.googleapis.com/calendar/v3/calendars/${email}/events/${id}`,
+        {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      )
+        .then((response) => {
+          // Check for successful response
+          if (response.ok) {
+            console.log("Event Deleted successfully");
+          } else {
+            console.error("Failed to Delete event:", response.statusText);
+          }
+        })
+        .catch((error) => {
+          console.error("Error:", error);
+        });
+    });
+
+    console.log(revertIdList);
+    setShowWarning(false); // Hide warning after reverting events
+  };
   return (
     <div>
       <h1>Prompt Results</h1>
       <p>Please review the suggestions before submit.</p>
       <br />
+
+      {/* Warning Modal Overlay */}
+      {showWarning && (
+        <div className="modal-overlay">
+          <div className="modal">
+            <span className="close" onClick={() => setShowWarning(false)}>
+              &times;
+            </span>
+            <p>
+              Please check changes with the real calendar before proceeding.
+              Would you like to revert the changes?
+            </p>
+            <button onClick={revertEvents}>Revert Changes</button>
+          </div>
+        </div>
+      )}
 
       {EventTitles &&
         EventDescriptions &&
@@ -155,20 +257,28 @@ function Prompt({ eventList }) {
                 className="mb-2 w-full border border-gray-300 p-2 rounded-md text-black"
               />
             </div>
-            <div class="checkbox-wrapper-8 ml-4 flex flex-col justify-center">
-              <input 
-                type="checkbox" 
-                class="tgl tgl-skewed" 
-                id={`event-checkbox-${item.id}`}
-                checked={selectedEvents.includes(item.id)}
-                onChange={() => toggleEventSelection(item.id)}
-              />
-              <label 
-                for={`event-checkbox-${item.id}`} 
-                data-tg-on="Keep" 
-                data-tg-off="Discard" 
-                class="tgl-btn">
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                marginTop: "3px",
+              }}
+            >
+              <label class="checkbox-container ml-4 flex flex-col justify-center">
+                <input
+                  class="custom-checkbox"
+                  checked={selectedEvents.includes(item.id)}
+                  onChange={() => toggleEventSelection(item.id)}
+                  id={`event-checkbox-${item.id}`}
+                  type="checkbox"
+                />
+                <span class="checkmark"></span>
               </label>
+              <div style={{ marginBottom: "15px", marginLeft: "2px" }}>
+                <label htmlFor={`event-checkbox-${item.id}`} className="ml-2">
+                  Keep
+                </label>
+              </div>
             </div>
           </div>
         ))}

@@ -15,14 +15,16 @@ const Home = () => {
   const [isShown, setIsShown] = useState(false);
   const [events, setEvents] = useState([]);
   const [tokenClient, setTokenClient] = useState({});
+  const [googleCalendarToken, setCalendarToken] = useState({});
   const [isPromptShown, setIsPromptShown] = useState(false);
   const fileInputRef = useRef(null);
-  const [formValue, setFormValue] = useState({ radio: 'Ask' }); // Updated formValue state with radio property
+  const [formValue, setFormValue] = useState({ radio: "Ask" }); // Updated formValue state with radio property
   const [predictionValue, setPrediction] = useState([]);
   const [user, setUser] = useState(null);
   const [prompts, setPrompts] = useState([]);
   const [isLoading, setIsLoading] = useState(false); // Add isLoading state
   const [isDragging] = useState(false); // State variable to track dragging
+  const [UserEmail, setUserEmail] = useState("");
   const [isAuthorizedWithCalendar, setIsAuthorized] = useState(false);
 
   useEffect(() => {
@@ -36,7 +38,7 @@ const Home = () => {
 
       setUser(userObject);
 
-      const userEmail = userObject.email;
+      setUserEmail(userObject.email);
 
       setTokenClient(
         google.accounts.oauth2.initTokenClient({
@@ -55,7 +57,7 @@ const Home = () => {
 
             if (tokenResponse && tokenResponse.access_token) {
               fetch(
-                `https://www.googleapis.com/calendar/v3/calendars/${userEmail}/events?timeMin=${startDate}&timeMax=${endDate}`,
+                `https://www.googleapis.com/calendar/v3/calendars/${userObject.email}/events?timeMin=${startDate}&timeMax=${endDate}`,
                 {
                   method: "GET",
                   headers: {
@@ -68,6 +70,7 @@ const Home = () => {
                 .then((data) => {
                   console.log(data);
                   setEvents(data.items);
+                  setCalendarToken(tokenResponse.access_token);
                   setIsAuthorized(!isAuthorizedWithCalendar);
                 });
             }
@@ -88,7 +91,7 @@ const Home = () => {
       theme: "outline",
       size: "large",
     });
-  }, [isAuthorizedWithCalendar]);
+  }, [UserEmail, googleCalendarToken, isAuthorizedWithCalendar]);
 
   const toggle = () => {
     setIsShown((isShown) => !isShown);
@@ -214,8 +217,8 @@ const Home = () => {
     e.preventDefault();
     const files = e.dataTransfer.files;
     handleChange({ target: { files } }); // Pass a fake event object containing the dropped files to handleChange
-  };  
-  
+  };
+
   const handleFileInputChange = (e) => {
     const files = e.target.files;
     handleChange(files);
@@ -224,14 +227,14 @@ const Home = () => {
   const handleDragOver = (e) => {
     e.preventDefault();
     e.stopPropagation();
-    e.dataTransfer.dropEffect = 'copy';
-    e.currentTarget.classList.add('dragover'); // Add the 'dragover' class to increase opacity
+    e.dataTransfer.dropEffect = "copy";
+    e.currentTarget.classList.add("dragover"); // Add the 'dragover' class to increase opacity
   };
-  
+
   const handleDragLeave = (e) => {
     e.preventDefault();
     e.stopPropagation();
-    e.currentTarget.classList.remove('dragover'); // Remove the 'dragover' class to revert opacity
+    e.currentTarget.classList.remove("dragover"); // Remove the 'dragover' class to revert opacity
   };
 
   const [isMoonShowing, setIsMoonShowing] = useState(false);
@@ -492,7 +495,13 @@ const Home = () => {
                             Prompt Load
                           </Button>
 
-                          {isPromptShown && <Prompt eventList={prompts.events}></Prompt>}
+                          {isPromptShown && (
+                          <Prompt
+                            eventList={prompts.events}
+                            token={googleCalendarToken}
+                            email={UserEmail}
+                          ></Prompt>
+                        )}
                           <ul style={{ textAlign: "left" }}>
                             {events?.map((event) => (
                               <li key={event.id}>
@@ -525,11 +534,10 @@ const Home = () => {
                 <div className="bubble bubble9"></div>
               </div>
             </div>
-
-        </div>
-      )}
+          </div>
+        )}
+      </div>
     </div>
-  </div>
   );
 };
 
