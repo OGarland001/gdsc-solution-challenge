@@ -261,13 +261,13 @@ const Home = () => {
 
     const typingTimer = setInterval(() => {
       let response = predictionText[currentIndex];
-      
+
       // Check if the response includes "undefined" and remove it
       if (response && response.includes("undefined")) {
         response = response.replace("undefined", "");
       }
-  
-      setAiResponse(prevTypedText => prevTypedText + response);
+
+      setAiResponse((prevTypedText) => prevTypedText + response);
       currentIndex++;
 
       if (currentIndex === predictionText.length) {
@@ -563,7 +563,7 @@ const Home = () => {
                           <ul style={{ textAlign: "left" }}>
                             {events?.map((event) => (
                               <li key={event.id}>
-                                <Event description={event.summary} />
+                                <Event eventObj={event} />
                               </li>
                             ))}
                           </ul>
