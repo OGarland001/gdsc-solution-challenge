@@ -136,7 +136,7 @@ const Home = () => {
         },
         body: JSON.stringify({
           Context: JSON.stringify(eventDataToSend),
-          Prompt: formValue.prompt,
+          Prompt: typedText,
           CurrentDateTime: currentDateTimeString,
           Timezone: userTimezone,
         }),
