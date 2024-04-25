@@ -20,7 +20,6 @@ const Home = () => {
   const [isPromptShown, setIsPromptShown] = useState(false);
   const fileInputRef = useRef(null);
   const [formValue, setFormValue] = useState({ radio: "Ask" }); // Updated formValue state with radio property
-  const [predictionValue, setPrediction] = useState([]);
   const [user, setUser] = useState(null);
   const [prompts, setPrompts] = useState([]);
   const [isLoading, setIsLoading] = useState(false); // Add isLoading state
@@ -29,6 +28,13 @@ const Home = () => {
   const [isAuthorizedWithCalendar, setIsAuthorized] = useState(false);
   const [typedText, setTypedText] = useState("");
   const [aiResponse, setAiResponse] = useState("");
+  const [isMoonShowing, setIsMoonShowing] = useState(false);
+
+  const handleChangeLightDarkMode = () => {
+    setIsMoonShowing(!isMoonShowing);
+    // Toggle background color based on the state of isMoonShowing
+    document.body.style.backgroundColor = isMoonShowing ? "white" : "#222222";
+  };
 
   useEffect(() => {
     const google = window.google;
@@ -136,7 +142,7 @@ const Home = () => {
         },
         body: JSON.stringify({
           Context: JSON.stringify(eventDataToSend),
-          Prompt: formValue.prompt,
+          Prompt: typedText,
           CurrentDateTime: currentDateTimeString,
           Timezone: userTimezone,
         }),
@@ -244,14 +250,6 @@ const Home = () => {
     e.currentTarget.classList.remove("dragover"); // Remove the 'dragover' class to revert opacity
   };
 
-  const [isMoonShowing, setIsMoonShowing] = useState(false);
-
-  const handleChangeLightDarkMode = () => {
-    setIsMoonShowing(!isMoonShowing);
-    // Toggle background color based on the state of isMoonShowing
-    document.body.style.backgroundColor = isMoonShowing ? "white" : "#222222";
-  };
-
   const simulateTyping = (text) => {
     setIsLoading(false); // Stop loading before starting typing
 
@@ -261,13 +259,13 @@ const Home = () => {
 
     const typingTimer = setInterval(() => {
       let response = predictionText[currentIndex];
-      
+
       // Check if the response includes "undefined" and remove it
       if (response && response.includes("undefined")) {
         response = response.replace("undefined", "");
       }
-  
-      setAiResponse(prevTypedText => prevTypedText + response);
+
+      setAiResponse((prevTypedText) => prevTypedText + response);
       currentIndex++;
 
       if (currentIndex === predictionText.length) {
@@ -569,7 +567,7 @@ const Home = () => {
                           <ul style={{ textAlign: "left" }}>
                             {events?.map((event) => (
                               <li key={event.id}>
-                                <Event description={event.summary} />
+                                <Event eventObj={event} />
                               </li>
                             ))}
                           </ul>

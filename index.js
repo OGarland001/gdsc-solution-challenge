@@ -379,6 +379,8 @@ app.post("/palmrequest", async (req, res) => {
       };
     }
 
+    
+
     const response = await fetch(URL, {
       method: "POST",
       headers,
