@@ -9,6 +9,7 @@ import Prompt from "../components/Prompt";
 import logo from "./images/logo.png";
 import upload from "./images/upload.png";
 import promptWizard from "./images/PromptWizard.png";
+import TypingEffect from './TypingEffect';
 const SCOPE = "https://www.googleapis.com/auth/calendar";
 
 const Home = () => {
@@ -23,6 +24,9 @@ const Home = () => {
   const [prompts, setPrompts] = useState([]);
   const [isLoading, setIsLoading] = useState(false); // Add isLoading state
   const [isDragging] = useState(false); // State variable to track dragging
+  const [typedText, setTypedText] = useState('');
+  const [aiResponse, setAiResponse] = useState(''); 
+  
 
   useEffect(() => {
     const google = window.google;
@@ -118,6 +122,9 @@ const Home = () => {
       const currentDateTimeString = new Date().toLocaleString();
       console.log("Current Date and Time (String):", currentDateTimeString);
 
+      setIsLoading(true);
+      setAiResponse('');
+
       const response = await fetch("/palmrequest", {
         method: "POST",
         headers: {
@@ -134,12 +141,13 @@ const Home = () => {
       if (response.ok) {
         const data = await response.json();
         console.log("Received data: ", data);
-        setPrediction(data.prediction);
+        simulateTyping(data.prediction);
       } else {
         throw new Error("Failed to fetch predictions");
       }
     } catch (error) {
       console.error("Error:", error);
+      setIsLoading(false);
     }
   };
 
@@ -238,6 +246,24 @@ const Home = () => {
     setIsMoonShowing(!isMoonShowing);
     // Toggle background color based on the state of isMoonShowing
     document.body.style.backgroundColor = isMoonShowing ? "white" : "#222222";
+  };
+
+  const simulateTyping = (text) => {
+    setIsLoading(false); // Stop loading before starting typing
+    
+    const typingInterval = 10; // Adjust typing speed as needed
+    const predictionText = text.split('');
+    let currentIndex = 0;
+  
+    const typingTimer = setInterval(() => {
+      setAiResponse(prevTypedText => prevTypedText + predictionText[currentIndex]);
+      currentIndex++;
+  
+      if (currentIndex === predictionText.length) {
+        clearInterval(typingTimer);
+        setIsLoading(false); // Stop loading after typing completes
+      }
+    }, typingInterval);
   };
 
   return (
@@ -378,39 +404,18 @@ const Home = () => {
               </div>
 
               {/* Conditionally render different buttons and text based on the selected radio option */}
-              {formValue.radio === 'Ask' && (
-                <div>
-                  {/* Render buttons and text for "Ask" option */}
-                  <p>Ask your assistant about your calendar</p>
-                  <form onSubmit={handleInputSubmit} style={{ textAlign: "center", marginTop: 10, marginBottom: 20 }}>
-                    <textarea placeholder="Ask your calendar..." class="input" name="text" type="text" id="prompt" value={formValue.prompt} onChange={handleInputFieldChange}></textarea>
-                    <br />
-                    <Button className="shadow__btn" type="submit">
-                      Ask
-                    </Button>
-                  </form>
-                  <div style={{ textAlign: "center", top: 10 }}>
-                    <h2>AI Response:</h2>
-                    <div style={{ paddingBottom: 20, position: "relative", marginTop: 10 }}>
-                      <textarea
-                        class="textFeildResponse" name="text" type="text"
-                        value={predictionValue}
-                        onChange={(e) =>
-                          setFormValue({ ...formValue, documentContent: e.target.value })
-                        }
-                        disabled
-                      />
-                      {isLoading && ( // Show loading spinner while isLoading is true
-                        <div className="loader" style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)" }}>
-                          <span className="bar"></span>
-                          <span className="bar"></span>
-                          <span className="bar"></span>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              )}
+              <div>
+                {/* Your other JSX content */}
+                <TypingEffect
+                  formValue={formValue}
+                  handleInputSubmit={handleInputSubmit}
+                  typedText={typedText}
+                  setTypedText={setTypedText}
+                  isLoading={isLoading}
+                  aiResponse={aiResponse}
+                  setAiResponse={setAiResponse}
+                />
+              </div>
               {formValue.radio === 'Upload' && (
                 <div style={{ display: 'flex', justifyContent: 'center', flexDirection: 'column'}}>
                   {/* Render buttons and text for "Upload" option */}
