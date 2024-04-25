@@ -564,6 +564,9 @@ const Home = () => {
                             Here your AI assistant can help you update your
                             calendar events
                           </p>
+                          <p>
+                            Heres some of your upcomming events:
+                          </p>
                           <ul style={{ textAlign: "left" }}>
                             {events?.map((event) => (
                               <li key={event.id}>

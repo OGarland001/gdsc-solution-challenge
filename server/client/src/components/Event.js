@@ -1,14 +1,30 @@
 import React from "react";
+import "./event.css"; // Import the CSS file
+
+function formatDate(dateTimeString) {
+  const options = {
+    weekday: 'short',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: 'numeric',
+    hour12: true // Use 12-hour format
+  };
+  const date = new Date(dateTimeString);
+  return date.toLocaleDateString('en-US', options);
+}
 
 function Event({ eventObj }) {
+  const startTime = formatDate(eventObj.start.dateTime);
+  const endTime = formatDate(eventObj.end.dateTime);
+
   return (
-    <div className="mt-4 w-1/4 p-1 shadow-xl bg-gradient-to-r from-blue-500 via-navy-500 to-purple-500 rounded-2xl">
-      <span className="block bg-white sm:p-2 rounded-xl" href="">
-        <div className="sm:pr-8">
-          <p className="mt-2 text-sm text-black">{eventObj.summary}</p>
-          {console.log(eventObj)}
-        </div>
-      </span>
+    <div className="event-card">
+      <p className="title">{eventObj.summary}</p>
+      <p className="time">Start Time: {startTime}</p>
+      <p className="time">End Time: {endTime}</p>
+      <p className="status">Status: {eventObj.status}</p>
     </div>
   );
 }
