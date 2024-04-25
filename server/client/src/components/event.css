@@ -1,0 +1,37 @@
+/* event.css */
+
+.event-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  
+  .event-card {
+    width: 96%; /* Adjust width as needed */
+    margin: 10px;
+    padding: 20px;
+    background-color: #f0f0f0; /* Adjust background color */
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08);
+  }
+  
+  .event-card p {
+    margin: 5px 0;
+  }
+  
+  .event-card .title {
+    font-size: 18px;
+    font-weight: bold;
+    color:rgba(0, 0, 0, 0.874)
+  }
+  
+  .event-card .time {
+    font-size: 14px;
+    color:rgba(0, 0, 0, 0.758)
+  }
+  
+  .event-card .status {
+    font-size: 14px;
+    color: #0088ff9b; /* Adjust text color */
+  }
+  
