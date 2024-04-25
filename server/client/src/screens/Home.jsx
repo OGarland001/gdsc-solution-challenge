@@ -261,7 +261,14 @@ const Home = () => {
     let currentIndex = 0;
   
     const typingTimer = setInterval(() => {
-      setAiResponse(prevTypedText => prevTypedText + predictionText[currentIndex]);
+      let response = predictionText[currentIndex];
+      
+      // Check if the response includes "undefined" and remove it
+      if (response && response.includes("undefined")) {
+        response = response.replace("undefined", "");
+      }
+  
+      setAiResponse(prevTypedText => prevTypedText + response);
       currentIndex++;
   
       if (currentIndex === predictionText.length) {
