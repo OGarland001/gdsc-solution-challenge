@@ -331,33 +331,7 @@ const Home = () => {
                   style={{ height: "200px", alignSelf: "center"}}
                 />
 
-                <div style={{ marginRight: "1rem", transform: "scale(0.4)", position: "relative", marginLeft: "79%", marginTop: "-230px" }}>
-                  <label className="theme-switch">
-                    <input
-                      type="checkbox"
-                      className="theme-switch__checkbox"
-                      onChange={handleChangeLightDarkMode}
-                    />
-                    <div className="theme-switch__container">
-                      <div className="theme-switch__clouds"></div>
-                      <div className="theme-switch__stars-container">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 144 55" fill="none"></svg>
-                      </div>
-                      <div className="theme-switch__circle-container">
-                        <div className="theme-switch__sun-moon-container">
-                          <div className={`theme-switch__moon${isMoonShowing ? ' visible' : ''}`}>
-                            <div className="theme-switch__spot"></div>
-                            <div className="theme-switch__spot"></div>
-                            <div className="theme-switch__spot"></div>
-                          </div>
-                          <div className={`theme-switch__sun${isMoonShowing ? '' : ' visible'}`}></div>
-                        </div>
-                      </div>
-                    </div>
-                  </label>
-                </div>
-
-                <div style={{ position: "relative", marginTop: "45%" }}>
+                <div style={{ position: "relative", marginTop: "3%" }}>
                   <label htmlFor="prompt">Prompt Wizzard</label>
 
                   {user && isShown && !isAuthorizedWithCalendar && (
@@ -527,13 +501,38 @@ const Home = () => {
                   )}
                 </div>
                 
-                <div>
-                  <img
-                    src={logo}
-                    alt="DateMinder Logo"
-                    style={{ width: "100px" }}
-                  />
+                <div class="row" style={{ display: "flex", alignItems: "center"}}>
+                  <div>
+                    <img src={logo} alt="DateMinder Logo" style={{ width: "100px", marginRight: "120px", marginLeft: "40px" }} />
+                  </div>
+
+                  <div class="switch-container" style={{ transform: "scale(0.4)", position: "relative"}}>
+                    <label class="theme-switch">
+                      <input
+                        type="checkbox"
+                        class="theme-switch__checkbox"
+                        onChange={handleChangeLightDarkMode}
+                      />
+                      <div class="theme-switch__container">
+                        <div class="theme-switch__clouds"></div>
+                        <div class="theme-switch__stars-container">
+                          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 144 55" fill="none"></svg>
+                        </div>
+                        <div class="theme-switch__circle-container">
+                          <div class="theme-switch__sun-moon-container">
+                            <div class={`theme-switch__moon${isMoonShowing ? ' visible' : ''}`}>
+                              <div class="theme-switch__spot"></div>
+                              <div class="theme-switch__spot"></div>
+                              <div class="theme-switch__spot"></div>
+                            </div>
+                            <div class={`theme-switch__sun${isMoonShowing ? '' : ' visible'}`}></div>
+                          </div>
+                        </div>
+                      </div>
+                    </label>
+                  </div>
                 </div>
+
 
                 <div className="bubble bubble1"></div>
                 <div className="bubble bubble2"></div>

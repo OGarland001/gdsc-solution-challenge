@@ -193,15 +193,20 @@ function Prompt({ eventList, token, email }) {
       {/* Warning Modal Overlay */}
       {showWarning && (
         <div className="modal-overlay">
-          <div className="modal">
+          <div className="modal blue-box">
             <span className="close" onClick={() => setShowWarning(false)}>
               &times;
             </span>
-            <p>
+            <p class="text-white">
               Please check changes with the real calendar before proceeding.
               Would you like to revert the changes?
             </p>
-            <button onClick={revertEvents}>Revert Changes</button>
+            <button
+              onClick={revertEvents}
+              class="focus:outline-none text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-900"
+            >
+              Revert Changes
+            </button>
           </div>
         </div>
       )}
