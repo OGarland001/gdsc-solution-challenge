@@ -354,7 +354,7 @@ const Home = () => {
                 <img
                   src={promptWizard}
                   alt="PromptWizard"
-                  style={{ height: "200px", alignSelf: "center" }}
+                  style={{ height: "170px", alignSelf: "center" }}
                 />
 
                 <div style={{ position: "relative", marginTop: "3%" }}>
@@ -501,7 +501,7 @@ const Home = () => {
                           <img
                             src={upload}
                             alt="file upload icon"
-                            style={{ height: "100px", marginBottom: 10 }} // Keep existing styles
+                            style={{ height: "80px", marginBottom: 10 }} // Keep existing styles
                           />
                           <p>Drag and drop a file here or click here to process it</p>
                           <Button
@@ -555,6 +555,7 @@ const Home = () => {
                               <div
                                 className="loader"
                                 style={{
+                                  marginTop: "25px",
                                   position: "absolute",
                                   top: "50%",
                                   left: "50%",
