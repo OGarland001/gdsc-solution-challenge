@@ -480,8 +480,8 @@ const Home = () => {
                           }}
                         >
                           {/* Render buttons and text for "Upload" option */}
-                          <p>Upload images or documents with events or duedates</p>
-                          <p>smart AI will help you add them to your calendar</p>
+                          <p>Upload images or documents with events or due dates</p>
+                          <p>Smart AI will help you add them to your calendar</p>
                           <div
                             className={`dotted-dash-area ${
                               isDragging ? "dragover" : ""
@@ -549,7 +549,7 @@ const Home = () => {
                       {formValue.radio === "Create" && (
                         <div>
                           {/* Render buttons and text for "Create" option */}
-                          <p>Review the events to add to the calendar here</p>
+                          <p>Review the events to add to your calendar here</p>
 
                           {isLoadingFile && (
                               <div
