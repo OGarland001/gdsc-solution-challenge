@@ -29,78 +29,207 @@ const Home = () => {
   const [isAuthorizedWithCalendar, setIsAuthorized] = useState(false);
   const [typedText, setTypedText] = useState("");
   const [aiResponse, setAiResponse] = useState("");
+  
 
+  const setCookie = (name, value, days) => {
+    var expires = "";
+    if (days) {
+      var date = new Date();
+      date.setTime(date.getTime() + days * 24 * 60 * 60 * 1000);
+      expires = "; expires=" + date.toUTCString();
+    }
+    document.cookie = name + "=" + value + expires + "; path=/";
+  };
+  
+  const handleTokenClientResponse = (tokenResponse, user) => {
+    console.log("Handle token client response:", tokenResponse);
+    console.log("User object:", user);
+    var startDate = new Date();
+    var endDate = new Date();
+  
+    endDate.setDate(endDate.getDate() + 14);
+  
+    startDate = startDate.toISOString();
+    endDate = endDate.toISOString();
+  
+    if (tokenResponse && tokenResponse.access_token) {
+      fetch(
+        `https://www.googleapis.com/calendar/v3/calendars/${user.email}/events?timeMin=${startDate}&timeMax=${endDate}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${tokenResponse.access_token}`,
+          },
+        }
+      )
+        .then((response) => response.json())
+        .then((data) => {
+          console.log("Calendar events data:", data);
+          setEvents(data.items);
+          setCalendarToken(tokenResponse.access_token);
+          setIsAuthorized(true);
+          setIsShown(true);
+          setCookie(
+            "DateMinderTokens",
+            JSON.stringify({
+              calendarToken: tokenResponse.access_token,
+              authToken: tokenResponse,
+              user: user,
+            }),
+            30
+          );
+        })
+        .catch((error) => {
+          console.error("Error fetching calendar events:", error);
+        });
+    }
+  };
+  
   useEffect(() => {
     const google = window.google;
+    const cookieValues = getCookie();
+    
+    const findEmail = (userObject) => {
+      // If userObject exists and has an email property, return it
+      if (userObject && userObject.email) {
+        return userObject.email;
+      }
+      // If userObject is an array, search within each item
+      if (Array.isArray(userObject)) {
+        for (let i = 0; i < userObject.length; i++) {
+          const email = findEmail(userObject[i]);
+          if (email) return email;
+        }
+      }
+      // If userObject is an object, search within its properties
+      if (typeof userObject === 'object') {
+        for (let key in userObject) {
+          const email = findEmail(userObject[key]);
+          if (email) return email;
+        }
+      }
+      // Email not found
+      return null;
+    };
+  
+    if (cookieValues) {
+      console.log("Existing cookie values:", cookieValues);
+  
+      setUser(cookieValues.user);
+  
+      const userEmail = findEmail(cookieValues.user);
+  
+      if (userEmail) {
+        setUserEmail(userEmail);
+      }
+  
+      setCalendarToken(cookieValues.calendarToken);
+      const response = cookieValues.authToken
 
-    function handleCallbackResponse(response) {
-      console.log("Encoded JWT ID token " + response.credential);
-      var userObject = jwtDecode(response.credential);
-
-      console.log(userObject);
-
-      setUser(userObject);
-
-      setUserEmail(userObject.email);
-
-      setTokenClient(
-        google.accounts.oauth2.initTokenClient({
-          client_id: process.env.REACT_APP_CLIENT_ID,
-          scope: SCOPE,
-          callback: (tokenResponse) => {
-            console.log(tokenResponse);
-            var startDate = new Date();
-
-            var endDate = new Date();
-
-            endDate.setDate(endDate.getDate() + 14);
-
-            startDate = startDate.toISOString();
-            endDate = endDate.toISOString();
-
-            if (tokenResponse && tokenResponse.access_token) {
-              fetch(
-                `https://www.googleapis.com/calendar/v3/calendars/${userObject.email}/events?timeMin=${startDate}&timeMax=${endDate}`,
-                {
-                  method: "GET",
-                  headers: {
-                    "Content-Type": "application/json",
-                    Authorization: `Bearer ${tokenResponse.access_token}`,
-                  },
-                }
-              )
-                .then((response) => response.json())
-                .then((data) => {
-                  console.log(data);
-                  setEvents(data.items);
-                  setCalendarToken(tokenResponse.access_token);
-                  setIsAuthorized(!isAuthorizedWithCalendar);
-                });
-            }
+      var startDate = new Date();
+      var endDate = new Date();
+  
+      endDate.setDate(endDate.getDate() + 14);
+  
+      startDate = startDate.toISOString();
+      endDate = endDate.toISOString();
+  
+      fetch(
+        `https://www.googleapis.com/calendar/v3/calendars/${userEmail}/events?timeMin=${startDate}&timeMax=${endDate}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${cookieValues.calendarToken}`,
           },
+        }
+      )
+        .then((response) => response.json())
+        .then((data) => {
+          setEvents(data.items);
         })
-      );
+        .catch((error) => {
+          console.error("Error fetching calendar events:", error);
+        });
+
+      setIsAuthorized(true);
 
       toggle();
 
-      document.getElementById("signInDiv").hidden = true;
+      console.log("user: ", user);
+      console.log("is shown ", isShown);
+      console.log("is authorized with calendar", isAuthorizedWithCalendar)
+    
+
+
+    } else {
+      setIsAuthorized(false);
+      function handleCallbackResponse(response) {
+        console.log("Encoded JWT ID token " + response.credential);
+        var userObject = jwtDecode(response.credential);
+  
+        console.log("Decoded user object:", userObject);
+  
+        setUser(userObject);
+        setUserEmail(userObject.email);
+  
+        setTokenClient(google.accounts.oauth2.initTokenClient({
+          client_id: process.env.REACT_APP_CLIENT_ID,
+          scope: SCOPE,
+          callback: (tokenResponse) => handleTokenClientResponse(tokenResponse, userObject),
+        }));
+  
+        toggle();
+        document.getElementById("signInDiv").hidden = true;
+      }
+  
+      google.accounts.id.initialize({
+        client_id: process.env.REACT_APP_CLIENT_ID,
+        callback: handleCallbackResponse,
+      });
+  
+      google.accounts.id.renderButton(document.getElementById("signInDiv"), {
+        theme: "outline",
+        size: "large",
+      });
     }
-    google.accounts.id.initialize({
-      client_id: process.env.REACT_APP_CLIENT_ID,
-      callback: handleCallbackResponse,
-    });
-
-    google.accounts.id.renderButton(document.getElementById("signInDiv"), {
-      theme: "outline",
-      size: "large",
-    });
-  }, [UserEmail, googleCalendarToken, isAuthorizedWithCalendar]);
-
+  }, []);
+  
   const toggle = () => {
     setIsShown((isShown) => !isShown);
   };
+  
+
+  const getCookie = () => {
+    let name = "DateMinderTokens" + "=";
+    let decodedCookie = decodeURIComponent(document.cookie);
+    let cookieArray = decodedCookie.split(';');
+  
+    for (let i = 0; i < cookieArray.length; i++) {
+      let cookie = cookieArray[i].trim();
+      if (cookie.indexOf(name) === 0) {
+        let cookieValue = cookie.substring(name.length, cookie.length);
+        // Parse the serialized values back into their original format
+        let parsedValues = JSON.parse(cookieValue);
+        return {
+          calendarToken: parsedValues.calendarToken,
+          authToken: parsedValues.authToken,
+          user: parsedValues.user 
+        };
+      }
+    }
+    return null;
+  };
+
+
+
+  const deleteCookie = () => {
+    document.cookie = "DateMinderTokens" + "=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+  };
 
   const getCalendarEvents = () => {
+    console.log("token client", tokenClient);
     tokenClient.requestAccessToken();
   };
 
@@ -215,10 +344,14 @@ const Home = () => {
 
   const logout = () => {
     localStorage.removeItem("user");
+    deleteCookie();
+    //localStorage.removeItem("DateMinderTokens");
     toggle();
     document.getElementById("signInDiv").hidden = false;
     window.location = "/";
   };
+
+ 
 
   const handleFileDrop = (e) => {
     e.preventDefault();
@@ -276,6 +409,51 @@ const Home = () => {
       }
     }, typingInterval);
   };
+
+  // const setCookie = (calendarToken, authToken) => {
+  //   const date = new Date();
+  //   const numberofDays = 14;
+  //   const cookieName = "DateMinderTokens";
+  //   date.setTime(date.getTime() + (numberofDays*24*60*60*1000));
+  //   let expires = "expires="+ date.toUTCString();
+  //   let serializedValues = JSON.stringify({ calendarToken: calendarToken, authToken: authToken });
+  //   document.cookie = cookieName + "=" + serializedValues + ";" + expires + ";path=/";
+  // };
+
+  // const getCookie = () => {
+  //   let name = "DateMinderTokens" + "=";
+  //   let decodedCookie = decodeURIComponent(document.cookie);
+  //   let cookieArray = decodedCookie.split(';');
+  
+  //   for (let i = 0; i < cookieArray.length; i++) {
+  //     let cookie = cookieArray[i].trim();
+  //     if (cookie.indexOf(name) === 0) {
+  //       let cookieValue = cookie.substring(name.length, cookie.length);
+  //       // Parse the serialized values back into their original format
+  //       let parsedValues = JSON.parse(cookieValue);
+  //       return {
+  //         calendarToken: parsedValues.calendarToken,
+  //         authToken: parsedValues.authToken
+  //       };
+  //     }
+  //   }
+  //   return null;
+  // };
+
+  // const checkCookie = () => {
+  //   const cookieValues = getCookie("DateMinderTokens");
+  //   if (cookieValues !== null) {
+  //     console.log("Cookie exists");
+  //     console.log("Calendar Token:", cookieValues.calendarToken);
+  //     console.log("Auth Token:", cookieValues.authToken);
+  //   } else {
+  //     console.log("Cookie does not exist");
+  //   }
+  // };
+
+  // const deleteCookie = () => {
+  //   document.cookie = "DateMinderTokens" + "=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+  // };
 
   return (
     <div style={{ textAlign: "center" }}>
