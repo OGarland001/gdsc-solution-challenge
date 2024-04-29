@@ -1,6 +1,14 @@
-import React from 'react';
+import React from "react";
+import { useState } from "react";
 
 const TypingEffect = ({ formValue, handleInputSubmit, typedText, setTypedText, aiResponse, setAiResponse, isLoading }) => {
+
+  const [weeks, setWeeks] = useState(1);
+
+  const handleChangeSlider = (e) => {
+    setWeeks(parseInt(e.target.value));
+  };
+
   return (
     <div>
       {/* Your JSX content */}
@@ -19,6 +27,17 @@ const TypingEffect = ({ formValue, handleInputSubmit, typedText, setTypedText, a
               onChange={(e) => setTypedText(e.target.value)} // Update typedText state
             />
             <br />
+            <div>
+            <p>Number of weeks ahead assistant should consider: {weeks}</p>
+              <input
+                type="range"
+                min="1"
+                max="52"
+                value={weeks}
+                onChange={handleChangeSlider}
+                step="1"
+              />
+            </div>
             <button className="shadow__btn" type="submit">
               Ask
             </button>
