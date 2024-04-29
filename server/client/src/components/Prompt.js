@@ -32,13 +32,26 @@ function Prompt({ eventList, token, email }) {
   useEffect(() => {
     const initialStartTimes = {};
     const initialEndTimes = {};
-    const initialTitles = {}; // Change initalTitles to initialTitles
-    const initialDescriptions = {}; // Change initalDescriptions to initialDescriptions
+    const initialTitles = {};
+    const initialDescriptions = {};
 
     // Initialize startTimes and endTimes with data from eventList
     eventList.forEach((item) => {
-      initialStartTimes[item.id] = formatDate(item.startTime);
-      initialEndTimes[item.id] = formatDate(item.endTime);
+      let startTime = formatDate(item.startTime);
+      let endTime = formatDate(item.endTime);
+
+      // Check if start time is invalid, if so, set it to current time
+      if (isNaN(startTime.getTime())) {
+        startTime = new Date();
+      }
+
+      // Check if end time is invalid, if so, set it to current time
+      if (isNaN(endTime.getTime())) {
+        endTime = new Date();
+      }
+
+      initialStartTimes[item.id] = startTime;
+      initialEndTimes[item.id] = endTime;
       initialTitles[item.id] = item.summary;
       initialDescriptions[item.id] = item.description;
     });

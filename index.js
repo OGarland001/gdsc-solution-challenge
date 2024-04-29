@@ -41,7 +41,6 @@ async function verifyGoogleToken(token) {
   }
 }
 
-// app.post("/signup", async (req, res) => {
 //   try {
 //     if (req.body.credential) {
 //       const verificationResponse = await verifyGoogleToken(req.body.credential);
@@ -379,8 +378,6 @@ app.post("/palmrequest", async (req, res) => {
       };
     }
 
-    
-
     const response = await fetch(URL, {
       method: "POST",
       headers,
@@ -414,77 +411,6 @@ app.post("/palmrequest", async (req, res) => {
     console.error("Error in palmrequest:", error.message);
     res.status(500).json({ error: "Internal Server Error" });
   }
-});
-//Route for chat bison model
-
-// app.post("/palmrequest", async (req, res) => {
-//     try {
-//         const headers = {
-//             Authorization: `Bearer ${await getIdToken()}`,
-//             "Content-Type": "application/json",
-//         };
-
-//         const palmContext = parseEventData(req.body.Context);
-
-//         console.log(palmContext);
-
-//         const data = {
-//             instances: [
-//                 {
-//                     context: palmContext,
-//                     examples: [],
-//                     messages: [
-//                         {
-//                             author: "user",
-//                             content: req.body.Prompt,
-//                         },
-//                     ],
-//                 },
-//             ],
-//             parameters: {
-//                 temperature: 0.9,
-//                 maxOutputTokens: 1024,
-//                 topP: 0.8,
-//                 topK: 40,
-//             },
-//         };
-
-//         //console.log("Recieved data: ", req.body.Context);
-
-//     const response = await fetch(URL, {
-//       method: "POST",
-//       headers,
-//       body: JSON.stringify(data),
-//     });
-
-//     if (!response.ok) {
-//       console.error(response.statusText);
-//       throw new Error("Request failed " + response.statusText);
-//     }
-
-//     const result = await response.json();
-//     if (
-//       !result ||
-//       !result.predictions ||
-//       !result.predictions[0].candidates ||
-//       result.predictions[0].candidates.length === 0
-//     ) {
-//       throw new Error("Invalid response format or missing data in predictions");
-//     }
-
-//     const prediction = result.predictions[0].candidates[0].content;
-
-//     console.log("Response from Vertex AI: ", prediction);
-
-//     res.status(200).json({ prediction });
-//   } catch (error) {
-//     console.error("Error in palmrequest:", error.message);
-//     res.status(500).json({ error: "Internal Server Error" });
-//   }
-// });
-
-app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "server/client/build", "index.html"));
 });
 
 app.get("/*", (req, res) => {
