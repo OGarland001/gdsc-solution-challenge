@@ -39,14 +39,15 @@ function Prompt({ eventList, token, email }) {
     eventList.forEach((item) => {
       let startTime = formatDate(item.startTime);
       let endTime = formatDate(item.endTime);
+      let currentDate = new Date();
 
       // Check if start time is invalid, if so, set it to current time
-      if (isNaN(startTime.getTime())) {
+      if (isNaN(startTime.getTime()) || startTime < currentDate) {
         startTime = new Date();
       }
 
       // Check if end time is invalid, if so, set it to current time
-      if (isNaN(endTime.getTime())) {
+      if (isNaN(endTime.getTime()) || endTime < currentDate) {
         endTime = new Date();
       }
 
