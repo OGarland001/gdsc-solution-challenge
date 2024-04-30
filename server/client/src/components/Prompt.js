@@ -12,7 +12,9 @@ function Prompt({ eventList, token, email }) {
   const [EventTitles, setEventTitles] = useState({});
   const [EventDescriptions, setEventDescriptions] = useState({});
   const [revertIdList, setRevertIdList] = useState([]);
-  const [showWarning, setShowWarning] = useState(false);
+  const [eventsAdded, setEventsAdded] = useState(false); // New state to track if events are added
+  const [isMessageShowing, setIsMessageShowing] = useState(false);
+  const [message, setMessage] = useState("");
 
   function generateUniqueEventId() {
     const uuid = uuidv4().replace(/-/g, ""); // Generate a UUID and remove dashes
@@ -162,8 +164,14 @@ function Prompt({ eventList, token, email }) {
           console.error("Error:", error);
         });
     });
+    if(selectedEvents.length == 0){
+      setMessage("No events selected");
+    }
+    else{
+      setMessage(`${selectedEvents.length} Events Added`);
+    }
+    setIsMessageShowing(true);
     setRevertIdList(newRevertIdList);
-    setShowWarning(true); // Show warning after creating events
   };
 
   // Function to revert events
@@ -196,7 +204,8 @@ function Prompt({ eventList, token, email }) {
     });
 
     console.log(revertIdList);
-    setShowWarning(false); // Hide warning after reverting events
+    setMessage("Events Removed");
+    setIsMessageShowing(true);
   };
   return (
     <div>
@@ -277,24 +286,31 @@ function Prompt({ eventList, token, email }) {
               }}
             ></div>
           </div>
-        ))}
-
+        ))
+      }
       <div>
-        <Button
-          onClick={handleAddToCalendar}
-          className="text-white bg-[#008cff] hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-        >
-          Add to Calendar
-        </Button>
-        <Button
-          onClick={revertEvents}
-          className="text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-red-700 dark:focus:ring-red-800"
-        >
-          Revert Changes
-        </Button>
+        {/* Your existing event list rendering */}
+        <div>
+          <Button
+            onClick={handleAddToCalendar}
+            className="text-white bg-[#008cff] hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+          >
+            Add to Calendar
+          </Button>
+          <Button
+            onClick={revertEvents}
+            className="text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-red-700 dark:focus:ring-red-800"
+          >
+            Revert Changes
+          </Button>
+        </div>
+        { isMessageShowing &&(
+          <p>{message}</p>
+        )}
       </div>
     </div>
   );
 }
 
 export default Prompt;
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
