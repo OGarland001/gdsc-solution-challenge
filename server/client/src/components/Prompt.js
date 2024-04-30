@@ -132,7 +132,18 @@ function Prompt({ eventList, token, email }) {
     console.log("Selected Events:", selectedEventDetails);
     const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
     const newRevertIdList = [];
+    let allEventsValid = true; // Flag to track if all events are valid
+
     selectedEventDetails.forEach((event) => {
+      if (new Date(event.endTime) <= new Date(event.startTime)) {
+        allEventsValid = false;
+        console.error("Event end time must be after start time:", event);
+        // Update message to indicate invalid event
+        setMessage(`Invalid event: End time must be after start time`);
+        setIsMessageShowing(true);
+        return; // Exit forEach loop early if any event is invalid
+      }
+
       var eventId = generateUniqueEventId();
       newRevertIdList.push(eventId);
       fetch(
@@ -164,10 +175,9 @@ function Prompt({ eventList, token, email }) {
           console.error("Error:", error);
         });
     });
-    if(selectedEvents.length == 0){
+    if (selectedEvents.length === 0) {
       setMessage("No events selected");
-    }
-    else{
+    } else if (selectedEventDetails.length > 0 && allEventsValid) {
       setMessage(`${selectedEvents.length} Events Added`);
     }
     setIsMessageShowing(true);
@@ -286,8 +296,7 @@ function Prompt({ eventList, token, email }) {
               }}
             ></div>
           </div>
-        ))
-      }
+        ))}
       <div>
         {/* Your existing event list rendering */}
         <div>
@@ -304,13 +313,10 @@ function Prompt({ eventList, token, email }) {
             Revert Changes
           </Button>
         </div>
-        { isMessageShowing &&(
-          <p>{message}</p>
-        )}
+        {isMessageShowing && <p>{message}</p>}
       </div>
     </div>
   );
 }
 
 export default Prompt;
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -28,7 +28,7 @@ const Home = () => {
   const [isAuthorizedWithCalendar, setIsAuthorized] = useState(false);
   const [typedText, setTypedText] = useState("");
   const [aiResponse, setAiResponse] = useState("");
-    const [isMoonShowing, setIsMoonShowing] = useState(false);
+  const [isMoonShowing, setIsMoonShowing] = useState(false);
   const [isLoadingFile, setIsLoadingFile] = useState(false);
 
   const handleChangeLightDarkMode = () => {
@@ -36,7 +36,6 @@ const Home = () => {
     // Toggle background color based on the state of isMoonShowing
     document.body.style.backgroundColor = isMoonShowing ? "white" : "#222222";
   };
-
 
   const setCookie = (name, value, days) => {
     var expires = "";
@@ -47,18 +46,18 @@ const Home = () => {
     }
     document.cookie = name + "=" + value + expires + "; path=/";
   };
-  
+
   const handleTokenClientResponse = (tokenResponse, user) => {
     console.log("Handle token client response:", tokenResponse);
     console.log("User object:", user);
     var startDate = new Date();
     var endDate = new Date();
-  
+
     endDate.setDate(endDate.getDate() + 14);
-  
+
     startDate = startDate.toISOString();
     endDate = endDate.toISOString();
-  
+
     if (tokenResponse && tokenResponse.access_token) {
       fetch(
         `https://www.googleapis.com/calendar/v3/calendars/${user.email}/events?timeMin=${startDate}&timeMax=${endDate}`,
@@ -92,11 +91,11 @@ const Home = () => {
         });
     }
   };
-  
+
   useEffect(() => {
     const google = window.google;
     const cookieValues = getCookie();
-    
+
     const findEmail = (userObject) => {
       // If userObject exists and has an email property, return it
       if (userObject && userObject.email) {
@@ -110,7 +109,7 @@ const Home = () => {
         }
       }
       // If userObject is an object, search within its properties
-      if (typeof userObject === 'object') {
+      if (typeof userObject === "object") {
         for (let key in userObject) {
           const email = findEmail(userObject[key]);
           if (email) return email;
@@ -119,29 +118,29 @@ const Home = () => {
       // Email not found
       return null;
     };
-  
+
     if (cookieValues) {
       console.log("Existing cookie values:", cookieValues);
-  
+
       setUser(cookieValues.user);
-  
+
       const userEmail = findEmail(cookieValues.user);
-  
+
       if (userEmail) {
         setUserEmail(userEmail);
       }
-  
+
       setCalendarToken(cookieValues.calendarToken);
-      const response = cookieValues.authToken
+      const response = cookieValues.authToken;
 
       var startDate = new Date();
       var endDate = new Date();
-  
+
       endDate.setDate(endDate.getDate() + 14);
-  
+
       startDate = startDate.toISOString();
       endDate = endDate.toISOString();
-  
+
       fetch(
         `https://www.googleapis.com/calendar/v3/calendars/${userEmail}/events?timeMin=${startDate}&timeMax=${endDate}`,
         {
@@ -166,53 +165,52 @@ const Home = () => {
 
       console.log("user: ", user);
       console.log("is shown ", isShown);
-      console.log("is authorized with calendar", isAuthorizedWithCalendar)
-    
-
-
+      console.log("is authorized with calendar", isAuthorizedWithCalendar);
     } else {
       setIsAuthorized(false);
       function handleCallbackResponse(response) {
         console.log("Encoded JWT ID token " + response.credential);
         var userObject = jwtDecode(response.credential);
-  
+
         console.log("Decoded user object:", userObject);
-  
+
         setUser(userObject);
         setUserEmail(userObject.email);
-  
-        setTokenClient(google.accounts.oauth2.initTokenClient({
-          client_id: process.env.REACT_APP_CLIENT_ID,
-          scope: SCOPE,
-          callback: (tokenResponse) => handleTokenClientResponse(tokenResponse, userObject),
-        }));
-  
+
+        setTokenClient(
+          google.accounts.oauth2.initTokenClient({
+            client_id: process.env.REACT_APP_CLIENT_ID,
+            scope: SCOPE,
+            callback: (tokenResponse) =>
+              handleTokenClientResponse(tokenResponse, userObject),
+          })
+        );
+
         toggle();
         document.getElementById("signInDiv").hidden = true;
       }
-  
+
       google.accounts.id.initialize({
         client_id: process.env.REACT_APP_CLIENT_ID,
         callback: handleCallbackResponse,
       });
-  
+
       google.accounts.id.renderButton(document.getElementById("signInDiv"), {
         theme: "outline",
         size: "large",
       });
     }
   }, []);
-  
+
   const toggle = () => {
     setIsShown((isShown) => !isShown);
   };
-  
 
   const getCookie = () => {
     let name = "DateMinderTokens" + "=";
     let decodedCookie = decodeURIComponent(document.cookie);
-    let cookieArray = decodedCookie.split(';');
-  
+    let cookieArray = decodedCookie.split(";");
+
     for (let i = 0; i < cookieArray.length; i++) {
       let cookie = cookieArray[i].trim();
       if (cookie.indexOf(name) === 0) {
@@ -222,17 +220,16 @@ const Home = () => {
         return {
           calendarToken: parsedValues.calendarToken,
           authToken: parsedValues.authToken,
-          user: parsedValues.user 
+          user: parsedValues.user,
         };
       }
     }
     return null;
   };
 
-
-
   const deleteCookie = () => {
-    document.cookie = "DateMinderTokens" + "=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+    document.cookie =
+      "DateMinderTokens" + "=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
   };
 
   const getCalendarEvents = () => {
@@ -298,6 +295,8 @@ const Home = () => {
     setFormValue({ ...formValue, radio: "Create" });
     setIsLoadingFile(true); // Set isLoading to true while waiting for response
     try {
+      setPrompts([]);
+
       const response = await fetch("/process-document", {
         method: "POST",
         body: formData,
@@ -308,7 +307,7 @@ const Home = () => {
         ...prevFormValue,
         documentContent: data.message, // Update only the documentContent property
       }));
-  
+
       // Make call to the palmAI and then console log the events pulled from the data.
       const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
       const currentDateTimeString = new Date().toLocaleString();
@@ -325,7 +324,7 @@ const Home = () => {
           State: "document",
         }),
       });
-  
+
       if (palmResponse.ok) {
         const palmData = await palmResponse.json();
         var dataStr = palmData.prediction.replace("```", "");
@@ -343,11 +342,11 @@ const Home = () => {
       console.error("Error processing document:", error);
       setIsLoadingFile(false); // Set isLoading to false in case of error
     }
-  };  
+  };
 
   const getPromptEvents = (data) => {
     setFormValue({ ...formValue, radio: "Create" });
-    setIsPromptShown((isPromptShown) => !isPromptShown);
+    setIsPromptShown(true);
   };
 
   const handleClick = () => {
@@ -362,8 +361,6 @@ const Home = () => {
     document.getElementById("signInDiv").hidden = false;
     window.location = "/";
   };
-
- 
 
   const handleFileDrop = (e) => {
     e.preventDefault();
@@ -431,7 +428,7 @@ const Home = () => {
   //   let name = "DateMinderTokens" + "=";
   //   let decodedCookie = decodeURIComponent(document.cookie);
   //   let cookieArray = decodedCookie.split(';');
-  
+
   //   for (let i = 0; i < cookieArray.length; i++) {
   //     let cookie = cookieArray[i].trim();
   //     if (cookie.indexOf(name) === 0) {
@@ -463,7 +460,7 @@ const Home = () => {
   // };
 
   return (
-    <div style={{ textAlign: "center" }}> 
+    <div style={{ textAlign: "center" }}>
       <div
         className="container justify-center"
         style={{
@@ -658,8 +655,12 @@ const Home = () => {
                           }}
                         >
                           {/* Render buttons and text for "Upload" option */}
-                          <p>Upload images or documents with events or due dates</p>
-                          <p>Smart AI will help you add them to your calendar</p>
+                          <p>
+                            Upload images or documents with events or due dates
+                          </p>
+                          <p>
+                            Smart AI will help you add them to your calendar
+                          </p>
                           <div
                             className={`dotted-dash-area ${
                               isDragging ? "dragover" : ""
@@ -676,26 +677,28 @@ const Home = () => {
                               justifyContent: "center", // Center items vertically
                             }}
                           >
-                          <img
-                            src={upload}
-                            alt="file upload icon"
-                            style={{ height: "80px", marginBottom: 10 }} // Keep existing styles
-                          />
-                          <p>Drag and drop a file here or click here to process it</p>
-                          <Button
-                            className="shadow__btn"
-                            onClick={handleClick}
-                            style={{ marginTop: 10, marginBottom: 10 }}
-                          >
-                            Process Document
-                          </Button>
-                          <input
-                            type="file"
-                            ref={fileInputRef}
-                            style={{ display: "none" }}
-                            onChange={handleFileInputChange}
-                          />
-
+                            <img
+                              src={upload}
+                              alt="file upload icon"
+                              style={{ height: "80px", marginBottom: 10 }} // Keep existing styles
+                            />
+                            <p>
+                              Drag and drop a file here or click here to process
+                              it
+                            </p>
+                            <Button
+                              className="shadow__btn"
+                              onClick={handleClick}
+                              style={{ marginTop: 10, marginBottom: 10 }}
+                            >
+                              Process Document
+                            </Button>
+                            <input
+                              type="file"
+                              ref={fileInputRef}
+                              style={{ display: "none" }}
+                              onChange={handleFileInputChange}
+                            />
                           </div>
                           <input
                             type="file"
@@ -712,9 +715,7 @@ const Home = () => {
                             Here your AI assistant can help you update your
                             calendar events
                           </p>
-                          <p>
-                            Heres some of your upcomming events:
-                          </p>
+                          <p>Heres some of your upcomming events:</p>
                           <ul style={{ textAlign: "left" }}>
                             {events?.map((event) => (
                               <li key={event.id}>
@@ -730,20 +731,20 @@ const Home = () => {
                           <p>Review the events to add to your calendar here</p>
 
                           {isLoadingFile && (
-                              <div
-                                className="loader"
-                                style={{
-                                  marginTop: "25px",
-                                  position: "absolute",
-                                  top: "50%",
-                                  left: "50%",
-                                  transform: "translate(-50%, -50%)",
-                                }}
-                              >
-                                <span className="bar"></span>
-                                <span className="bar"></span>
-                                <span className="bar"></span>
-                              </div>
+                            <div
+                              className="loader"
+                              style={{
+                                marginTop: "25px",
+                                position: "absolute",
+                                top: "50%",
+                                left: "50%",
+                                transform: "translate(-50%, -50%)",
+                              }}
+                            >
+                              <span className="bar"></span>
+                              <span className="bar"></span>
+                              <span className="bar"></span>
+                            </div>
                           )}
 
                           {!isLoadingFile && isPromptShown && (
@@ -758,7 +759,7 @@ const Home = () => {
                     </div>
                   </div>
                 )}
-                
+
                 <div
                   class="row"
                   style={{ display: "flex", alignItems: "center" }}
