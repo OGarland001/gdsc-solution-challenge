@@ -750,7 +750,7 @@ const Home = () => {
 
                           {!isLoadingFile && isPromptShown && (
                             <Prompt
-                              eventList={prompts}
+                              eventList={prompts.events}
                               token={googleCalendarToken}
                               email={UserEmail}
                             ></Prompt>
