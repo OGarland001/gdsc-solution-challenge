@@ -179,6 +179,7 @@ function Prompt({ eventList, token, email }) {
       setMessage("No events selected");
     } else if (selectedEventDetails.length > 0 && allEventsValid) {
       setMessage(`${selectedEvents.length} Events Added`);
+      setEventsAdded(true);
     }
     setIsMessageShowing(true);
     setRevertIdList(newRevertIdList);
@@ -215,6 +216,7 @@ function Prompt({ eventList, token, email }) {
 
     console.log(revertIdList);
     setMessage("Events Removed");
+    setEventsAdded(false);
     setIsMessageShowing(true);
   };
   return (
@@ -306,12 +308,21 @@ function Prompt({ eventList, token, email }) {
           >
             Add to Calendar
           </Button>
-          <Button
-            onClick={revertEvents}
-            className="text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-red-700 dark:focus:ring-red-800"
-          >
-            Revert Changes
-          </Button>
+          {eventsAdded ? (
+            <Button
+              onClick={revertEvents}
+              className="text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-red-700 dark:focus:ring-red-800"
+            >
+              Revert Changes
+            </Button>
+          ) : (
+            <Button
+              className="text-gray-500 bg-gray-200 cursor-not-allowed focus:outline-none font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-gray-600 dark:text-gray-400"
+              disabled
+            >
+              Revert Changes
+            </Button>
+          )}
         </div>
         {isMessageShowing && <p>{message}</p>}
       </div>

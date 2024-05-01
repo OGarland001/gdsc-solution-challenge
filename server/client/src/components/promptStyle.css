@@ -112,13 +112,13 @@
   z-index: -2;
 }
 
-.eventBox{
-  background-color: rgba(255, 255, 255, 0.40);
+.eventBox {
+  background-color: rgba(255, 255, 255, 0.4);
   width: 95%;
   min-height: 20px; /* Set a minimum height */
   padding: 10px;
   border: 2px solid white;
   border-radius: 5px;
-  box-shadow: -3px -3px 15px rgb(0,140,255);
+  box-shadow: -3px -3px 15px rgb(0, 140, 255);
   margin-bottom: 4px;
 }
