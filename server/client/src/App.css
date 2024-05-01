@@ -139,12 +139,8 @@
   position: relative;
   border-radius: 15px;
   background: linear-gradient(to right, rgb(20, 30, 48), rgb(36, 59, 85));
-  box-shadow: rgb(0,0,0,0.7) 5px 10px 50px ,rgb(0,0,0,0.7) -5px 0px 250px;
 }
 
-.blue-box:hover {
-  box-shadow: rgb(0,0,0) 5px 10px 50px ,rgb(0,0,0) -5px 0px 250px;
-}
 
 .scroll-content {
   height: 100%;
@@ -174,13 +170,12 @@
   background: rgba(255, 255, 255, 0.915);
   border-top-left-radius: 15px; /* Radius for top-left corner */
   border-top-right-radius: 15px; /* Radius for top-right corner */
-  box-shadow: rgb(0,0,0,0.7) 5px 10px 50px ,rgb(0,0,0,0.7) -5px 0px 250px;
   display: flex;
   color: white;
   justify-content: center;
   position: relative;
   flex-direction: column;
-  background: linear-gradient(to right, rgb(200, 200, 200), rgb(251, 251, 251));
+  background: linear-gradient(to right, rgb(20, 30, 48), rgb(36, 59, 85));
   cursor: pointer;
   transition: all 0.3s ease-in-out;
   overflow: hidden;

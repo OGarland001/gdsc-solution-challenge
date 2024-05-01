@@ -735,7 +735,7 @@ const Home = () => {
                             <div
                               className="loader"
                               style={{
-                                marginTop: "25px",
+                                marginTop: "29px",
                                 position: "absolute",
                                 top: "50%",
                                 left: "50%",
@@ -749,11 +749,13 @@ const Home = () => {
                           )}
 
                           {!isLoadingFile && isPromptShown && (
-                            <Prompt
+                            <div style={{ marginLeft: "20px", marginTop: "15px"}}>
+                              <Prompt
                               eventList={prompts.events}
                               token={googleCalendarToken}
                               email={UserEmail}
-                            ></Prompt>
+                              ></Prompt>
+                            </div>
                           )}
                         </div>
                       )}
