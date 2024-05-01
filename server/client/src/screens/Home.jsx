@@ -331,8 +331,9 @@ const Home = () => {
         var newdataStr = dataStr.replace("```", "");
         newdataStr = newdataStr.slice(5);
         console.log("STR data: ", newdataStr);
-        console.log("Received data: ", JSON.parse(newdataStr));
-        setPrompts(JSON.parse(newdataStr));
+        let eventsList = JSON.parse(newdataStr);
+        console.log("Received data: ", eventsList);
+        setPrompts(eventsList);
         setIsLoadingFile(false);
         getPromptEvents();
       } else {
@@ -749,7 +750,7 @@ const Home = () => {
 
                           {!isLoadingFile && isPromptShown && (
                             <Prompt
-                              eventList={prompts.events}
+                              eventList={prompts}
                               token={googleCalendarToken}
                               email={UserEmail}
                             ></Prompt>

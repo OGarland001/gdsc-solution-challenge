@@ -36,20 +36,27 @@ function Prompt({ eventList, token, email }) {
     const initialEndTimes = {};
     const initialTitles = {};
     const initialDescriptions = {};
-
     // Initialize startTimes and endTimes with data from eventList
     eventList.forEach((item) => {
       let startTime = formatDate(item.startTime);
       let endTime = formatDate(item.endTime);
-      let currentDate = new Date();
+      const currentDate = new Date();
 
-      // Check if start time is invalid, if so, set it to current time
-      if (isNaN(startTime.getTime()) || startTime < currentDate) {
+      // Check if start time is invalid or "N/A", if so, set it to current time
+      if (
+        isNaN(startTime.getTime()) ||
+        startTime < currentDate ||
+        item.startTime === "N/A"
+      ) {
         startTime = new Date();
       }
 
-      // Check if end time is invalid, if so, set it to current time
-      if (isNaN(endTime.getTime()) || endTime < currentDate) {
+      // Check if end time is invalid or "N/A", if so, set it to current time
+      if (
+        isNaN(endTime.getTime()) ||
+        endTime < currentDate ||
+        item.endTime === "N/A"
+      ) {
         endTime = new Date();
       }
 
