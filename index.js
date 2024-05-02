@@ -265,7 +265,7 @@ app.post("/palmrequest", async (req, res) => {
 
     if (state == "document") {
       documentPromptTxt =
-        'Please extract any events and class times mentioned in the document provided. This includes assignments, classes/lectures, project milestones, and other relevant activities. Ensure to include details such as event titles, descriptions, start times, and end times. The extracted information will be used to create new calendar events. Format the output in the JSON format specified below and make sure it is complete and finished must be full json. If no events are found or details are missing, please include "N/A" in the corresponding fields to ensure completeness and flexibility. json event format:{id: 1, summary: "testEvent1", description: "testDescription1", endTime: "2024-02-19T09:00:00-05:00", startTime: "2024-02-17T09:00:00-05:00",}';
+        'Please extract any events and class times mentioned in the document provided. This includes assignments, classes/lectures, project milestones, and other relevant activities. Ensure to include details such as event titles, descriptions, start times, and end times. The extracted information will be used to create new calendar events. Format the output in the JSON format specified below and make sure it is complete and finished must be full json. If no events are found or details are missing, please include "N/A" in the corresponding fields to ensure completeness and flexibility. this json format must be inside a array of events json objects the array must be called "events" that contain this :{id: 1, summary: "testEvent1", description: "testDescription1", endTime: "2024-02-19T09:00:00-05:00", startTime: "2024-02-17T09:00:00-05:00",}';
 
       data = {
         instances: [

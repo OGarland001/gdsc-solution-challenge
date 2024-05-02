@@ -30,6 +30,7 @@ const Home = () => {
   const [typedText, setTypedText] = useState("");
   const [aiResponse, setAiResponse] = useState("");
   const [isMoonShowing, setIsMoonShowing] = useState(false);
+  const [isMoonShowing, setIsMoonShowing] = useState(false);
   const [isLoadingFile, setIsLoadingFile] = useState(false);
   const [showButton, setShowButton] = useState(true);
 
@@ -38,7 +39,6 @@ const Home = () => {
     // Toggle background color based on the state of isMoonShowing
     document.body.style.backgroundColor = isMoonShowing ? "white" : "#222222";
   };
-
 
   const setCookie = (name, value, days) => {
     var expires = "";
@@ -573,8 +573,8 @@ const Home = () => {
   const getCookie = () => {
     let name = "DateMinderTokens" + "=";
     let decodedCookie = decodeURIComponent(document.cookie);
-    let cookieArray = decodedCookie.split(';');
-  
+    let cookieArray = decodedCookie.split(";");
+
     for (let i = 0; i < cookieArray.length; i++) {
       let cookie = cookieArray[i].trim();
       if (cookie.indexOf(name) === 0) {
@@ -593,10 +593,9 @@ const Home = () => {
     return null;
   };
 
-
-
   const deleteCookie = () => {
-    document.cookie = "DateMinderTokens" + "=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+    document.cookie =
+      "DateMinderTokens" + "=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
   };
 
   const getCalendarEvents = () => {
@@ -662,6 +661,8 @@ const Home = () => {
     setFormValue({ ...formValue, radio: "Create" });
     setIsLoadingFile(true); // Set isLoading to true while waiting for response
     try {
+      setPrompts([]);
+
       const response = await fetch("/process-document", {
         method: "POST",
         body: formData,
@@ -672,7 +673,7 @@ const Home = () => {
         ...prevFormValue,
         documentContent: data.message, // Update only the documentContent property
       }));
-  
+
       // Make call to the palmAI and then console log the events pulled from the data.
       const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
       const currentDateTimeString = new Date().toLocaleString();
@@ -689,15 +690,16 @@ const Home = () => {
           State: "document",
         }),
       });
-  
+
       if (palmResponse.ok) {
         const palmData = await palmResponse.json();
         var dataStr = palmData.prediction.replace("```", "");
         var newdataStr = dataStr.replace("```", "");
         newdataStr = newdataStr.slice(5);
         console.log("STR data: ", newdataStr);
-        console.log("Received data: ", JSON.parse(newdataStr));
-        setPrompts(JSON.parse(newdataStr));
+        let eventsList = JSON.parse(newdataStr);
+        console.log("Received data: ", eventsList);
+        setPrompts(eventsList);
         setIsLoadingFile(false);
         getPromptEvents();
       } else {
@@ -707,11 +709,11 @@ const Home = () => {
       console.error("Error processing document:", error);
       setIsLoadingFile(false); // Set isLoading to false in case of error
     }
-  };  
+  };
 
   const getPromptEvents = (data) => {
     setFormValue({ ...formValue, radio: "Create" });
-    setIsPromptShown((isPromptShown) => !isPromptShown);
+    setIsPromptShown(true);
   };
 
   const handleClick = () => {
@@ -726,8 +728,6 @@ const Home = () => {
     document.getElementById("signInDiv").hidden = false;
     window.location = "/";
   };
-
- 
 
   const handleFileDrop = (e) => {
     e.preventDefault();
@@ -795,7 +795,7 @@ const Home = () => {
   //   let name = "DateMinderTokens" + "=";
   //   let decodedCookie = decodeURIComponent(document.cookie);
   //   let cookieArray = decodedCookie.split(';');
-  
+
   //   for (let i = 0; i < cookieArray.length; i++) {
   //     let cookie = cookieArray[i].trim();
   //     if (cookie.indexOf(name) === 0) {
@@ -1027,8 +1027,12 @@ const Home = () => {
                           }}
                         >
                           {/* Render buttons and text for "Upload" option */}
-                          <p>Upload images or documents with events or duedates</p>
-                          <p>smart AI will help you add them to your calendar</p>
+                          <p>
+                            Upload images or documents with events or due dates
+                          </p>
+                          <p>
+                            Smart AI will help you add them to your calendar
+                          </p>
                           <div
                             className={`dotted-dash-area ${
                               isDragging ? "dragover" : ""
@@ -1045,26 +1049,28 @@ const Home = () => {
                               justifyContent: "center", // Center items vertically
                             }}
                           >
-                          <img
-                            src={upload}
-                            alt="file upload icon"
-                            style={{ height: "80px", marginBottom: 10 }} // Keep existing styles
-                          />
-                          <p>Drag and drop a file here or click here to process it</p>
-                          <Button
-                            className="shadow__btn"
-                            onClick={handleClick}
-                            style={{ marginTop: 10, marginBottom: 10 }}
-                          >
-                            Process Document
-                          </Button>
-                          <input
-                            type="file"
-                            ref={fileInputRef}
-                            style={{ display: "none" }}
-                            onChange={handleFileInputChange}
-                          />
-
+                            <img
+                              src={upload}
+                              alt="file upload icon"
+                              style={{ height: "80px", marginBottom: 10 }} // Keep existing styles
+                            />
+                            <p>
+                              Drag and drop a file here or click here to process
+                              it
+                            </p>
+                            <Button
+                              className="shadow__btn"
+                              onClick={handleClick}
+                              style={{ marginTop: 10, marginBottom: 10 }}
+                            >
+                              Process Document
+                            </Button>
+                            <input
+                              type="file"
+                              ref={fileInputRef}
+                              style={{ display: "none" }}
+                              onChange={handleFileInputChange}
+                            />
                           </div>
                           <input
                             type="file"
@@ -1081,9 +1087,7 @@ const Home = () => {
                             Here your AI assistant can help you update your
                             calendar events
                           </p>
-                          <p>
-                            Heres some of your upcomming events:
-                          </p>
+                          <p>Heres some of your upcomming events:</p>
                           <ul style={{ textAlign: "left" }}>
                             {events?.map((event) => (
                               <li key={event.id}>
@@ -1096,38 +1100,40 @@ const Home = () => {
                       {formValue.radio === "Create" && (
                         <div>
                           {/* Render buttons and text for "Create" option */}
-                          <p>Review the events to add to the calendar here</p>
+                          <p>Review the events to add to your calendar here</p>
 
                           {isLoadingFile && (
-                              <div
-                                className="loader"
-                                style={{
-                                  marginTop: "25px",
-                                  position: "absolute",
-                                  top: "50%",
-                                  left: "50%",
-                                  transform: "translate(-50%, -50%)",
-                                }}
-                              >
-                                <span className="bar"></span>
-                                <span className="bar"></span>
-                                <span className="bar"></span>
-                              </div>
+                            <div
+                              className="loader"
+                              style={{
+                                marginTop: "29px",
+                                position: "absolute",
+                                top: "50%",
+                                left: "50%",
+                                transform: "translate(-50%, -50%)",
+                              }}
+                            >
+                              <span className="bar"></span>
+                              <span className="bar"></span>
+                              <span className="bar"></span>
+                            </div>
                           )}
 
                           {!isLoadingFile && isPromptShown && (
-                            <Prompt
+                            <div style={{ marginLeft: "20px", marginTop: "15px"}}>
+                              <Prompt
                               eventList={prompts.events}
                               token={googleCalendarToken}
                               email={UserEmail}
-                            ></Prompt>
+                              ></Prompt>
+                            </div>
                           )}
                         </div>
                       )}
                     </div>
                   </div>
                 )}
-                
+
                 <div
                   class="row"
                   style={{ display: "flex", alignItems: "center" }}
