@@ -109,7 +109,7 @@ const Home = () => {
       {
         checkAccessToken();
       }
-      console.log('checked access token');
+      //console.log('checked access token');
     }, intervalInMS);
 
     return () => clearInterval(interval); 
@@ -246,12 +246,12 @@ const Home = () => {
         try {
           // Exchange authorization code for tokens
           const tokens  = await exchangeCodeForTokens(response.code);
-          console.log(tokens);
+          //console.log(tokens);
           // Use the access token to access user's information
           const userInfo = await getUserInfo(tokens.access_token);
           
-          console.log(userInfo);
-          console.log(tokens);
+          //console.log(userInfo);
+          //console.log(tokens);
 
           if(userInfo != null && tokens != null)
           {
