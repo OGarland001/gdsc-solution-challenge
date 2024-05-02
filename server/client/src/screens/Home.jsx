@@ -10,6 +10,7 @@ import logo from "./images/logo.png";
 import upload from "./images/upload.png";
 import promptWizard from "./images/PromptWizard.png";
 import TypingEffect from "./TypingEffect";
+import { GoogleLogin } from '@react-oauth/google';
 const SCOPE = "https://www.googleapis.com/auth/calendar";
 
 const Home = () => {
@@ -28,8 +29,9 @@ const Home = () => {
   const [isAuthorizedWithCalendar, setIsAuthorized] = useState(false);
   const [typedText, setTypedText] = useState("");
   const [aiResponse, setAiResponse] = useState("");
-    const [isMoonShowing, setIsMoonShowing] = useState(false);
+  const [isMoonShowing, setIsMoonShowing] = useState(false);
   const [isLoadingFile, setIsLoadingFile] = useState(false);
+  const [showButton, setShowButton] = useState(true);
 
   const handleChangeLightDarkMode = () => {
     setIsMoonShowing(!isMoonShowing);
@@ -46,166 +48,526 @@ const Home = () => {
       expires = "; expires=" + date.toUTCString();
     }
     document.cookie = name + "=" + value + expires + "; path=/";
+
+    //console.log('cookie set');
   };
   
-  const handleTokenClientResponse = (tokenResponse, user) => {
-    console.log("Handle token client response:", tokenResponse);
-    console.log("User object:", user);
-    var startDate = new Date();
-    var endDate = new Date();
+  // const refreshAccessToken = async (refreshToken) => {
+  //   try {
+  //     const response = await fetch('https://www.googleapis.com/oauth2/v4/token', {
+  //       method: 'POST',
+  //       headers: {
+  //         'Content-Type': 'application/json',
+  //       },
+  //       body: JSON.stringify({
+  //         client_id: process.env.REACT_APP_CLIENT_ID,
+  //         refresh_token: refreshToken,
+  //         grant_type: 'refresh_token',
+  //       }),
+  //     });
+  //     const data = await response.json();
+  //     if (response.ok) {
+  //       return data.access_token; // Return the new access token
+  //     } 
+  //   } catch (error) {
+  //     console.error('Error refreshing access token:', error.message);
+  //   }
+  // };
+
+  // const checkAndRefreshAccessToken = async () => {
+  //   const cookieValues = getCookie(); 
+  //   const accessTokenExpiresAt = cookieValues.accessTokenExpiresAt;
+   
+  //   if (accessTokenExpiresAt && new Date(accessTokenExpiresAt) < new Date()) {
+  //     try {
+      
+  //       const newAccessToken = refreshAccessToken(cookieValues.refreshToken);
+       
+  //       setCalendarToken(newAccessToken);
   
-    endDate.setDate(endDate.getDate() + 14);
+  //       const userEmail = findEmail(cookieValues.user);
+  //       var startDate = new Date();
+  //       var endDate = new Date();
+  //       endDate.setDate(endDate.getDate() + 14);
+
+  //       const response = await fetch(`https://www.googleapis.com/calendar/v3/calendars/${userEmail}/events?timeMin=${startDate}&timeMax=${endDate}`, {
+  //         method: "GET",
+  //         headers: {
+  //           "Content-Type": "application/json",
+  //           Authorization: `Bearer ${newAccessToken}`,
+  //         },
+  //       });
+  //       const data = await response.json();
+  //       setEvents(data.items);
+  //     } catch (error) {
+  //       console.error('Error refreshing access token:', error.message);
+  //     }
+  //   }
+  // };
   
-    startDate = startDate.toISOString();
-    endDate = endDate.toISOString();
+  // const handleTokenClientResponse = (tokenResponse, user) => {
+  //   console.log("Handle token client response:", tokenResponse);
+  //   console.log("User object:", user);
+  //   var startDate = new Date();
+  //   var endDate = new Date();
   
-    if (tokenResponse && tokenResponse.access_token) {
-      fetch(
-        `https://www.googleapis.com/calendar/v3/calendars/${user.email}/events?timeMin=${startDate}&timeMax=${endDate}`,
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${tokenResponse.access_token}`,
-          },
-        }
-      )
-        .then((response) => response.json())
-        .then((data) => {
-          console.log("Calendar events data:", data);
-          setEvents(data.items);
-          setCalendarToken(tokenResponse.access_token);
-          setIsAuthorized(true);
-          setIsShown(true);
-          setCookie(
-            "DateMinderTokens",
-            JSON.stringify({
-              calendarToken: tokenResponse.access_token,
-              authToken: tokenResponse,
-              user: user,
-            }),
-            30
-          );
-        })
-        .catch((error) => {
-          console.error("Error fetching calendar events:", error);
-        });
-    }
-  };
+  //   endDate.setDate(endDate.getDate() + 14);
   
-  useEffect(() => {
-    const google = window.google;
-    const cookieValues = getCookie();
+  //   startDate = startDate.toISOString();
+  //   endDate = endDate.toISOString();
     
-    const findEmail = (userObject) => {
-      // If userObject exists and has an email property, return it
-      if (userObject && userObject.email) {
-        return userObject.email;
-      }
-      // If userObject is an array, search within each item
-      if (Array.isArray(userObject)) {
-        for (let i = 0; i < userObject.length; i++) {
-          const email = findEmail(userObject[i]);
-          if (email) return email;
-        }
-      }
-      // If userObject is an object, search within its properties
-      if (typeof userObject === 'object') {
-        for (let key in userObject) {
-          const email = findEmail(userObject[key]);
-          if (email) return email;
-        }
-      }
-      // Email not found
-      return null;
-    };
+  //   console.log(tokenResponse);
   
+  //   if (tokenResponse && tokenResponse.access_token) {
+      
+  //     const refreshToken = tokenResponse.refresh_token;
+  //     console.log("Refresh token", refreshToken);
+
+  //     fetch(
+  //       `https://www.googleapis.com/calendar/v3/calendars/${user.email}/events?timeMin=${startDate}&timeMax=${endDate}`,
+  //       {
+  //         method: "GET",
+  //         headers: {
+  //           "Content-Type": "application/json",
+  //           Authorization: `Bearer ${tokenResponse.access_token}`,
+  //         },
+  //       }
+  //     )
+  //       .then((response) => response.json())
+  //       .then((data) => {
+  //         console.log("Calendar events data:", data);
+  //         setEvents(data.items);
+  //         setCalendarToken(tokenResponse.access_token);
+  //         setIsAuthorized(true);
+  //         setIsShown(true);
+  //         setCookie(
+  //           "DateMinderTokens",
+  //           JSON.stringify({
+  //             calendarToken: tokenResponse.access_token,
+  //             authToken: tokenResponse,
+  //             refreshToken: refreshToken,
+  //             user: user,
+  //             accessTokenExpiresAt: tokenResponse.expires_in
+  //           }),
+  //           30
+  //         );
+  //       })
+  //       .catch((error) => {
+  //         console.error("Error fetching calendar events:", error);
+  //       });
+  //   }
+  // };
+
+  const findEmail = (userObject) => {
+    // If userObject exists and has an email property, return it
+    if (userObject && userObject.email) {
+      return userObject.email;
+    }
+    // If userObject is an array, search within each item
+    if (Array.isArray(userObject)) {
+      for (let i = 0; i < userObject.length; i++) {
+        const email = findEmail(userObject[i]);
+        if (email) return email;
+      }
+    }
+    // If userObject is an object, search within its properties
+    if (typeof userObject === 'object') {
+      for (let key in userObject) {
+        const email = findEmail(userObject[key]);
+        if (email) return email;
+      }
+    }
+    // Email not found
+    return null;
+  };
+  
+  
+  // useEffect(() => {
+  //   const google = window.google;
+  //   const cookieValues = getCookie();
+    
+  
+  //   if (cookieValues) {
+  //     console.log("Existing cookie values:", cookieValues);
+  
+  //     setUser(cookieValues.user);
+  
+  //     const userEmail = findEmail(cookieValues.user);
+  
+  //     if (userEmail) {
+  //       setUserEmail(userEmail);
+  //     }
+  
+  //     setCalendarToken(cookieValues.calendarToken);
+  //     const response = cookieValues.authToken
+
+  //     var startDate = new Date();
+  //     var endDate = new Date();
+  
+  //     endDate.setDate(endDate.getDate() + 14);
+  
+  //     startDate = startDate.toISOString();
+  //     endDate = endDate.toISOString();
+  
+  //     fetch(
+  //       `https://www.googleapis.com/calendar/v3/calendars/${userEmail}/events?timeMin=${startDate}&timeMax=${endDate}`,
+  //       {
+  //         method: "GET",
+  //         headers: {
+  //           "Content-Type": "application/json",
+  //           Authorization: `Bearer ${cookieValues.calendarToken}`,
+  //         },
+  //       }
+  //     )
+  //       .then((response) => response.json())
+  //       .then((data) => {
+  //         setEvents(data.items);
+  //       })
+  //       .catch((error) => {
+  //         console.error("Error fetching calendar events:", error);
+  //       });
+
+  //     setIsAuthorized(true);
+
+  //     toggle();
+
+  //     //console.log("user: ", user);
+  //     //console.log("is shown ", isShown);
+  //     //console.log("is authorized with calendar", isAuthorizedWithCalendar)
+
+  //     const accessTokenExpiresAt = cookieValues.accessTokenExpiresAt;
+  //     console.log("Access token expire:", accessTokenExpiresAt)
+  //     if (accessTokenExpiresAt && new Date(accessTokenExpiresAt) < new Date()) {
+  //       // Access token has expired, use refresh token to obtain new access token
+  //       refreshAccessToken(cookieValues.refreshToken)
+  //         .then(newAccessToken => {
+  //           setCalendarToken(newAccessToken); // Update access token in state
+  //           // Make the request again using the new access token
+  //           fetch(
+  //             `https://www.googleapis.com/calendar/v3/calendars/${userEmail}/events?timeMin=${startDate}&timeMax=${endDate}`,
+  //             {
+  //               method: "GET",
+  //               headers: {
+  //                 "Content-Type": "application/json",
+  //                 Authorization: `Bearer ${newAccessToken}`,
+  //               },
+  //             }
+  //           )
+  //             .then((response) => response.json())
+  //             .then((data) => {
+  //               setEvents(data.items);
+  //             })
+  //             .catch((error) => {
+  //               console.error("Error fetching calendar events:", error);
+  //             });
+  //         })
+  //         .catch(error => {
+  //           console.error('Error refreshing token:', error.message);
+  //         });
+  //     }
+
+  //   } else {
+
+  //     setIsAuthorized(false);
+  //     function handleCallbackResponse(response) {
+  //       console.log("Encoded JWT ID token " + response.credential);
+  //       var userObject = jwtDecode(response.credential);
+
+  //       console.log(response);
+  
+  //       console.log("Decoded user object:", userObject);
+  //       const authorizationCode = response['code'];
+  
+  //       setUser(userObject);
+  //       setUserEmail(userObject.email);
+
+  
+  //       setTokenClient(google.accounts.oauth2.initTokenClient({
+  //         client_id: process.env.REACT_APP_CLIENT_ID,
+  //         scope: SCOPE,
+  //         access_type: 'offline',
+  //         prompt: 'consent',
+  //         grant_type:'authorization_code',
+  //         response_type: 'code',
+  //         callback: (tokenResponse) => handleTokenClientResponse(tokenResponse, userObject),
+  //       }));
+  
+  //       toggle();
+  //       document.getElementById("signInDiv").hidden = true;
+  //     }
+  
+  //     google.accounts.id.initialize({
+  //       client_id: process.env.REACT_APP_CLIENT_ID,
+  //       callback: handleCallbackResponse,
+  //     });
+      
+     
+  
+  //     google.accounts.id.renderButton(document.getElementById("signInDiv"), {
+  //       theme: "outline",
+  //       size: "large",
+  //     });
+  //   }
+  // }, []);
+
+  useEffect(() => {
+    const cookieValues = getCookie();
+    console.log(cookieValues);
+
     if (cookieValues) {
-      console.log("Existing cookie values:", cookieValues);
-  
+
       setUser(cookieValues.user);
-  
-      const userEmail = findEmail(cookieValues.user);
-  
-      if (userEmail) {
-        setUserEmail(userEmail);
-      }
+      setUserEmail(cookieValues.user.email);
+      toggle();
   
       setCalendarToken(cookieValues.calendarToken);
-      const response = cookieValues.authToken
-
-      var startDate = new Date();
-      var endDate = new Date();
-  
-      endDate.setDate(endDate.getDate() + 14);
-  
-      startDate = startDate.toISOString();
-      endDate = endDate.toISOString();
-  
-      fetch(
-        `https://www.googleapis.com/calendar/v3/calendars/${userEmail}/events?timeMin=${startDate}&timeMax=${endDate}`,
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${cookieValues.calendarToken}`,
-          },
-        }
-      )
-        .then((response) => response.json())
-        .then((data) => {
-          setEvents(data.items);
-        })
-        .catch((error) => {
-          console.error("Error fetching calendar events:", error);
-        });
-
+      updateCalendarEvents();
       setIsAuthorized(true);
+      setIsShown(true);
 
-      toggle();
-
-      console.log("user: ", user);
-      console.log("is shown ", isShown);
-      console.log("is authorized with calendar", isAuthorizedWithCalendar)
-    
-
-
-    } else {
-      setIsAuthorized(false);
-      function handleCallbackResponse(response) {
-        console.log("Encoded JWT ID token " + response.credential);
-        var userObject = jwtDecode(response.credential);
-  
-        console.log("Decoded user object:", userObject);
-  
-        setUser(userObject);
-        setUserEmail(userObject.email);
-  
-        setTokenClient(google.accounts.oauth2.initTokenClient({
-          client_id: process.env.REACT_APP_CLIENT_ID,
-          scope: SCOPE,
-          callback: (tokenResponse) => handleTokenClientResponse(tokenResponse, userObject),
-        }));
-  
-        toggle();
-        document.getElementById("signInDiv").hidden = true;
-      }
-  
-      google.accounts.id.initialize({
-        client_id: process.env.REACT_APP_CLIENT_ID,
-        callback: handleCallbackResponse,
-      });
-  
-      google.accounts.id.renderButton(document.getElementById("signInDiv"), {
-        theme: "outline",
-        size: "large",
-      });
+      checkAccessToken()
+      toggleHidden();
     }
+
   }, []);
+
+  
+
+  useEffect(() => {
+    const intervalInMS = 5000;
+    const interval = setInterval(() => {
+      const cookieValues = getCookie();
+      if(cookieValues)
+      {
+        checkAccessToken();
+      }
+      console.log('checked access token');
+    }, intervalInMS);
+
+    return () => clearInterval(interval); 
+  }, [])
   
   const toggle = () => {
     setIsShown((isShown) => !isShown);
   };
+
+  const toggleHidden = () => {
+    setShowButton(!showButton);
+  };
+
+
+  const google = window.google;
+
+  const updateCalendarEvents = () => {
+
+    //Function could be updated to pass amount of days ahead to grab
+    const cookieValues = getCookie();
+    const userEmail = findEmail(cookieValues.user);
+    console.log(cookieValues)
+
+    console.log(userEmail);
+    console.log(cookieValues.calendarToken);
+
+    var startDate = new Date();
+    var endDate = new Date();
+    endDate.setDate(endDate.getDate() + 14);
+    startDate = startDate.toISOString();
+    endDate = endDate.toISOString();
+
+    fetch(
+      `https://www.googleapis.com/calendar/v3/calendars/${userEmail}/events?timeMin=${startDate}&timeMax=${endDate}`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${cookieValues.calendarToken}`,
+        },
+      }
+    )
+      .then((response) => response.json())
+      .then((data) => {
+        console.log("Calendar events data:", data);
+        setEvents(data.items);
+      })
+      .catch((error) => {
+        console.error("Error fetching calendar events:", error);
+      });
+  };
+ 
+  async function checkAccessToken() {
+    const cookieValues = getCookie();
+    const refreshToken = cookieValues.refreshToken
+    const accessTokenExpiresAt = cookieValues.accessTokenExpiresAt;
+
+    const options = {
+      timeZone: 'America/Toronto',
+      hour12: false, 
+      month: 'numeric',
+      day: 'numeric',
+      year: 'numeric',
+      hour: 'numeric',
+      minute: 'numeric',
+      second: 'numeric'
+    };
+    
+    const currentDate = new Date();
+    const formattedCurrentDate = currentDate.toLocaleString('en-US', options);
+   
+    //console.log("Checking token");
+
+    if (accessTokenExpiresAt && accessTokenExpiresAt < formattedCurrentDate) {
+      console.log("Token needs refreshing");
+
+      try {
+        const response = await fetch('https://www.googleapis.com/oauth2/v4/token', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            client_id: process.env.REACT_APP_CLIENT_ID,
+            client_secret: process.env.REACT_APP_CLIENT_SECRET,
+            refresh_token: refreshToken,
+            grant_type: 'refresh_token',
+          }),
+        });
+        const data = await response.json();
+        if (response.ok) {
+          setCalendarToken(data.access_token);
+          //cookieValues.calendarToken = data.access_token;
+          const expiresIn = data.expires_in - 10; 
+          const expirationTime = new Date();
+          const expiresInMinutes = expiresIn / 60; 
+          expirationTime.setMinutes(expirationTime.getMinutes() + expiresInMinutes);
+          
+          const formattedExpirationTime = expirationTime.toLocaleString('en-US', options);
+          //cookieValues.accessTokenExpiresAt = formattedExpirationTime;
+         
+          setCookie(
+            "DateMinderTokens",
+            JSON.stringify({
+              calendarToken: data.access_token,
+              authToken: cookieValues.authToken,
+              refreshToken: cookieValues.refreshToken,
+              user: cookieValues.user,
+              accessTokenExpiresAt: formattedExpirationTime
+            }),
+            30
+          );
+
+        } 
+      } catch (error) {
+        console.error('Error refreshing access token:', error.message);
+      }
+    
+    
+    }
+
+  };
+
+  
+
+  
+  const handleGoogleAuth = () => {
+
+    const client = google.accounts.oauth2.initCodeClient({
+      client_id: process.env.REACT_APP_CLIENT_ID,
+      scope: SCOPE,
+      ux_mode: 'popup',
+      callback: async (response) => {
+        try {
+          // Exchange authorization code for tokens
+          const tokens  = await exchangeCodeForTokens(response.code);
+          console.log(tokens);
+          // Use the access token to access user's information
+          const userInfo = await getUserInfo(tokens.access_token);
+          
+          console.log(userInfo);
+          console.log(tokens);
+
+          if(userInfo != null && tokens != null)
+          {
+            setUser(userInfo);
+            setUserEmail(userInfo.email);
+            toggle();
+
+            setTokenClient(tokens);
+            setCalendarToken(tokens.access_token);
+
+            console.log(tokens.expiry_date);
+            //must be in timezone toronto
+            const expirationDate = new Date(tokens.expiry_date);
+            const expires = expirationDate.toLocaleString('en-US', { 
+              timeZone: 'America/Toronto',
+              hour12: false 
+            });
+
+            setCookie(
+              "DateMinderTokens",
+              JSON.stringify({
+                calendarToken: tokens.access_token,
+                authToken: tokens,
+                refreshToken:tokens.refresh_token,
+                user: userInfo,
+                accessTokenExpiresAt: expires
+              }),
+              30
+            );
+
+          
+            updateCalendarEvents();
+            setIsAuthorized(true);
+            setIsShown(true);
+
+            toggleHidden();
+          }
+
+        } catch (error) {
+          console.error('Error handling Google authentication:', error);
+        }
+      },
+    });
+  
+    // Trigger the OAuth Code Flow
+    client.requestCode();
+    
+
+    
+  };
+  
+
+  async function exchangeCodeForTokens(code) {
+    // Make a POST request to your server to exchange the authorization code for tokens
+    const response = await fetch('http://localhost:5152/auth/google', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ code }),
+    });
+  
+    if (!response.ok) {
+      throw new Error('Failed to exchange authorization code for tokens');
+    }
+  
+    return await response.json();
+  }
+  
+  async function getUserInfo(accessToken) {
+    // Make a GET request to the Google API to fetch user's information
+    const response = await fetch('https://www.googleapis.com/oauth2/v1/userinfo', {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    });
+  
+    if (!response.ok) {
+      throw new Error('Failed to fetch user information');
+    }
+  
+    return await response.json();
+  }
+  
   
 
   const getCookie = () => {
@@ -222,7 +584,9 @@ const Home = () => {
         return {
           calendarToken: parsedValues.calendarToken,
           authToken: parsedValues.authToken,
-          user: parsedValues.user 
+          user: parsedValues.user,
+          refreshToken: parsedValues.refreshToken,
+          accessTokenExpiresAt: parsedValues.accessTokenExpiresAt
         };
       }
     }
@@ -463,7 +827,11 @@ const Home = () => {
   // };
 
   return (
+    
     <div style={{ textAlign: "center" }}> 
+      {showButton && <button onClick={handleGoogleAuth} type="button" class="login-with-google-btn" >
+        Sign in with Google
+      </button>}
       <div
         className="container justify-center"
         style={{
@@ -472,6 +840,7 @@ const Home = () => {
           marginTop: "3rem",
           margin: "auto",
         }}
+        
       >
         <div id="signInDiv"></div>
         {user && isShown && (

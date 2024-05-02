@@ -41,80 +41,29 @@ async function verifyGoogleToken(token) {
   }
 }
 
-// app.post("/signup", async (req, res) => {
-//   try {
-//     if (req.body.credential) {
-//       const verificationResponse = await verifyGoogleToken(req.body.credential);
+const oAuth2Client = new OAuth2Client(
+  process.env.REACT_APP_CLIENT_ID,
+  process.env.REACT_APP_CLIENT_SECRET,
+  'postmessage',
+  'https://www.googleapis.com/auth/calendar.events'
+);
 
-//       if (verificationResponse.error) {
-//         return res.status(400).json({
-//           message: verificationResponse.error,
-//         });
-//       }
+app.post('/auth/google', async (req, res) => {
+  const { tokens } = await oAuth2Client.getToken(req.body.code); 
+  //console.log(tokens);
+  res.json(tokens);
+});
 
-//       const profile = verificationResponse?.payload;
+app.post('/auth/google/refresh-token', async (req, res) => {
+  const user = new UserRefreshClient(
+    clientId,
+    clientSecret,
+    req.body.refreshToken,
+  );
+  const { credentials } = await user.refreshAccessToken(); // optain new tokens
+  res.json(credentials);
+})
 
-//       DB.push(profile);
-
-//       res.status(201).json({
-//         message: "Signup was successful",
-//         user: {
-//           firstName: profile?.given_name,
-//           lastName: profile?.family_name,
-//           picture: profile?.picture,
-//           email: profile?.email,
-//           token: jwt.sign({ email: profile?.email }, "myScret", {
-//             expiresIn: "1d",
-//           }),
-//         },
-//       });
-//     }
-//   } catch (error) {
-//     res.status(500).json({
-//       message: "An error occurred. Registration failed.",
-//     });
-//   }
-// });
-
-// app.post("/login", async (req, res) => {
-//   try {
-//     if (req.body.credential) {
-//       const verificationResponse = await verifyGoogleToken(req.body.credential);
-//       if (verificationResponse.error) {
-//         return res.status(400).json({
-//           message: verificationResponse.error,
-//         });
-//       }
-
-//       const profile = verificationResponse?.payload;
-
-//       const existsInDB = DB.find((person) => person?.email === profile?.email);
-
-//       if (!existsInDB) {
-//         return res.status(400).json({
-//           message: "You are not registered. Please sign up",
-//         });
-//       }
-
-//       res.status(201).json({
-//         message: "Login was successful",
-//         user: {
-//           firstName: profile?.given_name,
-//           lastName: profile?.family_name,
-//           picture: profile?.picture,
-//           email: profile?.email,
-//           token: jwt.sign({ email: profile?.email }, process.env.JWT_SECRET, {
-//             expiresIn: "1d",
-//           }),
-//         },
-//       });
-//     }
-//   } catch (error) {
-//     res.status(500).json({
-//       message: error?.message || error,
-//     });
-//   }
-// });
 
 // Route to handle file upload and invoke the quickstart function
 app.post("/process-document", upload.single("file"), async (req, res) => {
@@ -258,6 +207,36 @@ function findEmails(givenPrompt) {
   return result;
 }
 
+function checkCurrentDateEvents(data, todaysDate) {
+  try {
+
+    const currentDate = new Date(todaysDate.substring(0, todaysDate.indexOf(",")));
+    const events = data.split(", ");
+    const currentEvents = [];
+
+    for (const event of events) {
+     
+      const eventInfoMatch = event.match(/(.+) starts on (\d{1,2}\/\d{1,2}\/\d{4})/);
+      if (eventInfoMatch) {
+        const eventName = eventInfoMatch[1];
+        const startDateString = eventInfoMatch[2];
+        const startDateTime = new Date(startDateString);
+
+        if (currentDate.toDateString() === startDateTime.toDateString()) {
+          currentEvents.push(eventName);
+        }
+      }
+    }
+
+    console.log(currentEvents);
+    return currentEvents;
+  } catch (error) {
+    console.error("Error checking current date events:", error.message);
+    throw new Error("Failed to check current date events");
+  }
+}
+
+
 const fetch = require("node-fetch");
 //Todays date is
 const calendarReferenceText =
@@ -357,13 +336,16 @@ app.post("/palmrequest", async (req, res) => {
         },
       };
     } else {
+      var userEvents = parseEventData(palmContext)
+      //console.log(events);
+    
       data = {
         instances: [
           {
             prompt:
               req.body.Prompt +
               calendarReferenceText +
-              parseEventData(palmContext) +
+              userEvents +
               " the current date and time is " +
               currentDateTime +
               " in this time zone: " +
@@ -378,9 +360,7 @@ app.post("/palmrequest", async (req, res) => {
         },
       };
     }
-
-    
-
+   
     const response = await fetch(URL, {
       method: "POST",
       headers,
@@ -415,73 +395,25 @@ app.post("/palmrequest", async (req, res) => {
     res.status(500).json({ error: "Internal Server Error" });
   }
 });
-//Route for chat bison model
 
-// app.post("/palmrequest", async (req, res) => {
-//     try {
-//         const headers = {
-//             Authorization: `Bearer ${await getIdToken()}`,
-//             "Content-Type": "application/json",
-//         };
+app.get('/code_callback_endpoint', async (req, res) => {
+  try {
+    const { code } = req.query;
 
-//         const palmContext = parseEventData(req.body.Context);
+    if (!code) {
+      res.status(400).send('Authorization code not provided.');
+      return;
+    }
 
-//         console.log(palmContext);
+    console.log("auth code", code);
+    res.send(code);
+  } catch (error) {
+    console.error('Error exchanging code for tokens:', error);
+    res.status(500).send('Error exchanging code for tokens.');
+  }
+});
 
-//         const data = {
-//             instances: [
-//                 {
-//                     context: palmContext,
-//                     examples: [],
-//                     messages: [
-//                         {
-//                             author: "user",
-//                             content: req.body.Prompt,
-//                         },
-//                     ],
-//                 },
-//             ],
-//             parameters: {
-//                 temperature: 0.9,
-//                 maxOutputTokens: 1024,
-//                 topP: 0.8,
-//                 topK: 40,
-//             },
-//         };
 
-//         //console.log("Recieved data: ", req.body.Context);
-
-//     const response = await fetch(URL, {
-//       method: "POST",
-//       headers,
-//       body: JSON.stringify(data),
-//     });
-
-//     if (!response.ok) {
-//       console.error(response.statusText);
-//       throw new Error("Request failed " + response.statusText);
-//     }
-
-//     const result = await response.json();
-//     if (
-//       !result ||
-//       !result.predictions ||
-//       !result.predictions[0].candidates ||
-//       result.predictions[0].candidates.length === 0
-//     ) {
-//       throw new Error("Invalid response format or missing data in predictions");
-//     }
-
-//     const prediction = result.predictions[0].candidates[0].content;
-
-//     console.log("Response from Vertex AI: ", prediction);
-
-//     res.status(200).json({ prediction });
-//   } catch (error) {
-//     console.error("Error in palmrequest:", error.message);
-//     res.status(500).json({ error: "Internal Server Error" });
-//   }
-// });
 
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "server/client/build", "index.html"));
