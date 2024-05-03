@@ -1,3 +1,5 @@
+![DateMinderSlogan](https://github.com/OGarland001/gdsc-solution-challenge/assets/90644730/c4909e28-c421-4c60-8e11-f05a8c017a6f)
+
 # DateMinder
 DateMinder is the first student-oriented AI calendar assistant. It can take images or documents of other calendars, hand-drawn notes, or instruction plans and pull out all events, including their titles, descriptions, start/end times, and the date they occur. In addition, it acts like a personal assistant, automatically implementing everything into your Google calendar for you. Built as a browser extension, it will always be with you at school when you are learning and need to put things into your calendar quickly before you forget or when you are at home and curious about what tests are. It can answer any question about your calendar you may throw at it. 
 
