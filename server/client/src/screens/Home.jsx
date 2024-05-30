@@ -10,7 +10,7 @@ import logo from "./images/logo.png";
 import upload from "./images/upload.png";
 import promptWizard from "./images/PromptWizard.png";
 import TypingEffect from "./TypingEffect";
-import { GoogleLogin } from '@react-oauth/google';
+import { GoogleLogin } from "@react-oauth/google";
 const SCOPE = "https://www.googleapis.com/auth/calendar";
 
 const Home = () => {
@@ -50,8 +50,6 @@ const Home = () => {
 
     //console.log('cookie set');
   };
-  
-  
 
   const findEmail = (userObject) => {
     // If userObject exists and has an email property, return it
@@ -66,7 +64,7 @@ const Home = () => {
       }
     }
     // If userObject is an object, search within its properties
-    if (typeof userObject === 'object') {
+    if (typeof userObject === "object") {
       for (let key in userObject) {
         const email = findEmail(userObject[key]);
         if (email) return email;
@@ -75,46 +73,39 @@ const Home = () => {
     // Email not found
     return null;
   };
-  
-  
 
   useEffect(() => {
     const cookieValues = getCookie();
     console.log(cookieValues);
 
     if (cookieValues) {
-
       setUser(cookieValues.user);
       setUserEmail(cookieValues.user.email);
       toggle();
-  
+
       setCalendarToken(cookieValues.calendarToken);
       updateCalendarEvents();
       setIsAuthorized(true);
       setIsShown(true);
 
-      checkAccessToken()
+      checkAccessToken();
       toggleHidden();
     }
-
   }, []);
-
-  
 
   useEffect(() => {
     const intervalInMS = 5000;
     const interval = setInterval(() => {
       const cookieValues = getCookie();
-      if(cookieValues)
-      {
+      if (cookieValues) {
         checkAccessToken();
       }
       //console.log('checked access token');
     }, intervalInMS);
 
-    return () => clearInterval(interval); 
-  }, [])
-  
+    return () => clearInterval(interval);
+  }, []);
+
   const toggle = () => {
     setIsShown((isShown) => !isShown);
   };
@@ -123,15 +114,13 @@ const Home = () => {
     setShowButton(!showButton);
   };
 
-
   const google = window.google;
 
   const updateCalendarEvents = () => {
-
     //Function could be updated to pass amount of days ahead to grab
     const cookieValues = getCookie();
     const userEmail = findEmail(cookieValues.user);
-    console.log(cookieValues)
+    console.log(cookieValues);
 
     console.log(userEmail);
     console.log(cookieValues.calendarToken);
@@ -161,56 +150,64 @@ const Home = () => {
         console.error("Error fetching calendar events:", error);
       });
   };
- 
+
   async function checkAccessToken() {
     const cookieValues = getCookie();
-    const refreshToken = cookieValues.refreshToken
+    const refreshToken = cookieValues.refreshToken;
     const accessTokenExpiresAt = cookieValues.accessTokenExpiresAt;
 
     const options = {
-      timeZone: 'America/Toronto',
-      hour12: false, 
-      month: 'numeric',
-      day: 'numeric',
-      year: 'numeric',
-      hour: 'numeric',
-      minute: 'numeric',
-      second: 'numeric'
+      timeZone: "America/Toronto",
+      hour12: false,
+      month: "numeric",
+      day: "numeric",
+      year: "numeric",
+      hour: "numeric",
+      minute: "numeric",
+      second: "numeric",
     };
-    
+
     const currentDate = new Date();
-    const formattedCurrentDate = currentDate.toLocaleString('en-US', options);
-   
+    const formattedCurrentDate = currentDate.toLocaleString("en-US", options);
+
     //console.log("Checking token");
 
     if (accessTokenExpiresAt && accessTokenExpiresAt < formattedCurrentDate) {
       console.log("Token needs refreshing");
 
       try {
-        const response = await fetch('https://www.googleapis.com/oauth2/v4/token', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            client_id: process.env.REACT_APP_CLIENT_ID,
-            client_secret: process.env.REACT_APP_CLIENT_SECRET,
-            refresh_token: refreshToken,
-            grant_type: 'refresh_token',
-          }),
-        });
+        const response = await fetch(
+          "https://www.googleapis.com/oauth2/v4/token",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              client_id: process.env.REACT_APP_CLIENT_ID,
+              client_secret: process.env.REACT_APP_CLIENT_SECRET,
+              refresh_token: refreshToken,
+              grant_type: "refresh_token",
+            }),
+          }
+        );
         const data = await response.json();
         if (response.ok) {
           setCalendarToken(data.access_token);
           //cookieValues.calendarToken = data.access_token;
-          const expiresIn = data.expires_in - 10; 
+          const expiresIn = data.expires_in - 10;
           const expirationTime = new Date();
-          const expiresInMinutes = expiresIn / 60; 
-          expirationTime.setMinutes(expirationTime.getMinutes() + expiresInMinutes);
-          
-          const formattedExpirationTime = expirationTime.toLocaleString('en-US', options);
+          const expiresInMinutes = expiresIn / 60;
+          expirationTime.setMinutes(
+            expirationTime.getMinutes() + expiresInMinutes
+          );
+
+          const formattedExpirationTime = expirationTime.toLocaleString(
+            "en-US",
+            options
+          );
           //cookieValues.accessTokenExpiresAt = formattedExpirationTime;
-         
+
           setCookie(
             "DateMinderTokens",
             JSON.stringify({
@@ -218,43 +215,34 @@ const Home = () => {
               authToken: cookieValues.authToken,
               refreshToken: cookieValues.refreshToken,
               user: cookieValues.user,
-              accessTokenExpiresAt: formattedExpirationTime
+              accessTokenExpiresAt: formattedExpirationTime,
             }),
             30
           );
-
-        } 
+        }
       } catch (error) {
-        console.error('Error refreshing access token:', error.message);
+        console.error("Error refreshing access token:", error.message);
       }
-    
-    
     }
+  }
 
-  };
-
-  
-
-  
   const handleGoogleAuth = () => {
-
     const client = google.accounts.oauth2.initCodeClient({
       client_id: process.env.REACT_APP_CLIENT_ID,
       scope: SCOPE,
-      ux_mode: 'popup',
+      ux_mode: "popup",
       callback: async (response) => {
         try {
           // Exchange authorization code for tokens
-          const tokens  = await exchangeCodeForTokens(response.code);
+          const tokens = await exchangeCodeForTokens(response.code);
           //console.log(tokens);
           // Use the access token to access user's information
           const userInfo = await getUserInfo(tokens.access_token);
-          
+
           //console.log(userInfo);
           //console.log(tokens);
 
-          if(userInfo != null && tokens != null)
-          {
+          if (userInfo != null && tokens != null) {
             setUser(userInfo);
             setUserEmail(userInfo.email);
             toggle();
@@ -265,9 +253,9 @@ const Home = () => {
             console.log(tokens.expiry_date);
             //must be in timezone toronto
             const expirationDate = new Date(tokens.expiry_date);
-            const expires = expirationDate.toLocaleString('en-US', { 
-              timeZone: 'America/Toronto',
-              hour12: false 
+            const expires = expirationDate.toLocaleString("en-US", {
+              timeZone: "America/Toronto",
+              hour12: false,
             });
 
             setCookie(
@@ -275,68 +263,63 @@ const Home = () => {
               JSON.stringify({
                 calendarToken: tokens.access_token,
                 authToken: tokens,
-                refreshToken:tokens.refresh_token,
+                refreshToken: tokens.refresh_token,
                 user: userInfo,
-                accessTokenExpiresAt: expires
+                accessTokenExpiresAt: expires,
               }),
               30
             );
 
-          
             updateCalendarEvents();
             setIsAuthorized(true);
             setIsShown(true);
 
             toggleHidden();
           }
-
         } catch (error) {
-          console.error('Error handling Google authentication:', error);
+          console.error("Error handling Google authentication:", error);
         }
       },
     });
-  
+
     // Trigger the OAuth Code Flow
     client.requestCode();
-    
-
-    
   };
-  
 
   async function exchangeCodeForTokens(code) {
     // Make a POST request to your server to exchange the authorization code for tokens
-    const response = await fetch('http://localhost:5152/auth/google', {
-      method: 'POST',
+    const response = await fetch("http://localhost:5152/auth/google", {
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
       body: JSON.stringify({ code }),
     });
-  
+
     if (!response.ok) {
-      throw new Error('Failed to exchange authorization code for tokens');
+      throw new Error("Failed to exchange authorization code for tokens");
     }
-  
+
     return await response.json();
   }
-  
+
   async function getUserInfo(accessToken) {
     // Make a GET request to the Google API to fetch user's information
-    const response = await fetch('https://www.googleapis.com/oauth2/v1/userinfo', {
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-      },
-    });
-  
+    const response = await fetch(
+      "https://www.googleapis.com/oauth2/v1/userinfo",
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      }
+    );
+
     if (!response.ok) {
-      throw new Error('Failed to fetch user information');
+      throw new Error("Failed to fetch user information");
     }
-  
+
     return await response.json();
   }
-  
-  
 
   const getCookie = () => {
     let name = "DateMinderTokens" + "=";
@@ -354,7 +337,7 @@ const Home = () => {
           authToken: parsedValues.authToken,
           user: parsedValues.user,
           refreshToken: parsedValues.refreshToken,
-          accessTokenExpiresAt: parsedValues.accessTokenExpiresAt
+          accessTokenExpiresAt: parsedValues.accessTokenExpiresAt,
         };
       }
     }
@@ -458,7 +441,7 @@ const Home = () => {
           State: "document",
         }),
       });
-
+      updateCalendarEvents();
       if (palmResponse.ok) {
         const palmData = await palmResponse.json();
         var dataStr = palmData.prediction.replace("```", "");
@@ -595,11 +578,16 @@ const Home = () => {
   // };
 
   return (
-    
-    <div style={{ textAlign: "center" }}> 
-      {showButton && <button onClick={handleGoogleAuth} type="button" class="login-with-google-btn" >
-        Sign in with Google
-      </button>}
+    <div style={{ textAlign: "center" }}>
+      {showButton && (
+        <button
+          onClick={handleGoogleAuth}
+          type="button"
+          class="login-with-google-btn"
+        >
+          Sign in with Google
+        </button>
+      )}
       <div
         className="container justify-center"
         style={{
@@ -608,7 +596,6 @@ const Home = () => {
           marginTop: "3rem",
           margin: "auto",
         }}
-        
       >
         <div id="signInDiv"></div>
         {user && isShown && (
@@ -857,6 +844,7 @@ const Home = () => {
                           </p>
                           <p>Heres some of your upcomming events:</p>
                           <ul style={{ textAlign: "left" }}>
+                            {updateCalendarEvents()}
                             {events?.map((event) => (
                               <li key={event.id}>
                                 <Event eventObj={event} />
@@ -888,11 +876,13 @@ const Home = () => {
                           )}
 
                           {!isLoadingFile && isPromptShown && (
-                            <div style={{ marginLeft: "20px", marginTop: "15px"}}>
+                            <div
+                              style={{ marginLeft: "20px", marginTop: "15px" }}
+                            >
                               <Prompt
-                              eventList={prompts.events}
-                              token={googleCalendarToken}
-                              email={UserEmail}
+                                eventList={prompts.events}
+                                token={googleCalendarToken}
+                                email={UserEmail}
                               ></Prompt>
                             </div>
                           )}
