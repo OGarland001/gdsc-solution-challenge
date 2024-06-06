@@ -1,22 +1,26 @@
 import React from "react";
 import { useState } from "react";
 
-const TypingEffect = ({ formValue, handleInputSubmit, typedText, setTypedText, aiResponse, setAiResponse, isLoading }) => {
-
-  const [weeks, setWeeks] = useState(1);
-
-  const handleChangeSlider = (e) => {
-    setWeeks(parseInt(e.target.value));
-  };
-
+const TypingEffect = ({
+  formValue,
+  handleInputSubmit,
+  typedText,
+  setTypedText,
+  aiResponse,
+  setAiResponse,
+  isLoading,
+  weeks,
+  handleChangeSlider,
+}) => {
   return (
     <div>
-      {/* Your JSX content */}
-      {formValue.radio === 'Ask' && (
+      {formValue.radio === "Ask" && (
         <div>
-          {/* Render buttons and text for "Ask" option */}
           <p>Ask your assistant about your calendar</p>
-          <form onSubmit={handleInputSubmit} style={{ textAlign: "center", marginTop: 10, marginBottom: 20 }}>
+          <form
+            onSubmit={handleInputSubmit}
+            style={{ textAlign: "center", marginTop: 10, marginBottom: 20 }}
+          >
             <textarea
               placeholder="Ask your calendar..."
               className="input"
@@ -24,11 +28,11 @@ const TypingEffect = ({ formValue, handleInputSubmit, typedText, setTypedText, a
               type="text"
               id="prompt"
               value={typedText}
-              onChange={(e) => setTypedText(e.target.value)} // Update typedText state
+              onChange={(e) => setTypedText(e.target.value)}
             />
             <br />
             <div>
-            <p>Number of weeks ahead assistant should consider: {weeks}</p>
+              <p>Number of weeks ahead assistant should consider: {weeks}</p>
               <input
                 type="range"
                 min="1"
@@ -44,7 +48,9 @@ const TypingEffect = ({ formValue, handleInputSubmit, typedText, setTypedText, a
           </form>
           <div style={{ textAlign: "center", top: 10 }}>
             <h2>AI Response:</h2>
-            <div style={{ paddingBottom: 20, position: "relative", marginTop: 10 }}>
+            <div
+              style={{ paddingBottom: 20, position: "relative", marginTop: 10 }}
+            >
               <textarea
                 className="textFeildResponse"
                 name="text"
@@ -52,8 +58,16 @@ const TypingEffect = ({ formValue, handleInputSubmit, typedText, setTypedText, a
                 value={aiResponse}
                 disabled
               />
-              {isLoading && ( // Show loading spinner while isLoading is true
-                <div className="loader" style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)" }}>
+              {isLoading && (
+                <div
+                  className="loader"
+                  style={{
+                    position: "absolute",
+                    top: "50%",
+                    left: "50%",
+                    transform: "translate(-50%, -50%)",
+                  }}
+                >
                   <span className="bar"></span>
                   <span className="bar"></span>
                   <span className="bar"></span>

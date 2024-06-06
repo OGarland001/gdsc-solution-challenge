@@ -32,11 +32,16 @@ const Home = () => {
   const [isMoonShowing, setIsMoonShowing] = useState(false);
   const [isLoadingFile, setIsLoadingFile] = useState(false);
   const [showButton, setShowButton] = useState(true);
+  const [weeks, setWeeks] = useState(1);
 
   const handleChangeLightDarkMode = () => {
     setIsMoonShowing(!isMoonShowing);
     // Toggle background color based on the state of isMoonShowing
     document.body.style.backgroundColor = isMoonShowing ? "white" : "#222222";
+  };
+
+  const handleChangeSlider = (e) => {
+    setWeeks(parseInt(e.target.value));
   };
 
   const setCookie = (name, value, days) => {
@@ -84,7 +89,7 @@ const Home = () => {
       toggle();
 
       setCalendarToken(cookieValues.calendarToken);
-      updateCalendarEvents();
+      updateCalendarEvents(2);
       setIsAuthorized(true);
       setIsShown(true);
 
@@ -116,18 +121,19 @@ const Home = () => {
 
   const google = window.google;
 
-  const updateCalendarEvents = () => {
+  const updateCalendarEvents = (weeks) => {
     //Function could be updated to pass amount of days ahead to grab
     const cookieValues = getCookie();
     const userEmail = findEmail(cookieValues.user);
     console.log(cookieValues);
 
+    var contextWindow = weeks * 7;
     console.log(userEmail);
     console.log(cookieValues.calendarToken);
 
     var startDate = new Date();
     var endDate = new Date();
-    endDate.setDate(endDate.getDate() + 14);
+    endDate.setDate(endDate.getDate() + contextWindow);
     startDate = startDate.toISOString();
     endDate = endDate.toISOString();
 
@@ -270,7 +276,7 @@ const Home = () => {
               30
             );
 
-            updateCalendarEvents();
+            updateCalendarEvents(2);
             setIsAuthorized(true);
             setIsShown(true);
 
@@ -361,6 +367,11 @@ const Home = () => {
   const handleInputSubmit = async (e) => {
     e.preventDefault();
     try {
+      //Events call.
+      //EVENTSBALLS
+      console.log("number of weeks" + weeks);
+
+      updateCalendarEvents(weeks);
       const eventDataToSend = events.map((event) => {
         const eventData = {
           summary: event.summary,
@@ -371,6 +382,8 @@ const Home = () => {
         }
         return eventData;
       });
+      console.log("event data by week");
+      console.log(eventDataToSend);
 
       const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
       const currentDateTimeString = new Date().toLocaleString();
@@ -441,7 +454,7 @@ const Home = () => {
           State: "document",
         }),
       });
-      updateCalendarEvents();
+      updateCalendarEvents(2);
       if (palmResponse.ok) {
         const palmData = await palmResponse.json();
         var dataStr = palmData.prediction.replace("```", "");
@@ -666,7 +679,7 @@ const Home = () => {
                     <div style={{ display: "flex", justifyContent: "center" }}>
                       <Button
                         className="shadow__btn"
-                        onClick={getCalendarEvents}
+                        onClick={getCalendarEvents()}
                         style={{
                           width: 200,
                           height: 65,
@@ -771,6 +784,8 @@ const Home = () => {
                           isLoading={isLoading}
                           aiResponse={aiResponse}
                           setAiResponse={setAiResponse}
+                          weeks={weeks} // Pass weeks as a prop
+                          handleChangeSlider={handleChangeSlider} // Pass handleChangeSlider as a prop
                         />
                       </div>
                       {formValue.radio === "Upload" && (
@@ -844,7 +859,7 @@ const Home = () => {
                           </p>
                           <p>Heres some of your upcomming events:</p>
                           <ul style={{ textAlign: "left" }}>
-                            {updateCalendarEvents()}
+                            {updateCalendarEvents(2)}
                             {events?.map((event) => (
                               <li key={event.id}>
                                 <Event eventObj={event} />
