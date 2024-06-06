@@ -31,6 +31,7 @@ const Home = () => {
   const [aiResponse, setAiResponse] = useState("");
   const [isMoonShowing, setIsMoonShowing] = useState(false);
   const [isLoadingFile, setIsLoadingFile] = useState(false);
+  const [isInvalidFile, setIsInvalidFile] = useState(false);
   const [showButton, setShowButton] = useState(true);
 
   const handleChangeLightDarkMode = () => {
@@ -405,8 +406,26 @@ const Home = () => {
     }
   };
 
+  const allowedFileTypes = [
+    'application/pdf', 'image/gif', 'image/tiff', 'image/tif',
+    'image/jpeg', 'image/jpg', 'image/png', 'image/bmp', 'image/webp'
+  ];
+
   const handleChange = async (event) => {
     const file = event.target.files[0];
+    setIsInvalidFile(false);
+
+    // Check if the file type is valid
+    if (!allowedFileTypes.includes(file.type)) {
+      setIsInvalidFile(true);
+      setIsLoadingFile(false);
+      setFormValue({ ...formValue, radio: "Create" });
+      setTimeout(() => {
+        setIsInvalidFile(false); // Reset invalid file state after 30 seconds
+      }, 30000);
+      return;
+    }
+
     const formData = new FormData();
     formData.append("file", file);
     setFormValue({ ...formValue, radio: "Create" });
@@ -857,6 +876,20 @@ const Home = () => {
                         <div>
                           {/* Render buttons and text for "Create" option */}
                           <p>Review the events to add to your calendar here</p>
+
+                          {isInvalidFile && (
+                            <div style={{
+                              color: '#721c24',
+                              backgroundColor: '#f8d7da',
+                              borderColor: '#f5c6cb',
+                              padding: '10px',
+                              margin: '10px 0',
+                              border: '1px solid transparent',
+                              borderRadius: '4px'
+                            }}>                              
+                              <p>Invalid file type uploaded. Please upload only PDF, GIF, TIFF, JPG, JPEG, PNG, BMP, or WEBP files.</p>
+                            </div>
+                          )}
 
                           {isLoadingFile && (
                             <div
