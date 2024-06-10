@@ -677,6 +677,7 @@ const Home = () => {
                     src={user.picture}
                     alt="google user img"
                     className="justify-center"
+                    referrerPolicy="no-referrer"
                     style={{
                       width: "80%",
                       borderRadius: "50%",
