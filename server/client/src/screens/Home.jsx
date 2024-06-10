@@ -46,7 +46,7 @@ const Home = () => {
       date.setTime(date.getTime() + days * 24 * 60 * 60 * 1000);
       expires = "; expires=" + date.toUTCString();
     }
-    document.cookie = name + "=" + value + expires + "; path=/";
+    document.cookie = name + "=" + encodeURIComponent(value) + expires + "; path=/";
 
     //console.log('cookie set');
   };
@@ -120,10 +120,10 @@ const Home = () => {
     //Function could be updated to pass amount of days ahead to grab
     const cookieValues = getCookie();
     const userEmail = findEmail(cookieValues.user);
-    console.log(cookieValues);
+    //console.log(cookieValues);
 
-    console.log(userEmail);
-    console.log(cookieValues.calendarToken);
+    //console.log(userEmail);
+    //console.log(cookieValues.calendarToken);
 
     var startDate = new Date();
     var endDate = new Date();
@@ -143,7 +143,7 @@ const Home = () => {
     )
       .then((response) => response.json())
       .then((data) => {
-        console.log("Calendar events data:", data);
+        //console.log("Calendar events data:", data);
         setEvents(data.items);
       })
       .catch((error) => {
@@ -154,7 +154,7 @@ const Home = () => {
   async function checkAccessToken() {
     const cookieValues = getCookie();
     const refreshToken = cookieValues.refreshToken;
-    const accessTokenExpiresAt = cookieValues.accessTokenExpiresAt;
+    const accessTokenExpiresAt = new Date(cookieValues.accessTokenExpiresAt);
 
     const options = {
       timeZone: "America/Toronto",
@@ -168,11 +168,11 @@ const Home = () => {
     };
 
     const currentDate = new Date();
-    const formattedCurrentDate = currentDate.toLocaleString("en-US", options);
+    //const formattedCurrentDate = currentDate.toLocaleString("en-US", options);
 
     //console.log("Checking token");
 
-    if (accessTokenExpiresAt && accessTokenExpiresAt < formattedCurrentDate) {
+    if (accessTokenExpiresAt && accessTokenExpiresAt < currentDate) {
       console.log("Token needs refreshing");
 
       try {
@@ -195,12 +195,25 @@ const Home = () => {
         if (response.ok) {
           setCalendarToken(data.access_token);
           //cookieValues.calendarToken = data.access_token;
-          const expiresIn = data.expires_in - 10;
+          //const expiresIn = data.expires_in - 10;
+          //const expirationTime = new Date();
+          //expirationTime.setSeconds(expirationTime.getSeconds() + expiresIn);
+          //const expiresInMinutes = expiresIn / 60;
+          // expirationTime.setMinutes(
+          //   expirationTime.getMinutes() + expiresInMinutes
+          // );
+
           const expirationTime = new Date();
-          const expiresInMinutes = expiresIn / 60;
-          expirationTime.setMinutes(
-            expirationTime.getMinutes() + expiresInMinutes
-          );
+
+          // Add one hour to the current time
+          expirationTime.setHours(expirationTime.getHours() + 1);
+
+          const expires = expirationTime.toLocaleString("en-US", {
+            timeZone: "America/Toronto",
+            hour12: false,
+          });
+
+          console.log("new expiration: " + expires)
 
           const formattedExpirationTime = expirationTime.toLocaleString(
             "en-US",
@@ -215,7 +228,7 @@ const Home = () => {
               authToken: cookieValues.authToken,
               refreshToken: cookieValues.refreshToken,
               user: cookieValues.user,
-              accessTokenExpiresAt: formattedExpirationTime,
+              accessTokenExpiresAt: expires,
             }),
             30
           );
@@ -250,13 +263,15 @@ const Home = () => {
             setTokenClient(tokens);
             setCalendarToken(tokens.access_token);
 
-            console.log(tokens.expiry_date);
+            //console.log(tokens.expiry_date);
             //must be in timezone toronto
             const expirationDate = new Date(tokens.expiry_date);
             const expires = expirationDate.toLocaleString("en-US", {
               timeZone: "America/Toronto",
               hour12: false,
             });
+
+            console.log("expires at: " + expires);
 
             setCookie(
               "DateMinderTokens",
@@ -331,7 +346,7 @@ const Home = () => {
       if (cookie.indexOf(name) === 0) {
         let cookieValue = cookie.substring(name.length, cookie.length);
         // Parse the serialized values back into their original format
-        let parsedValues = JSON.parse(cookieValue);
+        let parsedValues = JSON.parse(decodeURIComponent(cookieValue));
         return {
           calendarToken: parsedValues.calendarToken,
           authToken: parsedValues.authToken,
