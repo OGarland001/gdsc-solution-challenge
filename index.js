@@ -44,26 +44,25 @@ async function verifyGoogleToken(token) {
 const oAuth2Client = new OAuth2Client(
   process.env.REACT_APP_CLIENT_ID,
   process.env.REACT_APP_CLIENT_SECRET,
-  'postmessage',
-  'https://www.googleapis.com/auth/calendar.events'
+  "postmessage",
+  "https://www.googleapis.com/auth/calendar.events"
 );
 
-app.post('/auth/google', async (req, res) => {
-  const { tokens } = await oAuth2Client.getToken(req.body.code); 
+app.post("/auth/google", async (req, res) => {
+  const { tokens } = await oAuth2Client.getToken(req.body.code);
   //console.log(tokens);
   res.json(tokens);
 });
 
-app.post('/auth/google/refresh-token', async (req, res) => {
+app.post("/auth/google/refresh-token", async (req, res) => {
   const user = new UserRefreshClient(
     clientId,
     clientSecret,
-    req.body.refreshToken,
+    req.body.refreshToken
   );
   const { credentials } = await user.refreshAccessToken(); // optain new tokens
   res.json(credentials);
-})
-
+});
 
 // Route to handle file upload and invoke the quickstart function
 app.post("/process-document", upload.single("file"), async (req, res) => {
@@ -209,14 +208,16 @@ function findEmails(givenPrompt) {
 
 function checkCurrentDateEvents(data, todaysDate) {
   try {
-
-    const currentDate = new Date(todaysDate.substring(0, todaysDate.indexOf(",")));
+    const currentDate = new Date(
+      todaysDate.substring(0, todaysDate.indexOf(","))
+    );
     const events = data.split(", ");
     const currentEvents = [];
 
     for (const event of events) {
-     
-      const eventInfoMatch = event.match(/(.+) starts on (\d{1,2}\/\d{1,2}\/\d{4})/);
+      const eventInfoMatch = event.match(
+        /(.+) starts on (\d{1,2}\/\d{1,2}\/\d{4})/
+      );
       if (eventInfoMatch) {
         const eventName = eventInfoMatch[1];
         const startDateString = eventInfoMatch[2];
@@ -235,7 +236,6 @@ function checkCurrentDateEvents(data, todaysDate) {
     throw new Error("Failed to check current date events");
   }
 }
-
 
 const fetch = require("node-fetch");
 //Todays date is
@@ -265,20 +265,19 @@ app.post("/palmrequest", async (req, res) => {
 
     if (state == "document") {
       documentPromptTxt =
-        'Please extract any events and class times mentioned in the document provided. This includes assignments, classes/lectures, project milestones, and other relevant activities. Ensure to include details such as event titles, descriptions, start times, and end times. The extracted information will be used to create new calendar events. Format the output in the JSON format specified below and make sure it is complete and finished must be full json. If no events are found or details are missing, please include "N/A" in the corresponding fields to ensure completeness and flexibility. this json format must be inside a array of events json objects the array must be called "events" that contain this :{id: 1, summary: "testEvent1", description: "testDescription1", endTime: "2024-02-19T09:00:00-05:00", startTime: "2024-02-17T09:00:00-05:00",}';
-
+        'From that context above Please extract any events and class times mentioned in the text provided below. This includes assignments, classes/lectures, project milestones, and other relevant activities. Ensure to include details such as event titles, descriptions, start times, and end times. The extracted information will be used to create new calendar events. Format the output in the JSON format specified below and make sure it is complete and finished must be full json. If no events are found or details are missing, please include "N/A" in the corresponding fields to ensure completeness and flexibility. this json format must be inside a array of events json objects the array must be called "events" that contain this :{id: 1, summary: "testEvent1", description: "testDescription1", endTime: "2024-02-19T09:00:00-05:00", startTime: "2024-02-17T09:00:00-05:00",} Ensure that if anything you generate is not in the format provided, please replace it with an event :{id: 1, summary: "N/A", description: "N/A", endTime: "2024-02-19T09:00:00-05:00", startTime: "2024-02-17T09:00:00-05:00",}. The context for the document starts now: ';
       data = {
         instances: [
           {
             prompt:
-              documentPromptTxt +
-              req.body.Prompt +
               calendarReferenceText +
               palmContext +
               " the current date and time is " +
               currentDateTime +
               " in this time zone: " +
-              TimeZone,
+              TimeZone +
+              documentPromptTxt +
+              req.body.Prompt,
           },
         ],
         parameters: {
@@ -336,9 +335,9 @@ app.post("/palmrequest", async (req, res) => {
         },
       };
     } else {
-      var userEvents = parseEventData(palmContext)
+      var userEvents = parseEventData(palmContext);
       //console.log(events);
-    
+
       data = {
         instances: [
           {
@@ -360,7 +359,7 @@ app.post("/palmrequest", async (req, res) => {
         },
       };
     }
-   
+
     const response = await fetch(URL, {
       method: "POST",
       headers,
@@ -396,24 +395,22 @@ app.post("/palmrequest", async (req, res) => {
   }
 });
 
-app.get('/code_callback_endpoint', async (req, res) => {
+app.get("/code_callback_endpoint", async (req, res) => {
   try {
     const { code } = req.query;
 
     if (!code) {
-      res.status(400).send('Authorization code not provided.');
+      res.status(400).send("Authorization code not provided.");
       return;
     }
 
     console.log("auth code", code);
     res.send(code);
   } catch (error) {
-    console.error('Error exchanging code for tokens:', error);
-    res.status(500).send('Error exchanging code for tokens.');
+    console.error("Error exchanging code for tokens:", error);
+    res.status(500).send("Error exchanging code for tokens.");
   }
 });
-
-
 
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "server/client/build", "index.html"));

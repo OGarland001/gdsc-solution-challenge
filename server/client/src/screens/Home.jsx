@@ -52,7 +52,8 @@ const Home = () => {
       date.setTime(date.getTime() + days * 24 * 60 * 60 * 1000);
       expires = "; expires=" + date.toUTCString();
     }
-    document.cookie = name + "=" + encodeURIComponent(value) + expires + "; path=/";
+    document.cookie =
+      name + "=" + encodeURIComponent(value) + expires + "; path=/";
 
     //console.log('cookie set');
   };
@@ -175,9 +176,6 @@ const Home = () => {
     };
 
     const currentDate = new Date();
-    //const formattedCurrentDate = currentDate.toLocaleString("en-US", options);
-
-    //console.log("Checking token");
 
     if (accessTokenExpiresAt && accessTokenExpiresAt < currentDate) {
       console.log("Token needs refreshing");
@@ -201,15 +199,6 @@ const Home = () => {
         const data = await response.json();
         if (response.ok) {
           setCalendarToken(data.access_token);
-          //cookieValues.calendarToken = data.access_token;
-          //const expiresIn = data.expires_in - 10;
-          //const expirationTime = new Date();
-          //expirationTime.setSeconds(expirationTime.getSeconds() + expiresIn);
-          //const expiresInMinutes = expiresIn / 60;
-          // expirationTime.setMinutes(
-          //   expirationTime.getMinutes() + expiresInMinutes
-          // );
-
           const expirationTime = new Date();
 
           // Add one hour to the current time
@@ -220,13 +209,12 @@ const Home = () => {
             hour12: false,
           });
 
-          console.log("new expiration: " + expires)
+          console.log("new expiration: " + expires);
 
           const formattedExpirationTime = expirationTime.toLocaleString(
             "en-US",
             options
           );
-          //cookieValues.accessTokenExpiresAt = formattedExpirationTime;
 
           setCookie(
             "DateMinderTokens",
@@ -435,8 +423,15 @@ const Home = () => {
   };
 
   const allowedFileTypes = [
-    'application/pdf', 'image/gif', 'image/tiff', 'image/tif',
-    'image/jpeg', 'image/jpg', 'image/png', 'image/bmp', 'image/webp'
+    "application/pdf",
+    "image/gif",
+    "image/tiff",
+    "image/tif",
+    "image/jpeg",
+    "image/jpg",
+    "image/png",
+    "image/bmp",
+    "image/webp",
   ];
 
   const handleChange = async (event) => {
@@ -497,6 +492,28 @@ const Home = () => {
         console.log("STR data: ", newdataStr);
         let eventsList = JSON.parse(newdataStr);
         console.log("Received data: ", eventsList);
+
+        // Check if any of the events contain "N/A" or null in the summary or description
+        let errorsFound = false;
+        eventsList.events.forEach((event) => {
+          if (event.summary === "N/A" || event.summary === null) {
+            errorsFound = true;
+
+            event.summary = "!";
+            console.error("Error found in event summary: ", event);
+          }
+
+          if (event.description === "N/A" || event.description === null) {
+            errorsFound = true;
+
+            event.description = "!";
+            console.error("Error found in event description: ", event);
+          }
+        });
+
+        if (errorsFound) {
+          alert("Errors have been found in the event data.");
+        }
         setPrompts(eventsList);
         setIsLoadingFile(false);
         getPromptEvents();
@@ -578,51 +595,6 @@ const Home = () => {
       }
     }, typingInterval);
   };
-
-  // const setCookie = (calendarToken, authToken) => {
-  //   const date = new Date();
-  //   const numberofDays = 14;
-  //   const cookieName = "DateMinderTokens";
-  //   date.setTime(date.getTime() + (numberofDays*24*60*60*1000));
-  //   let expires = "expires="+ date.toUTCString();
-  //   let serializedValues = JSON.stringify({ calendarToken: calendarToken, authToken: authToken });
-  //   document.cookie = cookieName + "=" + serializedValues + ";" + expires + ";path=/";
-  // };
-
-  // const getCookie = () => {
-  //   let name = "DateMinderTokens" + "=";
-  //   let decodedCookie = decodeURIComponent(document.cookie);
-  //   let cookieArray = decodedCookie.split(';');
-
-  //   for (let i = 0; i < cookieArray.length; i++) {
-  //     let cookie = cookieArray[i].trim();
-  //     if (cookie.indexOf(name) === 0) {
-  //       let cookieValue = cookie.substring(name.length, cookie.length);
-  //       // Parse the serialized values back into their original format
-  //       let parsedValues = JSON.parse(cookieValue);
-  //       return {
-  //         calendarToken: parsedValues.calendarToken,
-  //         authToken: parsedValues.authToken
-  //       };
-  //     }
-  //   }
-  //   return null;
-  // };
-
-  // const checkCookie = () => {
-  //   const cookieValues = getCookie("DateMinderTokens");
-  //   if (cookieValues !== null) {
-  //     console.log("Cookie exists");
-  //     console.log("Calendar Token:", cookieValues.calendarToken);
-  //     console.log("Auth Token:", cookieValues.authToken);
-  //   } else {
-  //     console.log("Cookie does not exist");
-  //   }
-  // };
-
-  // const deleteCookie = () => {
-  //   document.cookie = "DateMinderTokens" + "=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-  // };
 
   return (
     <div style={{ textAlign: "center" }}>
@@ -904,7 +876,7 @@ const Home = () => {
                         </div>
                       )}
                       {formValue.radio === "Create" && (
-                        <div>
+                        <div style={{ position: 'relative', padding: '20px' }}>
                           {/* Render buttons and text for "Create" option */}
                           <p>Review the events to add to your calendar here</p>
 
@@ -917,7 +889,7 @@ const Home = () => {
                               margin: '10px 0',
                               border: '1px solid transparent',
                               borderRadius: '4px'
-                            }}>                              
+                            }}>
                               <p>Invalid file type uploaded. Please upload only PDF, GIF, TIFF, JPG, JPEG, PNG, BMP, or WEBP files.</p>
                             </div>
                           )}
@@ -926,11 +898,11 @@ const Home = () => {
                             <div
                               className="loader"
                               style={{
-                                marginTop: "29px",
-                                position: "absolute",
-                                top: "50%",
-                                left: "50%",
-                                transform: "translate(-50%, -50%)",
+                                display: 'flex',
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                                height: '100px',
+                                position: 'relative',
                               }}
                             >
                               <span className="bar"></span>
@@ -947,7 +919,7 @@ const Home = () => {
                                 eventList={prompts.events}
                                 token={googleCalendarToken}
                                 email={UserEmail}
-                              ></Prompt>
+                              />
                             </div>
                           )}
                         </div>
