@@ -492,6 +492,28 @@ const Home = () => {
         console.log("STR data: ", newdataStr);
         let eventsList = JSON.parse(newdataStr);
         console.log("Received data: ", eventsList);
+
+        // Check if any of the events contain "N/A" or null in the summary or description
+        let errorsFound = false;
+        eventsList.events.forEach((event) => {
+          if (event.summary === "N/A" || event.summary === null) {
+            errorsFound = true;
+
+            event.summary = "!";
+            console.error("Error found in event summary: ", event);
+          }
+
+          if (event.description === "N/A" || event.description === null) {
+            errorsFound = true;
+
+            event.description = "!";
+            console.error("Error found in event description: ", event);
+          }
+        });
+
+        if (errorsFound) {
+          alert("Errors have been found in the event data.");
+        }
         setPrompts(eventsList);
         setIsLoadingFile(false);
         getPromptEvents();
