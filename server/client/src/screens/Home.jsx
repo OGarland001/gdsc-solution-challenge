@@ -139,7 +139,7 @@ const Home = () => {
     endDate = endDate.toISOString();
 
     fetch(
-      `https://www.googleapis.com/calendar/v3/calendars/${userEmail}/events?timeMin=${startDate}&timeMax=${endDate}`,
+      `https://www.googleapis.com/calendar/v3/calendars/${userEmail}/events?timeMin=${startDate}&timeMax=${endDate}&singleEvents=true`,
       {
         method: "GET",
         headers: {
