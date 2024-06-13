@@ -876,27 +876,21 @@ const Home = () => {
                         </div>
                       )}
                       {formValue.radio === "Create" && (
-                        <div>
+                        <div style={{ position: 'relative', padding: '20px' }}>
                           {/* Render buttons and text for "Create" option */}
                           <p>Review the events to add to your calendar here</p>
 
                           {isInvalidFile && (
-                            <div
-                              style={{
-                                color: "#721c24",
-                                backgroundColor: "#f8d7da",
-                                borderColor: "#f5c6cb",
-                                padding: "10px",
-                                margin: "10px 0",
-                                border: "1px solid transparent",
-                                borderRadius: "4px",
-                              }}
-                            >
-                              <p>
-                                Invalid file type uploaded. Please upload only
-                                PDF, GIF, TIFF, JPG, JPEG, PNG, BMP, or WEBP
-                                files.
-                              </p>
+                            <div style={{
+                              color: '#721c24',
+                              backgroundColor: '#f8d7da',
+                              borderColor: '#f5c6cb',
+                              padding: '10px',
+                              margin: '10px 0',
+                              border: '1px solid transparent',
+                              borderRadius: '4px'
+                            }}>
+                              <p>Invalid file type uploaded. Please upload only PDF, GIF, TIFF, JPG, JPEG, PNG, BMP, or WEBP files.</p>
                             </div>
                           )}
 
@@ -904,11 +898,11 @@ const Home = () => {
                             <div
                               className="loader"
                               style={{
-                                marginTop: "29px",
-                                position: "absolute",
-                                top: "50%",
-                                left: "50%",
-                                transform: "translate(-50%, -50%)",
+                                display: 'flex',
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                                height: '100px',
+                                position: 'relative',
                               }}
                             >
                               <span className="bar"></span>
@@ -925,7 +919,7 @@ const Home = () => {
                                 eventList={prompts.events}
                                 token={googleCalendarToken}
                                 email={UserEmail}
-                              ></Prompt>
+                              />
                             </div>
                           )}
                         </div>
