@@ -140,7 +140,7 @@ const Home = () => {
     endDate = endDate.toISOString();
 
     fetch(
-      `https://www.googleapis.com/calendar/v3/calendars/${userEmail}/events?timeMin=${startDate}&timeMax=${endDate}`,
+      `https://www.googleapis.com/calendar/v3/calendars/${userEmail}/events?timeMin=${startDate}&timeMax=${endDate}&singleEvents=true`,
       {
         method: "GET",
         headers: {
@@ -490,9 +490,35 @@ const Home = () => {
         console.log("STR data: ", newdataStr);
         let eventsList = JSON.parse(newdataStr);
         console.log("Received data: ", eventsList);
+
+        // Check if any of the events contain "N/A" or null in the summary or description
+        let errorsFound = false;
+        eventsList.events.forEach((event) => {
+          if (event.summary === "N/A" || event.summary === null) {
+            errorsFound = true;
+
+            event.summary = "!";
+            console.error("Error found in event summary: ", event);
+          }
+
+          if (event.description === "N/A" || event.description === null) {
+            errorsFound = true;
+
+            event.description = "!";
+            console.error("Error found in event description: ", event);
+          }
+        });
+
+        if (errorsFound) {
+          alert("Errors have been found in the event data.");
+        }
         setPrompts(eventsList);
         setIsLoadingFile(false);
         getPromptEvents();
+        try {
+          localStorage.removeItem("revertIdList");
+          localStorage.removeItem("eventsAdded");
+        } catch {}
       } else {
         throw new Error("Failed to fetch predictions");
       }
@@ -852,7 +878,7 @@ const Home = () => {
                         </div>
                       )}
                       {formValue.radio === "Create" && (
-                        <div style={{ position: 'relative', padding: '20px' }}>
+                        <div style={{ position: "relative", padding: "20px" }}>
                           {/* Render buttons and text for "Create" option */}
                           <p>Review the events to add to your calendar here</p>
 
@@ -874,11 +900,11 @@ const Home = () => {
                             <div
                               className="loader"
                               style={{
-                                display: 'flex',
-                                justifyContent: 'center',
-                                alignItems: 'center',
-                                height: '100px',
-                                position: 'relative',
+                                display: "flex",
+                                justifyContent: "center",
+                                alignItems: "center",
+                                height: "100px",
+                                position: "relative",
                               }}
                             >
                               <span className="bar"></span>
