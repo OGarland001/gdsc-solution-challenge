@@ -19,22 +19,21 @@ async function quickstart(filePath, fileType) {
     const encodedFile = Buffer.from(imageFile).toString('base64');
 
     let mimeType;
-    if (fileType === '.pdf') 
-    {
+    if (fileType === '.pdf') {
       mimeType = 'application/pdf';
-    } 
-    else if (fileType === '.jpg' || fileType === 'jpeg') 
-    {
+    } else if (fileType === '.jpg' || fileType === '.jpeg') {
       mimeType = 'image/jpeg';
-    } 
-    else if (fileType === '.png') 
-    {
+    } else if (fileType === '.png') {
       mimeType = 'image/png';
-    } 
-    else 
-    {
+    } else if (fileType === '.gif') {
+      mimeType = 'image/gif';
+    } else if (fileType === '.tiff' || fileType === '.tif') {
+      mimeType = 'image/tiff';
+    } else if (fileType === '.bmp') {
+      mimeType = 'image/bmp';
+    } else {
       throw new Error('Unsupported file type');
-    }
+    }    
 
     const request = {
       name,

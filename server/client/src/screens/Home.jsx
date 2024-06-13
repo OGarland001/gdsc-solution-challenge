@@ -424,14 +424,12 @@ const Home = () => {
 
   const allowedFileTypes = [
     "application/pdf",
-    "image/gif",
     "image/tiff",
     "image/tif",
     "image/jpeg",
     "image/jpg",
     "image/png",
     "image/bmp",
-    "image/webp",
   ];
 
   const handleChange = async (event) => {
@@ -868,7 +866,7 @@ const Home = () => {
                               border: '1px solid transparent',
                               borderRadius: '4px'
                             }}>
-                              <p>Invalid file type uploaded. Please upload only PDF, GIF, TIFF, JPG, JPEG, PNG, BMP, or WEBP files.</p>
+                              <p>Invalid file type uploaded. Please upload only PDF, TIFF, JPG, JPEG, PNG, or BMP files.</p>
                             </div>
                           )}
 
