@@ -70,6 +70,19 @@ function Prompt({ eventList, token, email }) {
     setEndTimes(initialEndTimes);
     setEventTitles(initialTitles);
     setEventDescriptions(initialDescriptions);
+
+    // Restore state from localStorage
+    try {
+      const storedRevertIdList = localStorage.getItem("revertIdList");
+      const storedEventsAdded = localStorage.getItem("eventsAdded");
+
+      if (storedRevertIdList) {
+        setRevertIdList(JSON.parse(storedRevertIdList));
+      }
+      if (storedEventsAdded) {
+        setEventsAdded(JSON.parse(storedEventsAdded));
+      }
+    } catch {}
   }, [eventList]);
 
   const toggleEventSelection = (eventId) => {
@@ -190,6 +203,9 @@ function Prompt({ eventList, token, email }) {
     }
     setIsMessageShowing(true);
     setRevertIdList(newRevertIdList);
+    // Save state to localStorage
+    localStorage.setItem("revertIdList", JSON.stringify(newRevertIdList));
+    localStorage.setItem("eventsAdded", JSON.stringify(true));
   };
 
   // Function to revert events

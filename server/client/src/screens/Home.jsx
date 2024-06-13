@@ -517,6 +517,10 @@ const Home = () => {
         setPrompts(eventsList);
         setIsLoadingFile(false);
         getPromptEvents();
+        try {
+          localStorage.removeItem("revertIdList");
+          localStorage.removeItem("eventsAdded");
+        } catch {}
       } else {
         throw new Error("Failed to fetch predictions");
       }
@@ -876,21 +880,27 @@ const Home = () => {
                         </div>
                       )}
                       {formValue.radio === "Create" && (
-                        <div style={{ position: 'relative', padding: '20px' }}>
+                        <div style={{ position: "relative", padding: "20px" }}>
                           {/* Render buttons and text for "Create" option */}
                           <p>Review the events to add to your calendar here</p>
 
                           {isInvalidFile && (
-                            <div style={{
-                              color: '#721c24',
-                              backgroundColor: '#f8d7da',
-                              borderColor: '#f5c6cb',
-                              padding: '10px',
-                              margin: '10px 0',
-                              border: '1px solid transparent',
-                              borderRadius: '4px'
-                            }}>
-                              <p>Invalid file type uploaded. Please upload only PDF, GIF, TIFF, JPG, JPEG, PNG, BMP, or WEBP files.</p>
+                            <div
+                              style={{
+                                color: "#721c24",
+                                backgroundColor: "#f8d7da",
+                                borderColor: "#f5c6cb",
+                                padding: "10px",
+                                margin: "10px 0",
+                                border: "1px solid transparent",
+                                borderRadius: "4px",
+                              }}
+                            >
+                              <p>
+                                Invalid file type uploaded. Please upload only
+                                PDF, GIF, TIFF, JPG, JPEG, PNG, BMP, or WEBP
+                                files.
+                              </p>
                             </div>
                           )}
 
@@ -898,11 +908,11 @@ const Home = () => {
                             <div
                               className="loader"
                               style={{
-                                display: 'flex',
-                                justifyContent: 'center',
-                                alignItems: 'center',
-                                height: '100px',
-                                position: 'relative',
+                                display: "flex",
+                                justifyContent: "center",
+                                alignItems: "center",
+                                height: "100px",
+                                position: "relative",
                               }}
                             >
                               <span className="bar"></span>
