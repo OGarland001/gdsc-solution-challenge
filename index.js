@@ -257,8 +257,11 @@ app.post("/palmrequest", async (req, res) => {
     const currentDateTime = req.body.CurrentDateTime;
     const TimeZone = req.body.Timezone;
 
+
     console.log("time zone:", TimeZone);
     console.log("current time", currentDateTime);
+
+    
 
     console.log(palmContext);
     var data = null;
@@ -271,7 +274,6 @@ app.post("/palmrequest", async (req, res) => {
           {
             prompt:
               calendarReferenceText +
-              palmContext +
               " the current date and time is " +
               currentDateTime +
               " in this time zone: " +
@@ -282,7 +284,7 @@ app.post("/palmrequest", async (req, res) => {
         ],
         parameters: {
           temperature: 0.2,
-          maxOutputTokens: 2048,
+          maxOutputTokens: 2000,
           topP: 0.95,
           topK: 40,
         },

@@ -396,6 +396,8 @@ const Home = () => {
       setIsLoading(true);
       setAiResponse("");
 
+      
+
       const response = await fetch("/palmrequest", {
         method: "POST",
         headers: {
@@ -421,6 +423,38 @@ const Home = () => {
       setIsLoading(false);
     }
   };
+
+
+
+function ensureValidJSON(jsonString) {
+  jsonString = jsonString.trim();
+
+  var tempJsonString = jsonString.replace(/\n/g, ' ');
+  tempJsonString = tempJsonString.replace(/\s+/g, ' ').trim();
+  console.log(tempJsonString);
+  if (tempJsonString.endsWith('} ] }')) {
+      console.log(jsonString);
+      return tempJsonString;
+  }
+
+  let lastBracketIndex = jsonString.lastIndexOf('}');
+  if (lastBracketIndex !== -1) {
+
+      let remainingChars = jsonString.slice(lastBracketIndex + 1).trim();
+      if (remainingChars.length > 0 && !remainingChars.startsWith('}')) {
+          jsonString = jsonString.slice(0, lastBracketIndex + 1);
+      }
+  }
+
+  let incompleteKeyRegex = /("[^"]+"\s*:\s*}),?/g;
+  jsonString = jsonString.replace(incompleteKeyRegex, '');
+
+  if (!jsonString.endsWith('} ] }')) {
+      jsonString += '] }';
+  }
+
+  return jsonString;
+}
 
   const allowedFileTypes = [
     "application/pdf",
@@ -465,6 +499,11 @@ const Home = () => {
         documentContent: data.message, // Update only the documentContent property
       }));
 
+      var result = data.message;
+
+      result = result.replace(/\n/g, ' ');
+      result = result.replace(/\s+/g, ' ').trim();
+
       // Make call to the palmAI and then console log the events pulled from the data.
       const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
       const currentDateTimeString = new Date().toLocaleString();
@@ -475,7 +514,7 @@ const Home = () => {
         },
         body: JSON.stringify({
           Context: "",
-          Prompt: data.message,
+          Prompt: result,
           CurrentDateTime: currentDateTimeString,
           Timezone: userTimezone,
           State: "document",
@@ -487,6 +526,7 @@ const Home = () => {
         var dataStr = palmData.prediction.replace("```", "");
         var newdataStr = dataStr.replace("```", "");
         newdataStr = newdataStr.slice(5);
+        newdataStr = ensureValidJSON(newdataStr);
         console.log("STR data: ", newdataStr);
         let eventsList = JSON.parse(newdataStr);
         console.log("Received data: ", eventsList);
