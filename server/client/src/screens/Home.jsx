@@ -906,7 +906,7 @@ function ensureValidJSON(jsonString) {
                             Here your AI assistant can help you update your
                             calendar events
                           </p>
-                          <p>Heres some of your upcomming events:</p>
+                          <p>Here's some of your upcoming events:</p>
                           <ul style={{ textAlign: "left" }}>
                             {updateCalendarEvents(2)}
                             {events?.map((event) => (
