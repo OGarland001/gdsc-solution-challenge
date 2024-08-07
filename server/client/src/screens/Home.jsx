@@ -49,12 +49,12 @@ const Home = () => {
 
   const handleFormSubmit = async (event) => {
     event.preventDefault();
-    try {
-      const response = await axios.post("/your-backend-endpoint", formData); // Replace with your backend endpoint
-      console.log(response.data); // Handle successful response
-    } catch (error) {
-      console.error(error); // Handle error
-    }
+    // try {
+    //   const response = await axios.post("/your-backend-endpoint", formData); // Replace with your backend endpoint
+    //   console.log(response.data); // Handle successful response
+    // } catch (error) {
+    //   console.error(error); // Handle error
+    // }
   };
 
   const handleChangeLightDarkMode = () => {
@@ -552,7 +552,7 @@ const Home = () => {
 
         // Check if any of the events contain "N/A" or null in the summary or description
         let errorsFound = false;
-        eventsList.events.forEach((event) => {
+        eventsList.forEach((event) => {
           if (event.summary === "N/A" || event.summary === null) {
             errorsFound = true;
 
@@ -663,7 +663,7 @@ const Home = () => {
         <button
           onClick={handleGoogleAuth}
           type="button"
-          class="login-with-google-btn"
+          className="login-with-google-btn"
         >
           Sign in with Google
         </button>
@@ -684,7 +684,7 @@ const Home = () => {
             style={{ textAlign: "center", marginTop: 15, marginBottom: 15 }}
           >
             <div style={{ display: "flex", justifyContent: "center" }}></div>
-
+  
             <div
               className="white-box"
               style={{
@@ -727,7 +727,7 @@ const Home = () => {
                 </Button>
               </div>
             </div>
-
+  
             {/* Prompt Wizard */}
             <div
               className="container"
@@ -739,10 +739,10 @@ const Home = () => {
                   alt="PromptWizard"
                   style={{ height: "170px", alignSelf: "center" }}
                 />
-
+  
                 <div style={{ position: "relative", marginTop: "3%" }}>
                   <label htmlFor="prompt">Prompt Wizard</label>
-
+  
                   {user && isShown && !isAuthorizedWithCalendar && (
                     <div style={{ display: "flex", justifyContent: "center" }}>
                       <Button
@@ -760,7 +760,7 @@ const Home = () => {
                       </Button>
                     </div>
                   )}
-
+  
                   {user && isShown && isAuthorizedWithCalendar && (
                     <div>
                       <div
@@ -837,9 +837,9 @@ const Home = () => {
                     </div>
                   )}
                 </div>
-
+  
                 {user && isShown && isAuthorizedWithCalendar && (
-                  <div class="scroll-content">
+                  <div className="scroll-content">
                     <div>
                       {/* Conditionally render different buttons and text based on the selected radio option */}
                       <div>
@@ -937,83 +937,122 @@ const Home = () => {
                         </div>
                       )}
                       {formValue.radio === "Create" && (
-                        <div style={{ position: "relative", padding: "20px", display: "flex", justifyContent: "center", alignItems: "center", flexDirection: "column" }}>
-                        {/* Render buttons and text for "Create" option */}
+                        <div
+                          style={{
+                            position: "relative",
+                            padding: "20px",
+                            display: "flex",
+                            justifyContent: "center",
+                            alignItems: "center",
+                            flexDirection: "column",
+                          }}
+                        >
+                          {/* Render buttons and text for "Create" option */}
                           <p>Review the events to add to your calendar here</p>
                           <br></br>
                           <form onSubmit={handleFormSubmit}>
                             <label>What do you want to build?</label> <br></br>
-                            <input type="text" name="whatToBuild" value={formData.whatToBuild} onChange={handleFormChange} /> <br></br>
+                            <input
+                              type="text"
+                              name="whatToBuild"
+                              value={formData.whatToBuild}
+                              onChange={handleFormChange}
+                            />{" "}
+                            <br></br>
                             <label>When do you want to be done?</label> <br></br>
-                            <input type="date" name="deadline" value={formData.deadline} onChange={handleFormChange} /> <br></br>
-                            <label> How many hours a week do you want to allocate to this? </label> <br></br>
-                            <input type="number" name="hoursPerWeek" value={formData.hoursPerWeek} onChange={handleFormChange} /> <br></br>
+                            <input
+                              type="date"
+                              name="deadline"
+                              value={formData.deadline}
+                              onChange={handleFormChange}
+                            />{" "}
                             <br></br>
-                            <Button type="submit" >Create with AI</Button>
-                            </form>
-                            <Button>Advanced</Button>
+                            <label>
+                              {" "}
+                              How many hours a week do you want to allocate to
+                              this?{" "}
+                            </label>{" "}
                             <br></br>
-                          </div>
-                         {isInvalidFile && (
-                            <div
-                              style={{
-                                color: "#721c24",
-                                backgroundColor: "#f8d7da",
-                                borderColor: "#f5c6cb",
-                                padding: "10px",
-                                margin: "10px 0",
-                                border: "1px solid transparent",
-                                borderRadius: "4px",
-                              }}
-                            >
-                              <p>
-                                Invalid file type uploaded. Please upload only
-                                PDF, TIFF, JPG, JPEG, PNG, or BMP files.
-                              </p>
-                            </div>
-                          )}
-                            
-                          {isLoadingFile && (
-                            <div aria-label="Orange and tan hamster running in a metal wheel" role="img" class="wheel-and-hamster" style={{paddingTop: "20px"}}>
-                              <div class="wheel"></div>
-                                <div class="hamster">
-                                  <div class="hamster__body">
-                                    <div class="hamster__head">
-                                      <div class="hamster__ear"></div>
-                                      <div class="hamster__hat"> <div class="circle"></div></div>
-                                      <div class="hamster__eye"></div>
-                                      <div class="hamster__nose"></div>
-                                    </div>
-                                    <div class="hamster__limb hamster__limb--fr"></div>
-                                    <div class="hamster__limb hamster__limb--fl"></div>
-                                    <div class="hamster__limb hamster__limb--br"></div>
-                                    <div class="hamster__limb hamster__limb--bl"></div>
-                                    <div class="hamster__tail"></div>
-                                  </div>
+                            <input
+                              type="number"
+                              name="hoursPerWeek"
+                              value={formData.hoursPerWeek}
+                              onChange={handleFormChange}
+                            />{" "}
+                            <br></br>
+                            <br></br>
+                            <Button type="submit">Create with AI</Button>
+                          </form>
+                          <Button>Advanced</Button>
+                          <br></br>
+                        </div>
+                      )}
+                      {isInvalidFile && (
+                        <div
+                          style={{
+                            color: "#721c24",
+                            backgroundColor: "#f8d7da",
+                            borderColor: "#f5c6cb",
+                            padding: "10px",
+                            margin: "10px 0",
+                            border: "1px solid transparent",
+                            borderRadius: "4px",
+                          }}
+                        >
+                          <p>
+                            Invalid file type uploaded. Please upload only PDF,
+                            TIFF, JPG, JPEG, PNG, or BMP files.
+                          </p>
+                        </div>
+                      )}
+  
+                      {isLoadingFile && (
+                        <div
+                          aria-label="Orange and tan hamster running in a metal wheel"
+                          role="img"
+                          className="wheel-and-hamster"
+                          style={{ paddingTop: "20px" }}
+                        >
+                          <div className="wheel"></div>
+                          <div className="hamster">
+                            <div className="hamster__body">
+                              <div className="hamster__head">
+                                <div className="hamster__ear"></div>
+                                <div className="hamster__hat">
+                                  {" "}
+                                  <div className="circle"></div>
                                 </div>
-                              <div class="spoke"></div>
+                                <div className="hamster__eye"></div>
+                                <div className="hamster__nose"></div>
+                              </div>
+                              <div className="hamster__limb hamster__limb--fr"></div>
+                              <div className="hamster__limb hamster__limb--fl"></div>
+                              <div className="hamster__limb hamster__limb--br"></div>
+                              <div className="hamster__limb hamster__limb--bl"></div>
+                              <div className="hamster__tail"></div>
                             </div>
-                          )}
-
-                          {!isLoadingFile && isPromptShown && (
-                            <div
-                              style={{ marginLeft: "20px", marginTop: "15px" }}
-                            >
-                              <Prompt
-                                eventList={prompts.events}
-                                token={googleCalendarToken}
-                                email={UserEmail}
-                              />
-                            </div>
-                          )}
+                          </div>
+                          <div className="spoke"></div>
+                        </div>
+                      )}
+  
+                      {!isLoadingFile && isPromptShown && (
+                        <div
+                          style={{ marginLeft: "20px", marginTop: "15px" }}
+                        >
+                          <Prompt
+                            eventList={prompts.events}
+                            token={googleCalendarToken}
+                            email={UserEmail}
+                          />
                         </div>
                       )}
                     </div>
                   </div>
                 )}
-
+  
                 <div
-                  class="row"
+                  className="row"
                   style={{ display: "flex", alignItems: "center" }}
                 >
                   <div>
@@ -1027,39 +1066,39 @@ const Home = () => {
                       }}
                     />
                   </div>
-
+  
                   <div
-                    class="switch-container"
+                    className="switch-container"
                     style={{ transform: "scale(0.4)", position: "relative" }}
                   >
-                    <label class="theme-switch">
+                    <label className="theme-switch">
                       <input
                         type="checkbox"
-                        class="theme-switch__checkbox"
+                        className="theme-switch__checkbox"
                         onChange={handleChangeLightDarkMode}
                       />
-                      <div class="theme-switch__container">
-                        <div class="theme-switch__clouds"></div>
-                        <div class="theme-switch__stars-container">
+                      <div className="theme-switch__container">
+                        <div className="theme-switch__clouds"></div>
+                        <div className="theme-switch__stars-container">
                           <svg
                             xmlns="http://www.w3.org/2000/svg"
                             viewBox="0 0 144 55"
                             fill="none"
                           ></svg>
                         </div>
-                        <div class="theme-switch__circle-container">
-                          <div class="theme-switch__sun-moon-container">
+                        <div className="theme-switch__circle-container">
+                          <div className="theme-switch__sun-moon-container">
                             <div
-                              class={`theme-switch__moon${
+                              className={`theme-switch__moon${
                                 isMoonShowing ? " visible" : ""
                               }`}
                             >
-                              <div class="theme-switch__spot"></div>
-                              <div class="theme-switch__spot"></div>
-                              <div class="theme-switch__spot"></div>
+                              <div className="theme-switch__spot"></div>
+                              <div className="theme-switch__spot"></div>
+                              <div className="theme-switch__spot"></div>
                             </div>
                             <div
-                              class={`theme-switch__sun${
+                              className={`theme-switch__sun${
                                 isMoonShowing ? "" : " visible"
                               }`}
                             ></div>
@@ -1069,7 +1108,7 @@ const Home = () => {
                     </label>
                   </div>
                 </div>
-
+  
                 <div className="bubble bubble1"></div>
                 <div className="bubble bubble2"></div>
                 <div className="bubble bubble3"></div>
@@ -1087,5 +1126,5 @@ const Home = () => {
     </div>
   );
 };
-
-export default Home;
+  export default Home;
+  
