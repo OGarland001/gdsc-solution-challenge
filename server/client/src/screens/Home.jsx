@@ -923,7 +923,7 @@ const Home = () => {
                             Here your AI assistant can help you update your
                             calendar events
                           </p>
-                          <p>Heres some of your upcomming events:</p>
+                          <p>Here's some of your upcoming events:</p>
                           <ul style={{ textAlign: "left" }}>
                             {updateCalendarEvents(2)}
                             {events?.map((event) => (
@@ -935,8 +935,8 @@ const Home = () => {
                         </div>
                       )}
                       {formValue.radio === "Create" && (
-                        <div style={{ position: "relative", padding: "20px" }}>
-                          {/* Render buttons and text for "Create" option */}
+                        <div style={{ position: "relative", padding: "20px", display: "flex", justifyContent: "center", alignItems: "center", flexDirection: "column" }}>
+                        {/* Render buttons and text for "Create" option */}
                           <p>Review the events to add to your calendar here</p>
                           <br></br>
                           <form onSubmit={handleFormSubmit}>
@@ -970,21 +970,26 @@ const Home = () => {
                               </p>
                             </div>
                           )}
-
+                            
                           {isLoadingFile && (
-                            <div
-                              className="loader"
-                              style={{
-                                display: "flex",
-                                justifyContent: "center",
-                                alignItems: "center",
-                                height: "100px",
-                                position: "relative",
-                              }}
-                            >
-                              <span className="bar"></span>
-                              <span className="bar"></span>
-                              <span className="bar"></span>
+                            <div aria-label="Orange and tan hamster running in a metal wheel" role="img" class="wheel-and-hamster" style={{paddingTop: "20px"}}>
+                              <div class="wheel"></div>
+                                <div class="hamster">
+                                  <div class="hamster__body">
+                                    <div class="hamster__head">
+                                      <div class="hamster__ear"></div>
+                                      <div class="hamster__hat"> <div class="circle"></div></div>
+                                      <div class="hamster__eye"></div>
+                                      <div class="hamster__nose"></div>
+                                    </div>
+                                    <div class="hamster__limb hamster__limb--fr"></div>
+                                    <div class="hamster__limb hamster__limb--fl"></div>
+                                    <div class="hamster__limb hamster__limb--br"></div>
+                                    <div class="hamster__limb hamster__limb--bl"></div>
+                                    <div class="hamster__tail"></div>
+                                  </div>
+                                </div>
+                              <div class="spoke"></div>
                             </div>
                           )}
 
