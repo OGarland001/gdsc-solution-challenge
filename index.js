@@ -13,6 +13,7 @@ const aiplatform = require("@google-cloud/aiplatform");
 const { PredictionServiceClient } = aiplatform.v1;
 const { helpers } = aiplatform;
 const { v4: uuidv4 } = require("uuid");
+const { GoogleGenerativeAI} = require('@google/generative-ai');
 
 app.use(
   cors({
@@ -244,6 +245,7 @@ const calendarReferenceText =
 const addEventText =
   ' Convert the previous statment into a new format. Use this format (if there is no description leave blank): { "summary": "Event summary", “Description”: “Event Description”, "start": { "dateTime": "2023-04-10T10:00:00-07:00" }, "end": { "dateTime": "2023-04-10T11:00:00-07:00" } } ';
 
+  
 app.post("/palmrequest", async (req, res) => {
   try {
     const headers = {
@@ -411,6 +413,144 @@ app.get("/code_callback_endpoint", async (req, res) => {
   } catch (error) {
     console.error("Error exchanging code for tokens:", error);
     res.status(500).send("Error exchanging code for tokens.");
+  }
+});
+
+// app.post("/geminirequest", (req, res) => {
+//   const configuration = new GoogleGenerativeAI(process.env.api);
+//   const modelId = "gemini-1.5-pro-001";
+  
+//   const geminiConfig = {
+//     temperature: 0.9,
+//     topP: 1,
+//     topK: 1,
+//     maxOutputTokens: 4096,
+//   };
+
+//   const geminiModel = configuration.getGenerativeModel({
+//     model: modelId,
+//     geminiConfig
+//   })
+
+//   const currentDateTime = req.body.CurrentDateTime;
+//   const TimeZone = req.body.Timezone;
+
+//   if (state == "document") {
+//     documentPromptTxt =
+//       'From that context above Please extract any events and class times mentioned in the text provided below. This includes assignments, classes/lectures, project milestones, and other relevant activities. Ensure to include details such as event titles, descriptions, start times, and end times. The extracted information will be used to create new calendar events. Format the output in the JSON format specified below and make sure it is complete and finished must be full json. If no events are found or details are missing, please include "N/A" in the corresponding fields to ensure completeness and flexibility. this json format must be inside a array of events json objects the array must be called "events" that contain this :{id: 1, summary: "testEvent1", description: "testDescription1", endTime: "2024-02-19T09:00:00-05:00", startTime: "2024-02-17T09:00:00-05:00",} Ensure that if anything you generate is not in the format provided, please replace it with an event :{id: 1, summary: "N/A", description: "N/A", endTime: "2024-02-19T09:00:00-05:00", startTime: "2024-02-17T09:00:00-05:00",}. The context for the document starts now: ';
+//     data = {
+//       instances: [
+//         {
+//           prompt:
+//             calendarReferenceText +
+//             " the current date and time is " +
+//             currentDateTime +
+//             " in this time zone: " +
+//             TimeZone +
+//             documentPromptTxt +
+//             req.body.Prompt,
+//         },
+//       ],
+//     };
+//   }
+
+//   const generateRequest = async () => {
+//     try 
+//     {
+//       const prompt = req.body.prompt;
+//       const result = await geminiModel.generateContent(prompt);
+//       const geminiResponse = result.response.json();
+
+//       if(geminiResponse.ok)
+//       {
+//         console.log(geminiResponse);
+//         res.status(200).send({geminiResponse});
+//       }
+//       else 
+//       {
+//         console.log('Error contacting gemini model...');
+//       }
+      
+//     } catch (error) 
+//     {
+//       console.log("Gemini model threw an unexepected error: ", error);
+//     }
+//   }
+
+//   generateRequest();
+
+// });
+
+app.post("/geminiRequest", async (req, res) => {
+  try {
+    const { State, Context, CurrentDateTime, Timezone, Prompt } = req.body;
+
+    const configuration = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+    const modelId = "gemini-1.5-pro-001";
+    const geminiConfig = {
+      temperature: 0.9,
+      topP: 1,
+      topK: 1,
+      maxOutputTokens: 4096,
+    };
+
+    const geminiModel = configuration.getGenerativeModel({
+      model: modelId,
+      geminiConfig,
+    });
+
+    const calendarReferenceText = " here is the list of my calendar events for reference: ";
+    let promptTxt;
+
+    const commonPromptTxt =
+      'Please extract any events and class times mentioned in the text provided. This includes assignments, classes/lectures, project milestones, and other relevant activities. Ensure to include details such as event titles, descriptions, start times, and end times. Format the output in JSON format specified below and make sure it is complete.';
+
+    if (State === "document") {
+      const documentPromptTxt =
+        `${commonPromptTxt} If no events are found or details are missing, please include "N/A" in the corresponding fields. The JSON format should be inside an array called "events" with objects like {id: 1, summary: "testEvent1", description: "testDescription1", endTime: "2024-02-19T09:00:00-05:00", startTime: "2024-02-17T09:00:00-05:00"}.`;
+
+      promptTxt = `${calendarReferenceText} the current date and time is ${CurrentDateTime} in this time zone: ${Timezone}. ${documentPromptTxt} ${Prompt}`;
+    }
+    else {
+      const userEvents = parseEventData(Context);
+      promptTxt = `${Prompt} ${calendarReferenceText} ${userEvents} the current date and time is ${CurrentDateTime} in this time zone: ${Timezone}`;
+    }
+
+    const generateRequest = async () => {
+      try {
+        const result = await geminiModel.generateContent(promptTxt);
+        const geminiResponse = await result.response;
+
+        if (geminiResponse !== null) {
+          var responseFormatted = geminiResponse.text();
+          // var finalResponse = JSON.parse(responseJSON)
+          
+          console.log(responseFormatted);
+
+          if(State === 'document')
+          {
+  
+            res.status(200).send({prediction: responseFormatted});
+          }
+          else
+          {
+            res.status(200).send({prediction: responseFormatted});
+          }
+          
+        } else {
+          console.log("Error contacting gemini model...");
+          res.status(500).send({ error: "Gemini model request failed" });
+        }
+      } catch (error) {
+        console.log("Gemini model threw an unexpected error: ", error);
+        res.status(500).send({ error: "Gemini model error" });
+      }
+    };
+
+    await generateRequest();
+  } catch (error) {
+    console.error("Error in geminiRequest:", error.message);
+    res.status(500).json({ error: "Internal Server Error" });
   }
 });
 

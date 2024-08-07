@@ -398,7 +398,7 @@ const Home = () => {
 
       
 
-      const response = await fetch("/palmrequest", {
+      const response = await fetch("/geminiRequest", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -507,7 +507,7 @@ function ensureValidJSON(jsonString) {
       // Make call to the palmAI and then console log the events pulled from the data.
       const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
       const currentDateTimeString = new Date().toLocaleString();
-      const palmResponse = await fetch("/palmrequest", {
+      const palmResponse = await fetch("/geminiRequest", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -526,7 +526,7 @@ function ensureValidJSON(jsonString) {
         var dataStr = palmData.prediction.replace("```", "");
         var newdataStr = dataStr.replace("```", "");
         newdataStr = newdataStr.slice(5);
-        newdataStr = ensureValidJSON(newdataStr);
+        //newdataStr = ensureValidJSON(newdataStr);
         console.log("STR data: ", newdataStr);
         let eventsList = JSON.parse(newdataStr);
         console.log("Received data: ", eventsList);
