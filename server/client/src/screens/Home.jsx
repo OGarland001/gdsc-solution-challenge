@@ -34,6 +34,28 @@ const Home = () => {
   const [isInvalidFile, setIsInvalidFile] = useState(false);
   const [showButton, setShowButton] = useState(true);
   const [weeks, setWeeks] = useState(1);
+  const [formData, setFormData] = useState({
+    whatToBuild: "",
+    deadline: "",
+    hoursPerWeek: "",
+  });
+
+  const handleFormChange = (event) => {
+    setFormData({
+      ...formData,
+      [event.target.name]: event.target.value,
+    });
+  };
+
+  const handleFormSubmit = async (event) => {
+    event.preventDefault();
+    try {
+      const response = await axios.post("/your-backend-endpoint", formData); // Replace with your backend endpoint
+      console.log(response.data); // Handle successful response
+    } catch (error) {
+      console.error(error); // Handle error
+    }
+  };
 
   const handleChangeLightDarkMode = () => {
     setIsMoonShowing(!isMoonShowing);
@@ -396,8 +418,6 @@ const Home = () => {
       setIsLoading(true);
       setAiResponse("");
 
-      
-
       const response = await fetch("/palmrequest", {
         method: "POST",
         headers: {
@@ -424,37 +444,34 @@ const Home = () => {
     }
   };
 
+  function ensureValidJSON(jsonString) {
+    jsonString = jsonString.trim();
 
-
-function ensureValidJSON(jsonString) {
-  jsonString = jsonString.trim();
-
-  var tempJsonString = jsonString.replace(/\n/g, ' ');
-  tempJsonString = tempJsonString.replace(/\s+/g, ' ').trim();
-  console.log(tempJsonString);
-  if (tempJsonString.endsWith('} ] }')) {
+    var tempJsonString = jsonString.replace(/\n/g, " ");
+    tempJsonString = tempJsonString.replace(/\s+/g, " ").trim();
+    console.log(tempJsonString);
+    if (tempJsonString.endsWith("} ] }")) {
       console.log(jsonString);
       return tempJsonString;
-  }
+    }
 
-  let lastBracketIndex = jsonString.lastIndexOf('}');
-  if (lastBracketIndex !== -1) {
-
+    let lastBracketIndex = jsonString.lastIndexOf("}");
+    if (lastBracketIndex !== -1) {
       let remainingChars = jsonString.slice(lastBracketIndex + 1).trim();
-      if (remainingChars.length > 0 && !remainingChars.startsWith('}')) {
-          jsonString = jsonString.slice(0, lastBracketIndex + 1);
+      if (remainingChars.length > 0 && !remainingChars.startsWith("}")) {
+        jsonString = jsonString.slice(0, lastBracketIndex + 1);
       }
+    }
+
+    let incompleteKeyRegex = /("[^"]+"\s*:\s*}),?/g;
+    jsonString = jsonString.replace(incompleteKeyRegex, "");
+
+    if (!jsonString.endsWith("} ] }")) {
+      jsonString += "] }";
+    }
+
+    return jsonString;
   }
-
-  let incompleteKeyRegex = /("[^"]+"\s*:\s*}),?/g;
-  jsonString = jsonString.replace(incompleteKeyRegex, '');
-
-  if (!jsonString.endsWith('} ] }')) {
-      jsonString += '] }';
-  }
-
-  return jsonString;
-}
 
   const allowedFileTypes = [
     "application/pdf",
@@ -501,8 +518,8 @@ function ensureValidJSON(jsonString) {
 
       var result = data.message;
 
-      result = result.replace(/\n/g, ' ');
-      result = result.replace(/\s+/g, ' ').trim();
+      result = result.replace(/\n/g, " ");
+      result = result.replace(/\s+/g, " ").trim();
 
       // Make call to the palmAI and then console log the events pulled from the data.
       const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
@@ -921,18 +938,36 @@ function ensureValidJSON(jsonString) {
                         <div style={{ position: "relative", padding: "20px" }}>
                           {/* Render buttons and text for "Create" option */}
                           <p>Review the events to add to your calendar here</p>
-
-                          {isInvalidFile && (
-                            <div style={{
-                              color: '#721c24',
-                              backgroundColor: '#f8d7da',
-                              borderColor: '#f5c6cb',
-                              padding: '10px',
-                              margin: '10px 0',
-                              border: '1px solid transparent',
-                              borderRadius: '4px'
-                            }}>
-                              <p>Invalid file type uploaded. Please upload only PDF, TIFF, JPG, JPEG, PNG, or BMP files.</p>
+                          <br></br>
+                          <form onSubmit={handleFormSubmit}>
+                            <label>What do you want to build?</label> <br></br>
+                            <input type="text" name="whatToBuild" value={formData.whatToBuild} onChange={handleFormChange} /> <br></br>
+                            <label>When do you want to be done?</label> <br></br>
+                            <input type="date" name="deadline" value={formData.deadline} onChange={handleFormChange} /> <br></br>
+                            <label> How many hours a week do you want to allocate to this? </label> <br></br>
+                            <input type="number" name="hoursPerWeek" value={formData.hoursPerWeek} onChange={handleFormChange} /> <br></br>
+                            <br></br>
+                            <Button type="submit" >Create with AI</Button>
+                            </form>
+                            <Button>Advanced</Button>
+                            <br></br>
+                          </div>
+                         {isInvalidFile && (
+                            <div
+                              style={{
+                                color: "#721c24",
+                                backgroundColor: "#f8d7da",
+                                borderColor: "#f5c6cb",
+                                padding: "10px",
+                                margin: "10px 0",
+                                border: "1px solid transparent",
+                                borderRadius: "4px",
+                              }}
+                            >
+                              <p>
+                                Invalid file type uploaded. Please upload only
+                                PDF, TIFF, JPG, JPEG, PNG, or BMP files.
+                              </p>
                             </div>
                           )}
 
