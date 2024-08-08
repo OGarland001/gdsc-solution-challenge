@@ -10,6 +10,7 @@ import logo from "./images/logo.png";
 import upload from "./images/upload.png";
 import promptWizard from "./images/PromptWizard.png";
 import TypingEffect from "./TypingEffect";
+import axios from "axios";
 import { GoogleLogin } from "@react-oauth/google";
 const SCOPE = "https://www.googleapis.com/auth/calendar";
 
@@ -418,8 +419,6 @@ const Home = () => {
       setIsLoading(true);
       setAiResponse("");
 
-      
-
       const response = await fetch("/geminiRequest", {
         method: "POST",
         headers: {
@@ -488,6 +487,7 @@ const Home = () => {
   const handleChange = async (event) => {
     const file = event.target.files[0];
     setIsInvalidFile(false);
+    setIsPromptShown(true);
 
     // Check if the file type is valid
     if (!allowedFileTypes.includes(file.type)) {
@@ -552,7 +552,7 @@ const Home = () => {
 
         // Check if any of the events contain "N/A" or null in the summary or description
         let errorsFound = false;
-        eventsList.events.forEach((event) => {
+        eventsList.forEach((event) => {
           if (event.summary === "N/A" || event.summary === null) {
             errorsFound = true;
 
@@ -839,7 +839,7 @@ const Home = () => {
                 </div>
 
                 {user && isShown && isAuthorizedWithCalendar && (
-                  <div class="scroll-content">
+                  <div className="scroll-content">
                     <div>
                       {/* Conditionally render different buttons and text based on the selected radio option */}
                       <div>
@@ -937,75 +937,115 @@ const Home = () => {
                         </div>
                       )}
                       {formValue.radio === "Create" && (
-                        <div style={{ position: "relative", padding: "20px", display: "flex", justifyContent: "center", alignItems: "center", flexDirection: "column" }}>
-                        {/* Render buttons and text for "Create" option */}
-                          <p>Review the events to add to your calendar here</p>
-                          <br></br>
+                        <div
+                          style={{
+                            position: "relative",
+                            padding: "20px",
+                            display: "flex",
+                            justifyContent: "center",
+                            alignItems: "center",
+                            flexDirection: "column",
+                          }}
+                        ></div>
+                      )}
+                      {/* 
+                      {!isPromptShown && (
+                        <div>
+                          {/* Render buttons and text for "Create" option */}
+                      {/* <p>Review the events to add to your calendar here</p>
+                          <br />
                           <form onSubmit={handleFormSubmit}>
-                            <label>What do you want to build?</label> <br></br>
-                            <input type="text" name="whatToBuild" value={formData.whatToBuild} onChange={handleFormChange} /> <br></br>
-                            <label>When do you want to be done?</label> <br></br>
-                            <input type="date" name="deadline" value={formData.deadline} onChange={handleFormChange} /> <br></br>
-                            <label> How many hours a week do you want to allocate to this? </label> <br></br>
-                            <input type="number" name="hoursPerWeek" value={formData.hoursPerWeek} onChange={handleFormChange} /> <br></br>
-                            <br></br>
-                            <Button type="submit" >Create with AI</Button>
-                            </form>
-                            <Button>Advanced</Button>
-                            <br></br>
-                          </div>
-                         {isInvalidFile && (
-                            <div
-                              style={{
-                                color: "#721c24",
-                                backgroundColor: "#f8d7da",
-                                borderColor: "#f5c6cb",
-                                padding: "10px",
-                                margin: "10px 0",
-                                border: "1px solid transparent",
-                                borderRadius: "4px",
-                              }}
-                            >
-                              <p>
-                                Invalid file type uploaded. Please upload only
-                                PDF, TIFF, JPG, JPEG, PNG, or BMP files.
-                              </p>
-                            </div>
-                          )}
-                            
-                          {isLoadingFile && (
-                            <div aria-label="Orange and tan hamster running in a metal wheel" role="img" class="wheel-and-hamster" style={{paddingTop: "20px"}}>
-                              <div class="wheel"></div>
-                                <div class="hamster">
-                                  <div class="hamster__body">
-                                    <div class="hamster__head">
-                                      <div class="hamster__ear"></div>
-                                      <div class="hamster__hat"> <div class="circle"></div></div>
-                                      <div class="hamster__eye"></div>
-                                      <div class="hamster__nose"></div>
-                                    </div>
-                                    <div class="hamster__limb hamster__limb--fr"></div>
-                                    <div class="hamster__limb hamster__limb--fl"></div>
-                                    <div class="hamster__limb hamster__limb--br"></div>
-                                    <div class="hamster__limb hamster__limb--bl"></div>
-                                    <div class="hamster__tail"></div>
-                                  </div>
+                            <label>What do you want to build?</label>
+                            <br />
+                            <input
+                              type="text"
+                              name="whatToBuild"
+                              value={formData.whatToBuild}
+                              onChange={handleFormChange}
+                            />
+                            <br />
+                            <label>When do you want to be done?</label>
+                            <br />
+                            <input
+                              type="date"
+                              name="deadline"
+                              value={formData.deadline}
+                              onChange={handleFormChange}
+                            />
+                            <br />
+                            <label>
+                              How many hours a week do you want to allocate to
+                              this?
+                            </label>
+                            <br />
+                            <input
+                              type="number"
+                              name="hoursPerWeek"
+                              value={formData.hoursPerWeek}
+                              onChange={handleFormChange}
+                            />
+                            <br />
+                            <br />
+                            <Button type="submit">Create with AI</Button>
+                          </form>
+                          <Button>Advanced</Button>
+                          <br />
+                        </div>
+                      )} */}
+                      {/* */}
+                      {isInvalidFile && (
+                        <div
+                          style={{
+                            color: "#721c24",
+                            backgroundColor: "#f8d7da",
+                            borderColor: "#f5c6cb",
+                            padding: "10px",
+                            margin: "10px 0",
+                            border: "1px solid transparent",
+                            borderRadius: "4px",
+                          }}
+                        >
+                          <p>
+                            Invalid file type uploaded. Please upload only PDF,
+                            TIFF, JPG, JPEG, PNG, or BMP files.
+                          </p>
+                        </div>
+                      )}
+                      {isLoadingFile && (
+                        <div
+                          aria-label="Orange and tan hamster running in a metal wheel"
+                          role="img"
+                          className="wheel-and-hamster"
+                          style={{ paddingTop: "20px" }}
+                        >
+                          <div className="wheel"></div>
+                          <div className="hamster">
+                            <div className="hamster__body">
+                              <div className="hamster__head">
+                                <div className="hamster__ear"></div>
+                                <div className="hamster__hat">
+                                  <div className="circle"></div>
                                 </div>
-                              <div class="spoke"></div>
+                                <div className="hamster__eye"></div>
+                                <div className="hamster__nose"></div>
+                              </div>
+                              <div className="hamster__limb hamster__limb--fr"></div>
+                              <div className="hamster__limb hamster__limb--fl"></div>
+                              <div className="hamster__limb hamster__limb--br"></div>
+                              <div className="hamster__limb hamster__limb--bl"></div>
+                              <div className="hamster__tail"></div>
                             </div>
-                          )}
-
-                          {!isLoadingFile && isPromptShown && (
-                            <div
-                              style={{ marginLeft: "20px", marginTop: "15px" }}
-                            >
-                              <Prompt
-                                eventList={prompts.events}
-                                token={googleCalendarToken}
-                                email={UserEmail}
-                              />
-                            </div>
-                          )}
+                          </div>
+                          <div className="spoke"></div>
+                        </div>
+                      )}
+                      {!isLoadingFile && isPromptShown && (
+                        <div style={{ marginLeft: "20px", marginTop: "15px" }}>
+                          <Prompt
+                            eventList={prompts}
+                            token={googleCalendarToken}
+                            email={UserEmail}
+                          />
                         </div>
                       )}
                     </div>
