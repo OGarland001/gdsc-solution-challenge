@@ -50,12 +50,12 @@ const Home = () => {
 
   const handleFormSubmit = async (event) => {
     event.preventDefault();
-    try {
-      const response = await axios.post("/your-backend-endpoint", formData); // Replace with your backend endpoint
-      console.log(response.data); // Handle successful response
-    } catch (error) {
-      console.error(error); // Handle error
-    }
+    // try {
+    //   const response = await axios.post("/your-backend-endpoint", formData); // Replace with your backend endpoint
+    //   console.log(response.data); // Handle successful response
+    // } catch (error) {
+    //   console.error(error); // Handle error
+    // }
   };
 
   const handleChangeLightDarkMode = () => {
@@ -663,7 +663,7 @@ const Home = () => {
         <button
           onClick={handleGoogleAuth}
           type="button"
-          class="login-with-google-btn"
+          className="login-with-google-btn"
         >
           Sign in with Google
         </button>
@@ -1011,6 +1011,7 @@ const Home = () => {
                           </p>
                         </div>
                       )}
+
                       {isLoadingFile && (
                         <div
                           aria-label="Orange and tan hamster running in a metal wheel"
@@ -1024,6 +1025,7 @@ const Home = () => {
                               <div className="hamster__head">
                                 <div className="hamster__ear"></div>
                                 <div className="hamster__hat">
+                                  {" "}
                                   <div className="circle"></div>
                                 </div>
                                 <div className="hamster__eye"></div>
@@ -1053,7 +1055,7 @@ const Home = () => {
                 )}
 
                 <div
-                  class="row"
+                  className="row"
                   style={{ display: "flex", alignItems: "center" }}
                 >
                   <div>
@@ -1069,37 +1071,37 @@ const Home = () => {
                   </div>
 
                   <div
-                    class="switch-container"
+                    className="switch-container"
                     style={{ transform: "scale(0.4)", position: "relative" }}
                   >
-                    <label class="theme-switch">
+                    <label className="theme-switch">
                       <input
                         type="checkbox"
-                        class="theme-switch__checkbox"
+                        className="theme-switch__checkbox"
                         onChange={handleChangeLightDarkMode}
                       />
-                      <div class="theme-switch__container">
-                        <div class="theme-switch__clouds"></div>
-                        <div class="theme-switch__stars-container">
+                      <div className="theme-switch__container">
+                        <div className="theme-switch__clouds"></div>
+                        <div className="theme-switch__stars-container">
                           <svg
                             xmlns="http://www.w3.org/2000/svg"
                             viewBox="0 0 144 55"
                             fill="none"
                           ></svg>
                         </div>
-                        <div class="theme-switch__circle-container">
-                          <div class="theme-switch__sun-moon-container">
+                        <div className="theme-switch__circle-container">
+                          <div className="theme-switch__sun-moon-container">
                             <div
-                              class={`theme-switch__moon${
+                              className={`theme-switch__moon${
                                 isMoonShowing ? " visible" : ""
                               }`}
                             >
-                              <div class="theme-switch__spot"></div>
-                              <div class="theme-switch__spot"></div>
-                              <div class="theme-switch__spot"></div>
+                              <div className="theme-switch__spot"></div>
+                              <div className="theme-switch__spot"></div>
+                              <div className="theme-switch__spot"></div>
                             </div>
                             <div
-                              class={`theme-switch__sun${
+                              className={`theme-switch__sun${
                                 isMoonShowing ? "" : " visible"
                               }`}
                             ></div>
@@ -1127,5 +1129,4 @@ const Home = () => {
     </div>
   );
 };
-
 export default Home;
