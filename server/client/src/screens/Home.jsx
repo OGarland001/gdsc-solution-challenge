@@ -387,8 +387,31 @@ const Home = () => {
     tokenClient.requestAccessToken();
   };
 
-  const handleInputFieldChange = (e) => {
-    setFormValue({ ...formValue, prompt: e.target.value }); // Update formValue with prompt property
+  const handleRadioChange = (e) => {
+    const { value } = e.target;
+
+    // Add your additional logic here
+    console.log(`Radio button changed to: ${value}`);
+
+    // Perform some additional actions based on the value
+    if (value === "Create") {
+      // Do something specific for 'Create'
+      setIsPromptShown(true);
+    } else if (value === "Upload") {
+      // Do something specific for 'Upload'
+      setIsPromptShown(false);
+    } else if (value === "Update") {
+      // Do something specific for 'Update'
+      setIsPromptShown(false);
+    } else if (value === "Ask") {
+      setIsPromptShown(false);
+    }
+
+    // Update the state
+    setFormValue({
+      ...formValue,
+      radio: value,
+    });
   };
 
   const handleInputSubmit = async (e) => {
@@ -487,7 +510,6 @@ const Home = () => {
   const handleChange = async (event) => {
     const file = event.target.files[0];
     setIsInvalidFile(false);
-    setIsPromptShown(true);
 
     // Check if the file type is valid
     if (!allowedFileTypes.includes(file.type)) {
@@ -571,6 +593,7 @@ const Home = () => {
         if (errorsFound) {
           alert("Errors have been found in the event data.");
         }
+        setIsPromptShown(true);
         setPrompts(eventsList);
         setIsLoadingFile(false);
         getPromptEvents();
@@ -778,12 +801,7 @@ const Home = () => {
                               name="radio"
                               value="Ask"
                               checked={formValue.radio === "Ask"}
-                              onChange={(e) =>
-                                setFormValue({
-                                  ...formValue,
-                                  radio: e.target.value,
-                                })
-                              }
+                              onChange={handleRadioChange}
                             />
                             <span className="name">Ask</span>
                           </label>
@@ -793,12 +811,7 @@ const Home = () => {
                               name="radio"
                               value="Upload"
                               checked={formValue.radio === "Upload"}
-                              onChange={(e) =>
-                                setFormValue({
-                                  ...formValue,
-                                  radio: e.target.value,
-                                })
-                              }
+                              onChange={handleRadioChange}
                             />
                             <span className="name">Upload</span>
                           </label>
@@ -808,12 +821,7 @@ const Home = () => {
                               name="radio"
                               value="Update"
                               checked={formValue.radio === "Update"}
-                              onChange={(e) =>
-                                setFormValue({
-                                  ...formValue,
-                                  radio: e.target.value,
-                                })
-                              }
+                              onChange={handleRadioChange}
                             />
                             <span className="name">Update</span>
                           </label>
@@ -823,12 +831,7 @@ const Home = () => {
                               name="radio"
                               value="Create"
                               checked={formValue.radio === "Create"}
-                              onChange={(e) =>
-                                setFormValue({
-                                  ...formValue,
-                                  radio: e.target.value,
-                                })
-                              }
+                              onChange={handleRadioChange}
                             />
                             <span className="name">Create</span>
                           </label>
