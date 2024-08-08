@@ -48,14 +48,106 @@ const Home = () => {
     });
   };
 
+  const checkIFPromptsLoaded = () => {
+    if (prompts.length === 0 && !isLoadingFile) {
+      return true;
+    } else {
+      return false;
+    }
+  };
+
   const handleFormSubmit = async (event) => {
     event.preventDefault();
-    // try {
-    //   const response = await axios.post("/your-backend-endpoint", formData); // Replace with your backend endpoint
-    //   console.log(response.data); // Handle successful response
-    // } catch (error) {
-    //   console.error(error); // Handle error
-    // }
+    try {
+      const currentDate = new Date();
+
+      // Convert the string date to a Date object
+      const deadlineDate = new Date(formData.deadline);
+
+      // Calculate the difference in time
+      const differenceInTime = deadlineDate - currentDate;
+
+      // Convert the difference from milliseconds to days
+      const differenceInDays = differenceInTime / (1000 * 3600 * 24);
+
+      // Calculate the number of weeks
+      const numberOfWeeks = Math.floor(differenceInDays / 7);
+
+      updateCalendarEvents(numberOfWeeks + 1);
+      const eventDataToSend = events.map((event) => {
+        const eventData = {
+          summary: event.summary,
+          start: event.start,
+        };
+        if (event.end) {
+          eventData.end = event.end;
+        }
+        return eventData;
+      });
+
+      const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+      const currentDateTimeString = new Date().toLocaleString();
+
+      setIsLoadingFile(true);
+      const palmResponse = await fetch("/geminiRequest", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          Context: JSON.stringify(eventDataToSend),
+          Prompt: JSON.stringify(formData),
+          CurrentDateTime: currentDateTimeString,
+          Timezone: userTimezone,
+          State: "createWithAI",
+        }),
+      });
+
+      if (palmResponse.ok) {
+        const palmData = await palmResponse.json();
+        var dataStr = palmData.prediction.replace("```", "");
+        var newdataStr = dataStr.replace("```", "");
+        newdataStr = newdataStr.slice(4);
+        //newdataStr = ensureValidJSON(newdataStr);
+        console.log("STR data: ", newdataStr);
+        let eventsList = JSON.parse(newdataStr);
+        console.log("Received data: ", eventsList);
+
+        // Check if any of the events contain "N/A" or null in the summary or description
+        let errorsFound = false;
+        eventsList.forEach((event) => {
+          if (event.summary === "N/A" || event.summary === null) {
+            errorsFound = true;
+
+            event.summary = "!";
+            console.error("Error found in event summary: ", event);
+          }
+
+          if (event.description === "N/A" || event.description === null) {
+            errorsFound = true;
+
+            event.description = "!";
+            console.error("Error found in event description: ", event);
+          }
+        });
+
+        if (errorsFound) {
+          alert("Errors have been found in the event data.");
+        }
+        setIsPromptShown(true);
+        setPrompts(eventsList);
+        setIsLoadingFile(false);
+        getPromptEvents();
+        try {
+          localStorage.removeItem("revertIdList");
+          localStorage.removeItem("eventsAdded");
+        } catch {}
+      } else {
+        throw new Error("Failed to fetch predictions");
+      }
+    } catch (error) {
+      console.error(error); // Handle error
+    }
   };
 
   const handleChangeLightDarkMode = () => {
@@ -566,7 +658,7 @@ const Home = () => {
         const palmData = await palmResponse.json();
         var dataStr = palmData.prediction.replace("```", "");
         var newdataStr = dataStr.replace("```", "");
-        newdataStr = newdataStr.slice(5);
+        newdataStr = newdataStr.slice(4);
         //newdataStr = ensureValidJSON(newdataStr);
         console.log("STR data: ", newdataStr);
         let eventsList = JSON.parse(newdataStr);
@@ -940,42 +1032,108 @@ const Home = () => {
                         </div>
                       )}
                       {formValue.radio === "Create" && (
-                        <div style={{ position: "relative", padding: "20px", display: "flex", justifyContent: "center", alignItems: "center", flexDirection: "column" }}>
-                        {/* Render buttons and text for "Create" option */}
+                        <div
+                          style={{
+                            position: "relative",
+                            padding: "20px",
+                            display: "flex",
+                            justifyContent: "center",
+                            alignItems: "center",
+                            flexDirection: "column",
+                          }}
+                        >
+                          {/* Render buttons and text for "Create" option */}
                           <p>Review the events to add to your calendar here</p>
 
                           {isInvalidFile && (
-                            <div style={{
-                              color: '#721c24',
-                              backgroundColor: '#f8d7da',
-                              borderColor: '#f5c6cb',
-                              padding: '10px',
-                              margin: '10px 0',
-                              border: '1px solid transparent',
-                              borderRadius: '4px'
-                            }}>
-                              <p>Invalid file type uploaded. Please upload only PDF, TIFF, JPG, JPEG, PNG, or BMP files.</p>
+                            <div
+                              style={{
+                                color: "#721c24",
+                                backgroundColor: "#f8d7da",
+                                borderColor: "#f5c6cb",
+                                padding: "10px",
+                                margin: "10px 0",
+                                border: "1px solid transparent",
+                                borderRadius: "4px",
+                              }}
+                            >
+                              <p>
+                                Invalid file type uploaded. Please upload only
+                                PDF, TIFF, JPG, JPEG, PNG, or BMP files.
+                              </p>
                             </div>
                           )}
-                            
+                          {checkIFPromptsLoaded() && (
+                            <div>
+                              <br></br>
+                              <form onSubmit={handleFormSubmit}>
+                                <label>What do you want to build?</label>{" "}
+                                <br></br>
+                                <input
+                                  type="text"
+                                  style={{ color: "black" }}
+                                  name="whatToBuild"
+                                  value={formData.whatToBuild}
+                                  onChange={handleFormChange}
+                                />{" "}
+                                <br></br>
+                                <label>When do you want to be done?</label>{" "}
+                                <br></br>
+                                <input
+                                  type="date"
+                                  style={{ color: "black" }}
+                                  name="deadline"
+                                  value={formData.deadline}
+                                  onChange={handleFormChange}
+                                />{" "}
+                                <br></br>
+                                <label>
+                                  {" "}
+                                  How many hours a week do you want to allocate
+                                  to this?{" "}
+                                </label>{" "}
+                                <br></br>
+                                <input
+                                  type="number"
+                                  style={{ color: "black" }}
+                                  name="hoursPerWeek"
+                                  value={formData.hoursPerWeek}
+                                  onChange={handleFormChange}
+                                />{" "}
+                                <br></br>
+                                <br></br>
+                                <Button type="submit">Create with AI</Button>
+                              </form>
+                              <Button>Advanced</Button>
+                              <br></br>
+                            </div>
+                          )}
                           {isLoadingFile && (
-                            <div aria-label="Orange and tan hamster running in a metal wheel" role="img" class="wheel-and-hamster" style={{paddingTop: "20px"}}>
+                            <div
+                              aria-label="Orange and tan hamster running in a metal wheel"
+                              role="img"
+                              class="wheel-and-hamster"
+                              style={{ paddingTop: "20px" }}
+                            >
                               <div class="wheel"></div>
-                                <div class="hamster">
-                                  <div class="hamster__body">
-                                    <div class="hamster__head">
-                                      <div class="hamster__ear"></div>
-                                      <div class="hamster__hat"> <div class="circle"></div></div>
-                                      <div class="hamster__eye"></div>
-                                      <div class="hamster__nose"></div>
+                              <div class="hamster">
+                                <div class="hamster__body">
+                                  <div class="hamster__head">
+                                    <div class="hamster__ear"></div>
+                                    <div class="hamster__hat">
+                                      {" "}
+                                      <div class="circle"></div>
                                     </div>
-                                    <div class="hamster__limb hamster__limb--fr"></div>
-                                    <div class="hamster__limb hamster__limb--fl"></div>
-                                    <div class="hamster__limb hamster__limb--br"></div>
-                                    <div class="hamster__limb hamster__limb--bl"></div>
-                                    <div class="hamster__tail"></div>
+                                    <div class="hamster__eye"></div>
+                                    <div class="hamster__nose"></div>
                                   </div>
+                                  <div class="hamster__limb hamster__limb--fr"></div>
+                                  <div class="hamster__limb hamster__limb--fl"></div>
+                                  <div class="hamster__limb hamster__limb--br"></div>
+                                  <div class="hamster__limb hamster__limb--bl"></div>
+                                  <div class="hamster__tail"></div>
                                 </div>
+                              </div>
                               <div class="spoke"></div>
                             </div>
                           )}

@@ -13,7 +13,7 @@ const aiplatform = require("@google-cloud/aiplatform");
 const { PredictionServiceClient } = aiplatform.v1;
 const { helpers } = aiplatform;
 const { v4: uuidv4 } = require("uuid");
-const { GoogleGenerativeAI} = require('@google/generative-ai');
+const { GoogleGenerativeAI } = require("@google/generative-ai");
 
 app.use(
   cors({
@@ -245,159 +245,155 @@ const calendarReferenceText =
 const addEventText =
   ' Convert the previous statment into a new format. Use this format (if there is no description leave blank): { "summary": "Event summary", “Description”: “Event Description”, "start": { "dateTime": "2023-04-10T10:00:00-07:00" }, "end": { "dateTime": "2023-04-10T11:00:00-07:00" } } ';
 
-  
-app.post("/palmrequest", async (req, res) => {
-  try {
-    const headers = {
-      Authorization: `Bearer ${await getIdToken()}`,
-      "Content-Type": "application/json",
-    };
+// app.post("/palmrequest", async (req, res) => {
+//   try {
+//     const headers = {
+//       Authorization: `Bearer ${await getIdToken()}`,
+//       "Content-Type": "application/json",
+//     };
 
-    //console.log(req.body.Context);
-    const state = req.body.State;
-    var palmContext = req.body.Context;
-    const currentDateTime = req.body.CurrentDateTime;
-    const TimeZone = req.body.Timezone;
+//     //console.log(req.body.Context);
+//     const state = req.body.State;
+//     var palmContext = req.body.Context;
+//     const currentDateTime = req.body.CurrentDateTime;
+//     const TimeZone = req.body.Timezone;
 
+//     console.log("time zone:", TimeZone);
+//     console.log("current time", currentDateTime);
 
-    console.log("time zone:", TimeZone);
-    console.log("current time", currentDateTime);
+//     console.log(palmContext);
+//     var data = null;
 
-    
+//     if (state == "document") {
+//       documentPromptTxt =
+//         'From that context above Please extract any events and class times mentioned in the text provided below. This includes assignments, classes/lectures, project milestones, and other relevant activities. Ensure to include details such as event titles, descriptions, start times, and end times. The extracted information will be used to create new calendar events. Format the output in the JSON format specified below and make sure it is complete and finished must be full json. If no events are found or details are missing, please include "N/A" in the corresponding fields to ensure completeness and flexibility. this json format must be inside a array of events json objects the array must be called "events" that contain this :{id: 1, summary: "testEvent1", description: "testDescription1", endTime: "2024-02-19T09:00:00-05:00", startTime: "2024-02-17T09:00:00-05:00",} Ensure that if anything you generate is not in the format provided, please replace it with an event :{id: 1, summary: "N/A", description: "N/A", endTime: "2024-02-19T09:00:00-05:00", startTime: "2024-02-17T09:00:00-05:00",}. The context for the document starts now: ';
+//       data = {
+//         instances: [
+//           {
+//             prompt:
+//               calendarReferenceText +
+//               " the current date and time is " +
+//               currentDateTime +
+//               " in this time zone: " +
+//               TimeZone +
+//               documentPromptTxt +
+//               req.body.Prompt,
+//           },
+//         ],
+//         parameters: {
+//           temperature: 0.2,
+//           maxOutputTokens: 2000,
+//           topP: 0.95,
+//           topK: 40,
+//         },
+//       };
+//     } else if (state == "create") {
+//       var createPromptTxt =
+//         'Please extract any events and class times mentioned in the next prompt provided. This includes assignments, classes/lectures, project milestones, and other relevant activities. Ensure to include details such as event titles, descriptions, start times, and end times. The extracted information will be used to create new calendar events. Format the output in the JSON format specified below and make sure it is complete and finished must be full json. If no events are found or details are missing, please include "N/A" in the corresponding fields to ensure completeness and flexibility. json event format:{summary: "testEvent1", description: "testDescription1", endTime: "2024-02-19T09:00:00-05:00", startTime: "2024-02-17T09:00:00-05:00",}';
 
-    console.log(palmContext);
-    var data = null;
+//       const emailList = findEmails(req.body.Prompt);
 
-    if (state == "document") {
-      documentPromptTxt =
-        'From that context above Please extract any events and class times mentioned in the text provided below. This includes assignments, classes/lectures, project milestones, and other relevant activities. Ensure to include details such as event titles, descriptions, start times, and end times. The extracted information will be used to create new calendar events. Format the output in the JSON format specified below and make sure it is complete and finished must be full json. If no events are found or details are missing, please include "N/A" in the corresponding fields to ensure completeness and flexibility. this json format must be inside a array of events json objects the array must be called "events" that contain this :{id: 1, summary: "testEvent1", description: "testDescription1", endTime: "2024-02-19T09:00:00-05:00", startTime: "2024-02-17T09:00:00-05:00",} Ensure that if anything you generate is not in the format provided, please replace it with an event :{id: 1, summary: "N/A", description: "N/A", endTime: "2024-02-19T09:00:00-05:00", startTime: "2024-02-17T09:00:00-05:00",}. The context for the document starts now: ';
-      data = {
-        instances: [
-          {
-            prompt:
-              calendarReferenceText +
-              " the current date and time is " +
-              currentDateTime +
-              " in this time zone: " +
-              TimeZone +
-              documentPromptTxt +
-              req.body.Prompt,
-          },
-        ],
-        parameters: {
-          temperature: 0.2,
-          maxOutputTokens: 2000,
-          topP: 0.95,
-          topK: 40,
-        },
-      };
-    } else if (state == "create") {
-      var createPromptTxt =
-        'Please extract any events and class times mentioned in the next prompt provided. This includes assignments, classes/lectures, project milestones, and other relevant activities. Ensure to include details such as event titles, descriptions, start times, and end times. The extracted information will be used to create new calendar events. Format the output in the JSON format specified below and make sure it is complete and finished must be full json. If no events are found or details are missing, please include "N/A" in the corresponding fields to ensure completeness and flexibility. json event format:{summary: "testEvent1", description: "testDescription1", endTime: "2024-02-19T09:00:00-05:00", startTime: "2024-02-17T09:00:00-05:00",}';
+//       if (emailList != null) {
+//         createPromptTxt = createPromptTxt.substring(
+//           0,
+//           createPromptTxt.length - 1
+//         );
 
-      const emailList = findEmails(req.body.Prompt);
+//         const attendees = emailList.map((email) => ({ email: email }));
+//         const attendeesJsonString = JSON.stringify(attendees);
 
-      if (emailList != null) {
-        createPromptTxt = createPromptTxt.substring(
-          0,
-          createPromptTxt.length - 1
-        );
+//         createPromptTxt += ', "attendees": ' + attendeesJsonString;
+//       }
 
-        const attendees = emailList.map((email) => ({ email: email }));
-        const attendeesJsonString = JSON.stringify(attendees);
+//       if (req.body.CreateMeeting) {
+//         const conferenceJsonString = JSON.stringify(buildConferenceString());
+//         createPromptTxt = createPromptTxt.replace(
+//           "}",
+//           ", " + conferenceJsonString.substring(1)
+//         );
+//       }
 
-        createPromptTxt += ', "attendees": ' + attendeesJsonString;
-      }
+//       data = {
+//         instances: [
+//           {
+//             prompt:
+//               createPromptTxt +
+//               req.body.Prompt +
+//               calendarReferenceText +
+//               palmContext +
+//               " the current date and time is " +
+//               currentDateTime +
+//               " in this time zone: " +
+//               TimeZone,
+//           },
+//         ],
+//         parameters: {
+//           temperature: 0.2,
+//           maxOutputTokens: 2048,
+//           topP: 0.95,
+//           topK: 40,
+//         },
+//       };
+//     } else {
+//       var userEvents = parseEventData(palmContext);
+//       //console.log(events);
 
-      if (req.body.CreateMeeting) {
-        const conferenceJsonString = JSON.stringify(buildConferenceString());
-        createPromptTxt = createPromptTxt.replace(
-          "}",
-          ", " + conferenceJsonString.substring(1)
-        );
-      }
+//       data = {
+//         instances: [
+//           {
+//             prompt:
+//               req.body.Prompt +
+//               calendarReferenceText +
+//               userEvents +
+//               " the current date and time is " +
+//               currentDateTime +
+//               " in this time zone: " +
+//               TimeZone,
+//           },
+//         ],
+//         parameters: {
+//           temperature: 0.2,
+//           maxOutputTokens: 1024,
+//           topP: 0.95,
+//           topK: 40,
+//         },
+//       };
+//     }
 
-      data = {
-        instances: [
-          {
-            prompt:
-              createPromptTxt +
-              req.body.Prompt +
-              calendarReferenceText +
-              palmContext +
-              " the current date and time is " +
-              currentDateTime +
-              " in this time zone: " +
-              TimeZone,
-          },
-        ],
-        parameters: {
-          temperature: 0.2,
-          maxOutputTokens: 2048,
-          topP: 0.95,
-          topK: 40,
-        },
-      };
-    } else {
-      var userEvents = parseEventData(palmContext);
-      //console.log(events);
+//     const response = await fetch(URL, {
+//       method: "POST",
+//       headers,
+//       body: JSON.stringify(data),
+//     });
 
-      data = {
-        instances: [
-          {
-            prompt:
-              req.body.Prompt +
-              calendarReferenceText +
-              userEvents +
-              " the current date and time is " +
-              currentDateTime +
-              " in this time zone: " +
-              TimeZone,
-          },
-        ],
-        parameters: {
-          temperature: 0.2,
-          maxOutputTokens: 1024,
-          topP: 0.95,
-          topK: 40,
-        },
-      };
-    }
+//     if (!response.ok) {
+//       console.error(response.statusText);
+//       throw new Error("Request failed " + response.statusText);
+//     }
 
-    const response = await fetch(URL, {
-      method: "POST",
-      headers,
-      body: JSON.stringify(data),
-    });
+//     const result = await response.json();
+//     if (!result || !result.predictions || !result.predictions[0].content) {
+//       throw new Error("Invalid response format or missing data in predictions");
+//     }
 
-    if (!response.ok) {
-      console.error(response.statusText);
-      throw new Error("Request failed " + response.statusText);
-    }
+//     var prediction = result.predictions[0].content;
 
-    const result = await response.json();
-    if (!result || !result.predictions || !result.predictions[0].content) {
-      throw new Error("Invalid response format or missing data in predictions");
-    }
+//     console.log("Response from Vertex AI: ", prediction);
 
-    var prediction = result.predictions[0].content;
+//     //Commented out until add event prompt is created
+//     if (state == "create") {
+//       const openDateMessage = checkOpenDate(palmContext, prediction);
+//       if (openDateMessage !== null) {
+//         prediction = openDateMessage;
+//       }
+//     }
 
-    console.log("Response from Vertex AI: ", prediction);
-
-    //Commented out until add event prompt is created
-    if (state == "create") {
-      const openDateMessage = checkOpenDate(palmContext, prediction);
-      if (openDateMessage !== null) {
-        prediction = openDateMessage;
-      }
-    }
-
-    res.status(200).json({ prediction });
-  } catch (error) {
-    console.error("Error in palmrequest:", error.message);
-    res.status(500).json({ error: "Internal Server Error" });
-  }
-});
+//     res.status(200).json({ prediction });
+//   } catch (error) {
+//     console.error("Error in palmrequest:", error.message);
+//     res.status(500).json({ error: "Internal Server Error" });
+//   }
+// });
 
 app.get("/code_callback_endpoint", async (req, res) => {
   try {
@@ -419,7 +415,7 @@ app.get("/code_callback_endpoint", async (req, res) => {
 // app.post("/geminirequest", (req, res) => {
 //   const configuration = new GoogleGenerativeAI(process.env.api);
 //   const modelId = "gemini-1.5-pro-001";
-  
+
 //   const geminiConfig = {
 //     temperature: 0.9,
 //     topP: 1,
@@ -455,7 +451,7 @@ app.get("/code_callback_endpoint", async (req, res) => {
 //   }
 
 //   const generateRequest = async () => {
-//     try 
+//     try
 //     {
 //       const prompt = req.body.prompt;
 //       const result = await geminiModel.generateContent(prompt);
@@ -466,12 +462,12 @@ app.get("/code_callback_endpoint", async (req, res) => {
 //         console.log(geminiResponse);
 //         res.status(200).send({geminiResponse});
 //       }
-//       else 
+//       else
 //       {
 //         console.log('Error contacting gemini model...');
 //       }
-      
-//     } catch (error) 
+
+//     } catch (error)
 //     {
 //       console.log("Gemini model threw an unexepected error: ", error);
 //     }
@@ -484,7 +480,6 @@ app.get("/code_callback_endpoint", async (req, res) => {
 app.post("/geminiRequest", async (req, res) => {
   try {
     const { State, Context, CurrentDateTime, Timezone, Prompt } = req.body;
-
     const configuration = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
     const modelId = "gemini-1.5-pro-001";
     const geminiConfig = {
@@ -499,21 +494,49 @@ app.post("/geminiRequest", async (req, res) => {
       geminiConfig,
     });
 
-    const calendarReferenceText = " here is the list of my calendar events for reference: ";
+    const calendarReferenceText =
+      " here is the list of my calendar events for reference: ";
     let promptTxt;
 
     const commonPromptTxt =
-      'Please extract any events and class times mentioned in the text provided. This includes assignments, classes/lectures, project milestones, and other relevant activities. Ensure to include details such as event titles, descriptions, start times, and end times. Format the output in JSON format specified below and make sure it is complete.';
+      "Please extract any events and class times mentioned in the text provided. This includes assignments, classes/lectures, project milestones, and other relevant activities. Ensure to include details such as event titles, descriptions, start times, and end times. Format the output in JSON format specified below and make sure it is complete.";
 
     if (State === "document") {
-      const documentPromptTxt =
-        `${commonPromptTxt} If no events are found or details are missing, please include "N/A" in the corresponding fields. The JSON format should be inside an array called "events" with objects like {id: 1, summary: "testEvent1", description: "testDescription1", endTime: "2024-02-19T09:00:00-05:00", startTime: "2024-02-17T09:00:00-05:00"}.`;
+      const documentPromptTxt = `${commonPromptTxt} If no events are found or details are missing, please include "N/A" in the corresponding fields. The JSON format should be inside an array called "events" with objects like {id: 1, summary: "testEvent1", description: "testDescription1", endTime: "2024-02-19T09:00:00-05:00", startTime: "2024-02-17T09:00:00-05:00"}.`;
 
       promptTxt = `${calendarReferenceText} the current date and time is ${CurrentDateTime} in this time zone: ${Timezone}. ${documentPromptTxt} ${Prompt}`;
-    }
-    else {
-      const userEvents = parseEventData(Context);
-      promptTxt = `${Prompt} ${calendarReferenceText} ${userEvents} the current date and time is ${CurrentDateTime} in this time zone: ${Timezone}`;
+    } else if (State === "create") {
+      const createPromptTxt =
+        'Please extract any events and class times mentioned in the text provided. This includes assignments, classes/lectures, project milestones, and other relevant activities. Ensure to include details such as event titles, descriptions, start times, and end times. The JSON format should be inside an array called "events" with objects like {summary: "testEvent1", description: "testDescription1", endTime: "2024-02-19T09:00:00-05:00", startTime: "2024-02-17T09:00:00-05:00"}. If no events are found or details are missing, please include "N/A" in the corresponding fields.';
+
+      promptTxt = `${createPromptTxt} ${Prompt} ${calendarReferenceText} ${parseEventData(
+        Context
+      )} the current date and time is ${CurrentDateTime} in this time zone: ${Timezone}`;
+    } else if (State === "createWithAI") {
+      promptobj = JSON.parse(Prompt);
+      promptTxt =
+        `\n${calendarReferenceText} ${parseEventData(
+          Context
+        )}\nGiven the provided calendar context, please schedule time for the ` +
+        promptobj.whatToBuild +
+        ` requested by the user. The project should be completed by this date ` +
+        promptobj.deadline +
+        ` from today which is ` +
+        CurrentDateTime +
+        `, with at least ` +
+        promptobj.hoursPerWeek +
+        ` hours dedicated to it each week. Generate calendar events with descriptions detailing the tasks to be worked on during each session. Format the output in the JSON format specified below.
+      {
+      id: 1,
+      summary: "testEvent1",
+      description: "testDescription1",
+      endTime: "2024-02-19T09:00:00-05:00",
+      startTime: "2024-02-17T09:00:00-05:00",
+      }`;
+    } else {
+      promptTxt = `${Prompt} ${calendarReferenceText} ${parseEventData(
+        Context
+      )} the current date and time is ${CurrentDateTime} in this time zone: ${Timezone}`;
     }
 
     const generateRequest = async () => {
@@ -522,21 +545,10 @@ app.post("/geminiRequest", async (req, res) => {
         const geminiResponse = await result.response;
 
         if (geminiResponse !== null) {
-          var responseFormatted = geminiResponse.text();
-          // var finalResponse = JSON.parse(responseJSON)
-          
+          const responseFormatted = geminiResponse.text();
           console.log(responseFormatted);
 
-          if(State === 'document')
-          {
-  
-            res.status(200).send({prediction: responseFormatted});
-          }
-          else
-          {
-            res.status(200).send({prediction: responseFormatted});
-          }
-          
+          res.status(200).send({ prediction: responseFormatted });
         } else {
           console.log("Error contacting gemini model...");
           res.status(500).send({ error: "Gemini model request failed" });
