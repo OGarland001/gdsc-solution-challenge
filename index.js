@@ -495,7 +495,7 @@ app.post("/geminiRequest", async (req, res) => {
     });
 
     const calendarReferenceText =
-      " here is the list of my calendar events for reference: ";
+      " here is the list of my calendar events for reference please ensure to create events that don't overlap with these:\n ";
     let promptTxt;
 
     const commonPromptTxt =

@@ -1,5 +1,11 @@
 import { Button } from "@material-tailwind/react";
-import React, { useState, useEffect } from "react";
+import React, {
+  useState,
+  useLayoutEffect,
+  useRef,
+  useEffect,
+  useCallback,
+} from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { v4 as uuidv4 } from "uuid";
@@ -12,9 +18,26 @@ function Prompt({ eventList, token, email }) {
   const [EventTitles, setEventTitles] = useState({});
   const [EventDescriptions, setEventDescriptions] = useState({});
   const [revertIdList, setRevertIdList] = useState([]);
-  const [eventsAdded, setEventsAdded] = useState(false); // New state to track if events are added
+  const [eventsAdded, setEventsAdded] = useState(false);
+  const [isTextResized, setIsTextResized] = useState(false);
   const [isMessageShowing, setIsMessageShowing] = useState(false);
   const [message, setMessage] = useState("");
+
+  const titleRefs = useRef({});
+  const descRefs = useRef({});
+
+  const handleResize = useCallback((ref) => {
+    console.log("handle Resize function");
+
+    if (eventList && eventList.length > 0 && ref) {
+      // Check eventList and ref.current
+      console.log("resized!");
+      setTimeout(() => {
+        ref.style.height = "auto";
+        ref.style.height = ref.scrollHeight + "px";
+      }, 10); // Adjust delay as needed (in milliseconds)
+    }
+  });
 
   function generateUniqueEventId() {
     const uuid = uuidv4().replace(/-/g, ""); // Generate a UUID and remove dashes
@@ -31,18 +54,17 @@ function Prompt({ eventList, token, email }) {
     return eventId.substring(0, Math.min(1024, Math.max(5, eventId.length)));
   }
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const initialStartTimes = {};
     const initialEndTimes = {};
     const initialTitles = {};
     const initialDescriptions = {};
-    // Initialize startTimes and endTimes with data from eventList
+
     eventList.forEach((item) => {
       let startTime = formatDate(item.startTime);
       let endTime = formatDate(item.endTime);
       const currentDate = new Date();
 
-      // Check if start time is invalid or "N/A", if so, set it to current time
       if (
         isNaN(startTime.getTime()) ||
         startTime < currentDate ||
@@ -51,7 +73,6 @@ function Prompt({ eventList, token, email }) {
         startTime = new Date();
       }
 
-      // Check if end time is invalid or "N/A", if so, set it to current time
       if (
         isNaN(endTime.getTime()) ||
         endTime < currentDate ||
@@ -85,6 +106,17 @@ function Prompt({ eventList, token, email }) {
     } catch {}
   }, [eventList]);
 
+  useEffect(() => {
+    if (!isTextResized && eventList.length > 0) {
+      console.log("resize useeffect");
+      eventList.forEach((item) => {
+        handleResize(titleRefs.current[item.id]);
+        handleResize(descRefs.current[item.id]);
+      });
+      setIsTextResized(true);
+    }
+  }, [eventList, eventList.length, handleResize, isTextResized]);
+
   const toggleEventSelection = (eventId) => {
     setSelectedEvents((prevSelectedEvents) => {
       if (prevSelectedEvents.includes(eventId)) {
@@ -114,13 +146,17 @@ function Prompt({ eventList, token, email }) {
       ...prevEventTitles,
       [itemId]: value,
     }));
+    handleResize(titleRefs.current[itemId]); // Resize the textarea after setting the value
+    setIsTextResized(false);
   };
 
   const handleDescChange = (itemId, value) => {
-    setEventDescriptions((prevEventTitles) => ({
-      ...prevEventTitles,
+    setEventDescriptions((prevEventDescriptions) => ({
+      ...prevEventDescriptions,
       [itemId]: value,
     }));
+    handleResize(descRefs.current[itemId]); // Resize the textarea after setting the value
+    setIsTextResized(false);
   };
 
   const formatDate = (dateTimeString) => {
@@ -143,8 +179,8 @@ function Prompt({ eventList, token, email }) {
       const endTime = formatDateTime(endTimes[event.id]);
       return {
         id: event.id,
-        title: EventTitles[event.id], // Use updated title from state
-        description: EventDescriptions[event.id], // Use updated description from state
+        title: EventTitles[event.id],
+        description: EventDescriptions[event.id],
         startTime: startTime,
         endTime: endTime,
       };
@@ -152,16 +188,15 @@ function Prompt({ eventList, token, email }) {
     console.log("Selected Events:", selectedEventDetails);
     const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
     const newRevertIdList = [];
-    let allEventsValid = true; // Flag to track if all events are valid
+    let allEventsValid = true;
 
     selectedEventDetails.forEach((event) => {
       if (new Date(event.endTime) <= new Date(event.startTime)) {
         allEventsValid = false;
         console.error("Event end time must be after start time:", event);
-        // Update message to indicate invalid event
         setMessage(`Invalid event: End time must be after start time`);
         setIsMessageShowing(true);
-        return; // Exit forEach loop early if any event is invalid
+        return;
       }
 
       var eventId = generateUniqueEventId();
@@ -184,7 +219,6 @@ function Prompt({ eventList, token, email }) {
         }
       )
         .then((response) => {
-          // Check for successful response
           if (response.ok) {
             console.log("Event created successfully");
           } else {
@@ -203,14 +237,11 @@ function Prompt({ eventList, token, email }) {
     }
     setIsMessageShowing(true);
     setRevertIdList(newRevertIdList);
-    // Save state to localStorage
     localStorage.setItem("revertIdList", JSON.stringify(newRevertIdList));
     localStorage.setItem("eventsAdded", JSON.stringify(true));
   };
 
-  // Function to revert events
   const revertEvents = () => {
-    // Implement event reverting logic here
     console.log("Reverting events...");
 
     revertIdList.forEach((id) => {
@@ -225,7 +256,6 @@ function Prompt({ eventList, token, email }) {
         }
       )
         .then((response) => {
-          // Check for successful response
           if (response.ok) {
             console.log("Event Deleted successfully");
           } else {
@@ -242,27 +272,24 @@ function Prompt({ eventList, token, email }) {
     setEventsAdded(false);
     setIsMessageShowing(true);
   };
+
   return (
     <div>
       {EventTitles &&
         EventDescriptions &&
         eventList.map((item) => (
-          <div
-            key={item.id}
-            // className="border p-4 mb-4 flex flex-wrap items-start"
-            className="eventBox"
-          >
+          <div key={item.id} className="eventBox">
             <div className="flex-grow">
-              <div class="flex items-center">
-                <label class="checkbox-container">
+              <div className="flex items-center">
+                <label className="checkbox-container">
                   <input
-                    class="custom-checkbox"
+                    className="custom-checkbox"
                     checked={selectedEvents.includes(item.id)}
                     onChange={() => toggleEventSelection(item.id)}
                     id={`event-checkbox-${item.id}`}
                     type="checkbox"
                   />
-                  <span class="checkmark"></span>
+                  <span className="checkmark"></span>
                 </label>
                 <div style={{ marginLeft: "5px" }}>
                   <label htmlFor={`event-checkbox-${item.id}`} className="ml-2">
@@ -273,20 +300,24 @@ function Prompt({ eventList, token, email }) {
               <label className="block mb-2 text-sm font-medium text-white">
                 Title
               </label>
-              <input
-                type="text"
+              <textarea
+                ref={(el) => (titleRefs.current[item.id] = el)}
                 className="mb-2 w-full border border-gray-300 p-2 rounded-md text-black"
                 value={EventTitles[item.id] || ""}
                 onChange={(e) => handleTitleChange(item.id, e.target.value)}
+                rows={1}
+                style={{ overflow: "hidden", resize: "none" }}
               />
               <label className="block mb-2 text-sm font-medium text-white">
                 Description
               </label>
-              <input
-                type="text"
+              <textarea
+                ref={(el) => (descRefs.current[item.id] = el)}
                 className="mb-2 w-full border border-gray-300 p-2 rounded-md text-black"
                 value={EventDescriptions[item.id] || ""}
                 onChange={(e) => handleDescChange(item.id, e.target.value)}
+                rows={1}
+                style={{ overflow: "hidden", resize: "none" }}
               />
               <label className="block mb-2 text-sm font-medium text-white">
                 Start Time
@@ -313,13 +344,6 @@ function Prompt({ eventList, token, email }) {
                 className="mb-2 w-full border border-gray-300 p-2 rounded-md text-black"
               />
             </div>
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                marginTop: "3px",
-              }}
-            ></div>
           </div>
         ))}
       <div>
