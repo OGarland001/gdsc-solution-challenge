@@ -120,7 +120,7 @@ function parseEventData(jsonString) {
 
         return `${event.summary} starts on ${startDateTime} (TimeZone: ${event.start.timeZone}) and ends on ${endDateTime} (TimeZone: ${event.end.timeZone})`;
       })
-      .join(", ");
+      .join(",\n ");
   } catch (error) {
     console.error("Error parsing event data:", error.message);
     throw new Error("Failed to parse event data");
@@ -495,7 +495,7 @@ app.post("/geminiRequest", async (req, res) => {
     });
 
     const calendarReferenceText =
-      " here is the list of my calendar events for reference please ensure to create events that don't overlap with these:\n ";
+      " here is the list of my calendar events for reference please ensure to use this as context when answering the prompt:\n ";
     let promptTxt;
 
     const commonPromptTxt =
@@ -525,7 +525,10 @@ app.post("/geminiRequest", async (req, res) => {
         CurrentDateTime +
         `, with at least ` +
         promptobj.hoursPerWeek +
-        ` hours dedicated to it each week. Generate calendar events with descriptions detailing the tasks to be worked on during each session. Format the output in the JSON format specified below.
+        ` hours dedicated to it each week. Generate calendar events with descriptions detailing the tasks to be worked on during each session.
+        Make sure that the start time is not after the end time with the input
+        
+        Format the output in the JSON format specified below.
       {
       id: 1,
       summary: "testEvent1",
@@ -534,10 +537,15 @@ app.post("/geminiRequest", async (req, res) => {
       startTime: "2024-02-17T09:00:00-05:00",
       }`;
     } else {
-      promptTxt = `${Prompt} ${calendarReferenceText} ${parseEventData(
+      promptTxt = `${calendarReferenceText} ${parseEventData(
         Context
-      )} the current date and time is ${CurrentDateTime} in this time zone: ${Timezone}`;
+      )} the current date and time is ${CurrentDateTime} in this time zone: ${Timezone}
+      
+      Please using the context above please answer the prompt: ${Prompt}
+      `;
     }
+
+    console.log(promptTxt);
 
     const generateRequest = async () => {
       try {
