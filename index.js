@@ -502,9 +502,9 @@ app.post("/geminiRequest", async (req, res) => {
       "Please extract any events and class times mentioned in the text provided. This includes assignments, classes/lectures, project milestones, and other relevant activities. Ensure to include details such as event titles, descriptions, start times, and end times. Format the output in JSON format specified below and make sure it is complete.";
 
     if (State === "document") {
-      const documentPromptTxt = `${commonPromptTxt} If no events are found or details are missing, please include "N/A" in the corresponding fields. The JSON format should be inside an array called "events" with objects like {id: 1, summary: "testEvent1", description: "testDescription1", endTime: "2024-02-19T09:00:00-05:00", startTime: "2024-02-17T09:00:00-05:00"}.`;
+      const documentPromptTxt = `${commonPromptTxt}\n  If no events are found or details are missing, please include "N/A" in the corresponding fields.\n The JSON format should be inside an array called "events" with objects like {id: 1, summary: "testEvent1", description: "testDescription1", endTime: "2024-02-19T09:00:00-05:00", startTime: "2024-02-17T09:00:00-05:00"}.\n Please ensure if you find a date that it is greater than todays date and make sure it is in the proper format the start time must never be the same or greater than the endtime.`;
 
-      promptTxt = `${calendarReferenceText} the current date and time is ${CurrentDateTime} in this time zone: ${Timezone}. ${documentPromptTxt} ${Prompt}`;
+      promptTxt = `the current date and time is ${CurrentDateTime} in this time zone: ${Timezone}.\n ${documentPromptTxt}\n Document Context ${Prompt}`;
     } else if (State === "create") {
       const createPromptTxt =
         'Please extract any events and class times mentioned in the text provided. This includes assignments, classes/lectures, project milestones, and other relevant activities. Ensure to include details such as event titles, descriptions, start times, and end times. The JSON format should be inside an array called "events" with objects like {summary: "testEvent1", description: "testDescription1", endTime: "2024-02-19T09:00:00-05:00", startTime: "2024-02-17T09:00:00-05:00"}. If no events are found or details are missing, please include "N/A" in the corresponding fields.';
