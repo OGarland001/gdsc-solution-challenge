@@ -35,8 +35,8 @@ In the update tab upcoming events from your calendar can be viewed and edited.
 
 ### Create From AI Generation ###
 From a user prompt you can generate your events and have it automatically schedule to your calendar.
-<img width="224" alt="image" src="https://github.com/user-attachments/assets/4c73f002-f8a1-4247-8032-d79abb1ed667)">
 
+![image](https://github.com/user-attachments/assets/dd7c8909-b533-41a7-8157-8431036297f7)
 
 
 ### Revert changes ###
