@@ -3,6 +3,8 @@
 # DateMinder
 DateMinder is the first student-oriented AI calendar assistant. It can take images or documents of other calendars, hand-drawn notes, or instruction plans and pull out all events, including their titles, descriptions, start/end times, and the date they occur. In addition, it acts like a personal assistant, automatically implementing everything into your Google calendar for you. Built as a browser extension, it will always be with you at school when you are learning and need to put things into your calendar quickly before you forget or when you are at home and curious about what tests are. It can answer any question about your calendar you may throw at it. 
 
+#### Website: https://tapeit03.wixstudio.io/byteinnovation
+
 # Technology Stack
 Dateminder is a web API with a React client frontend. Dateminder utilization Google Sign-In for authentication and the Google Calendar API for event management. The Node.js backend integrates with Google Cloud's Document AI for document parsing and PALM 2 for predictive text modeling.
 
@@ -73,3 +75,5 @@ npm start
 ```
 
 view the application from http://localhost:5152
+
+
