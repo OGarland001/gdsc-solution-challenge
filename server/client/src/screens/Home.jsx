@@ -107,7 +107,7 @@ const Home = () => {
         var dataStr = palmData.prediction.replace("```", "");
         var newdataStr = dataStr.replace("```", "");
         newdataStr = newdataStr.slice(4);
-        //newdataStr = ensureValidJSON(newdataStr);
+        newdataStr = ensureValidJSON(newdataStr);
         console.log("STR data: ", newdataStr);
         let eventsList = JSON.parse(newdataStr);
         console.log("Received data: ", eventsList);
@@ -560,31 +560,30 @@ const Home = () => {
   };
 
   function ensureValidJSON(jsonString) {
+    // Trim leading and trailing whitespace
     jsonString = jsonString.trim();
 
-    var tempJsonString = jsonString.replace(/\n/g, " ");
-    tempJsonString = tempJsonString.replace(/\s+/g, " ").trim();
-    console.log(tempJsonString);
-    if (tempJsonString.endsWith("} ] }")) {
-      console.log(jsonString);
-      return tempJsonString;
+    // Remove any non-JSON text before the first opening brace
+    let firstBraceIndex = jsonString.indexOf("[");
+    if (firstBraceIndex !== -1) {
+      jsonString = jsonString.slice(firstBraceIndex);
     }
 
-    let lastBracketIndex = jsonString.lastIndexOf("}");
+    // Replace any newline characters with spaces, and trim extra spaces
+    jsonString = jsonString.replace(/\n/g, " ").replace(/\s+/g, " ").trim();
+
+    // Attempt to find the first and last square brackets to ensure a complete JSON array
+    let lastBracketIndex = jsonString.lastIndexOf("]");
     if (lastBracketIndex !== -1) {
-      let remainingChars = jsonString.slice(lastBracketIndex + 1).trim();
-      if (remainingChars.length > 0 && !remainingChars.startsWith("}")) {
-        jsonString = jsonString.slice(0, lastBracketIndex + 1);
-      }
+      jsonString = jsonString.slice(0, lastBracketIndex + 1);
     }
 
-    let incompleteKeyRegex = /("[^"]+"\s*:\s*}),?/g;
-    jsonString = jsonString.replace(incompleteKeyRegex, "");
-
-    if (!jsonString.endsWith("} ] }")) {
-      jsonString += "] }";
+    // Ensure the string ends with a valid closing bracket "]"
+    if (!jsonString.endsWith("]")) {
+      jsonString += "]";
     }
 
+    // Return the cleaned JSON string
     return jsonString;
   }
 
@@ -658,7 +657,7 @@ const Home = () => {
         var dataStr = palmData.prediction.replace("```", "");
         var newdataStr = dataStr.replace("```", "");
         newdataStr = newdataStr.slice(4);
-        //newdataStr = ensureValidJSON(newdataStr);
+        newdataStr = ensureValidJSON(newdataStr);
         console.log("STR data: ", newdataStr);
         let eventsList = JSON.parse(newdataStr);
         console.log("Received data: ", eventsList);
