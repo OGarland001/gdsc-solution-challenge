@@ -33,6 +33,11 @@ In the update tab upcoming events from your calendar can be viewed and edited.
 
 <img width="224" alt="image" src="https://github.com/OGarland001/gdsc-solution-challenge/assets/90644730/546ba2fb-063e-43fc-9678-4c327e861dbb">
 
+### Create From AI Generation ###
+From a user prompt you can generate your events and have it automatically schedule to your calendar.
+<img width="224" alt="image" src="https://github.com/user-attachments/assets/4c73f002-f8a1-4247-8032-d79abb1ed667)">
+
+
 
 ### Revert changes ###
 If anything needs to be changed in the calendar DateMinder provides the option to revert and edit the events to fix any issues they find with their calendar. As well as the ability to re-add the events into their calendar.
